@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppShell } from "@/components/layout/AppShell";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { TenantProvider } from "@/components/layout/TenantProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
 import { ThemeApplier } from "@/components/shared/ThemeApplier";
 import { Loader2 } from "lucide-react";
@@ -80,62 +81,64 @@ const App = () => {
 
   return (
     <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
-      <TenantProvider>
-        <TooltipProvider>
-          <ThemeApplier />
-          <Toaster />
-          <Sonner richColors closeButton />
-          <PWAInstallPrompt />
-          <BrowserRouter>
-            <OfflineBanner />
-            <Suspense fallback={<PageFallback />}>
-              <Routes>
-                {/* ── Rutas públicas ── */}
-                <Route path="/" element={<Landing />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/403" element={<Forbidden />} />
-                <Route path="/qr/:branchId" element={<QRMenu />} />
+      <LanguageProvider>
+        <TenantProvider>
+          <TooltipProvider>
+            <ThemeApplier />
+            <Toaster />
+            <Sonner richColors closeButton />
+            <PWAInstallPrompt />
+            <BrowserRouter>
+              <OfflineBanner />
+              <Suspense fallback={<PageFallback />}>
+                <Routes>
+                  {/* ── Rutas públicas ── */}
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/403" element={<Forbidden />} />
+                  <Route path="/qr/:branchId" element={<QRMenu />} />
 
-                {/* ── Rutas protegidas ── */}
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/onboarding" element={<Onboarding />} />
-                  <Route path="/pos" element={<POS />} />
-                  <Route path="/tables/:id" element={<TableOrder />} />
-                  <Route element={<AppShell />}>
-                    <Route path="/tables" element={<Tables />} />
-                    <Route path="/waiter" element={<WaiterDashboard />} />
-                    <Route path="/courier" element={<CourierDashboard />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/categories" element={<Categories />} />
-                    <Route path="/recipes" element={<Recipes />} />
-                    <Route path="/catalog" element={<Catalog />} />
-                    <Route path="/channel-prices" element={<ChannelPrices />} />
-                    <Route path="/inventory" element={<Inventory />} />
-                    <Route path="/cash" element={<Cash />} />
-                    <Route path="/sales" element={<Sales />} />
-                    <Route path="/production" element={<Production />} />
-                    <Route path="/kds" element={<KDS />} />
-                    <Route path="/digital-orders" element={<DigitalOrders />} />
-                    <Route path="/whatsapp" element={<WhatsAppInbox />} />
-                    <Route path="/delivery" element={<Delivery />} />
-                    <Route path="/branches" element={<Branches />} />
-                    <Route path="/employees" element={<Employees />} />
-                    <Route path="/shifts" element={<Shifts />} />
-                    <Route path="/reports" element={<Reports />} />
-                    <Route path="/customers" element={<Customers />} />
-                    <Route path="/suppliers" element={<Suppliers />} />
-                    <Route path="/expenses" element={<Expenses />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/ai" element={<AIAgent />} />
+                  {/* ── Rutas protegidas ── */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/onboarding" element={<Onboarding />} />
+                    <Route path="/pos" element={<POS />} />
+                    <Route path="/tables/:id" element={<TableOrder />} />
+                    <Route element={<AppShell />}>
+                      <Route path="/tables" element={<Tables />} />
+                      <Route path="/waiter" element={<WaiterDashboard />} />
+                      <Route path="/courier" element={<CourierDashboard />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/products" element={<Products />} />
+                      <Route path="/categories" element={<Categories />} />
+                      <Route path="/recipes" element={<Recipes />} />
+                      <Route path="/catalog" element={<Catalog />} />
+                      <Route path="/channel-prices" element={<ChannelPrices />} />
+                      <Route path="/inventory" element={<Inventory />} />
+                      <Route path="/cash" element={<Cash />} />
+                      <Route path="/sales" element={<Sales />} />
+                      <Route path="/production" element={<Production />} />
+                      <Route path="/kds" element={<KDS />} />
+                      <Route path="/digital-orders" element={<DigitalOrders />} />
+                      <Route path="/whatsapp" element={<WhatsAppInbox />} />
+                      <Route path="/delivery" element={<Delivery />} />
+                      <Route path="/branches" element={<Branches />} />
+                      <Route path="/employees" element={<Employees />} />
+                      <Route path="/shifts" element={<Shifts />} />
+                      <Route path="/reports" element={<Reports />} />
+                      <Route path="/customers" element={<Customers />} />
+                      <Route path="/suppliers" element={<Suppliers />} />
+                      <Route path="/expenses" element={<Expenses />} />
+                      <Route path="/settings" element={<Settings />} />
+                      <Route path="/ai" element={<AIAgent />} />
+                    </Route>
                   </Route>
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </TooltipProvider>
-      </TenantProvider>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </TooltipProvider>
+        </TenantProvider>
+      </LanguageProvider>
     </PersistQueryClientProvider>
   );
 };

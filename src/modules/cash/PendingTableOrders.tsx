@@ -6,6 +6,7 @@ import { formatCurrency } from "@/lib/format";
 import { CreditCard, Eye, Users, Clock, UtensilsCrossed } from "lucide-react";
 import { PaymentDialog, type PayMethod } from "@/modules/pos/PaymentDialog";
 import { toast } from "sonner";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface Props {
   tenantId: string;
@@ -15,6 +16,7 @@ interface Props {
 export function PendingTableOrders({ tenantId, branchId }: Props) {
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [payOrder, setPayOrder] = useState<any | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -72,14 +74,14 @@ export function PendingTableOrders({ tenantId, branchId }: Props) {
         _client_mutation_id: crypto.randomUUID(),
       } as any);
       if (error) throw error;
-      toast.success(`Cobro registrado · ${formatCurrency(payableTotal)}`);
+      toast.success(`${t("pending_tables.success.payment")}${formatCurrency(payableTotal)}`);
       setPayOrder(null);
       qc.invalidateQueries({ queryKey: ["pending-table-orders"] });
       qc.invalidateQueries({ queryKey: ["open-session"] });
       qc.invalidateQueries({ queryKey: ["table-orders-open"] });
       qc.invalidateQueries({ queryKey: ["tables"] });
     } catch (err: any) {
-      toast.error(err.message ?? "Error al cobrar");
+      toast.error(err.message ?? t("pending_tables.error.payment"));
     } finally {
       setSubmitting(false);
     }
@@ -93,16 +95,16 @@ export function PendingTableOrders({ tenantId, branchId }: Props) {
       <div className="flex items-center justify-between px-4 py-3 border-b g-pending-header">
         <div className="flex items-center gap-2">
           <UtensilsCrossed size={16} className="g-pending-icon" />
-          <span className="font-semibold g-pending-header-label">Cuentas de mesa pendientes</span>
+          <span className="font-semibold g-pending-header-label">{t("pending_tables.title")}</span>
           {list.length > 0 && (
             <span className="pill pill-warn g-kds-pill-micro">{list.length}</span>
           )}
         </div>
-        <span className="h-meta">Tiempo real</span>
+        <span className="h-meta">{t("pending_tables.realtime")}</span>
       </div>
 
       {list.length === 0 ? (
-        <div className="py-10 text-center h-meta">No hay cuentas enviadas por meseros.</div>
+        <div className="py-10 text-center h-meta">{t("pending_tables.empty")}</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-3">
           {list.map((o: any) => {
@@ -115,7 +117,7 @@ export function PendingTableOrders({ tenantId, branchId }: Props) {
               <div key={o.id} className="glass-thin rounded-2xl p-3 flex flex-col gap-2">
                 <div className="flex items-start justify-between">
                   <div>
-                    <div className="h-display g-pending-table-name">{o.tables?.name ?? "Mesa"}</div>
+                    <div className="h-display g-pending-table-name">{o.tables?.name ?? t("pending_tables.table")}</div>
                     <div className="h-meta flex items-center gap-2 mt-0.5">
                       <Users size={12} /> {waiter}
                       <span className="opacity-40">·</span>
@@ -124,7 +126,7 @@ export function PendingTableOrders({ tenantId, branchId }: Props) {
                   </div>
                   <div className="text-right">
                     <div className="h-num g-pending-total">{formatCurrency(Number(o.total))}</div>
-                    <div className="h-meta mt-0.5">{items.length} items</div>
+                    <div className="h-meta mt-0.5">{items.length} {t("pending_tables.items")}</div>
                   </div>
                 </div>
 
@@ -136,10 +138,10 @@ export function PendingTableOrders({ tenantId, branchId }: Props) {
                 <div className="grid g-pending-grid gap-2 mt-auto">
                   <button type="button" className="g-btn g-btn-primary g-pending-cobrar"
                     onClick={() => setPayOrder(o)}>
-                    <CreditCard size={14} /> Cobrar
+                    <CreditCard size={14} /> {t("pending_tables.action.charge")}
                   </button>
                   <button type="button" className="g-btn g-btn-ghost g-pending-view"
-                    title="Ver comanda"
+                    title={t("pending_tables.action.view")}
                     onClick={() => navigate(`/tables/${o.id}`)}>
                     <Eye size={15} />
                   </button>

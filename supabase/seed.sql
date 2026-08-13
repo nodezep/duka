@@ -24,6 +24,10 @@ DECLARE
   v_prod_cafe       UUID;
   v_prod_jugo       UUID;
 BEGIN
+  -- Si el tenant ya existe, saltamos la inserción
+  IF EXISTS (SELECT 1 FROM public.tenants WHERE slug = 'panaderia') THEN
+    RETURN;
+  END IF;
 
   -- Tenant local — domain 'demo.localhost' coincide con resolveHostname() en localhost
   INSERT INTO public.tenants (name, slug, currency, tax_rate, domain, primary_color, theme_kind)
@@ -72,30 +76,59 @@ BEGIN
 
 END $$;
 
--- ── Usuario owner para desarrollo local ────────────────────────────────────────
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
+
 DO $$
 DECLARE
-  v_user_id   UUID := gen_random_uuid();
+  v_user_id   UUID;
   v_tenant_id UUID;
 BEGIN
+  -- Si el usuario ya existe, saltamos la creación
+  SELECT id INTO v_user_id FROM auth.users WHERE email = 'owner@demo.local';
+  IF v_user_id IS NOT NULL THEN
+    RETURN;
+  END IF;
+
   SELECT id INTO v_tenant_id FROM public.tenants WHERE slug = 'panaderia';
 
+  v_user_id := gen_random_uuid();
   INSERT INTO auth.users (
     instance_id, id, aud, role,
     email, encrypted_password,
     email_confirmed_at,
+    confirmation_token, recovery_token,
+    email_change_token_new, reauthentication_token,
+    email_change_token_current, phone_change_token,
+    raw_app_meta_data,
     raw_user_meta_data,
-    created_at, updated_at
+    created_at, updated_at,
+    is_sso_user,
+    is_anonymous
   )
   VALUES (
     '00000000-0000-0000-0000-000000000000',
     v_user_id, 'authenticated', 'authenticated',
     'owner@demo.local',
-    crypt('Demo2026!', gen_salt('bf')),
+    extensions.crypt('Demo2026!', extensions.gen_salt('bf')),
     now(),
+    '', '', '', '', '', '',
+    '{"provider": "email", "providers": ["email"]}'::jsonb,
     '{"full_name": "Demo Owner"}'::jsonb,
-    now(), now()
+    now(), now(),
+    false,
+    false
   );
+
+  -- Insert corresponding identity for owner
+  INSERT INTO auth.identities (
+    id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at
+  )
+  VALUES (
+    v_user_id::text, v_user_id, v_user_id::text, 'email',
+    jsonb_build_object('sub', v_user_id::text, 'email', 'owner@demo.local', 'email_verified', true, 'phone_verified', false),
+    now(), now(), now()
+  )
+  ON CONFLICT (provider, id) DO NOTHING;
 
   INSERT INTO public.user_roles (user_id, tenant_id, role)
   VALUES (v_user_id, v_tenant_id, 'owner');

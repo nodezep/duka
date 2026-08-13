@@ -4,10 +4,11 @@ import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { WhatsAppNotifsProvider } from "@/contexts/WhatsAppNotifsContext";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { GitBranch, SlidersHorizontal, FlaskConical, Menu, X, PanelLeft, Search, Bell, Calendar, ChevronDown } from "lucide-react";
+import { GitBranch, SlidersHorizontal, FlaskConical, Menu, X, PanelLeft, Search, Bell, Calendar, ChevronDown, Sun, Moon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenantContext } from "@/hooks/useTenantContext";
 import { useDevMode } from "@/hooks/useDevMode";
+import { useThemeStore } from "@/stores/theme";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -15,12 +16,15 @@ import { NetworkStatusBadge } from "./NetworkStatusBadge";
 import { TweaksPanel } from "@/components/shared/TweaksPanel";
 import { LiveDot } from "@/components/shared/LiveDot";
 import { GearMark } from "@/components/shared/GearMark";
+import { useLanguage } from "@/hooks/useLanguage";
 
 function Shell() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [tweaksOpen, setTweaksOpen] = useState(false);
   const { branchId, setBranch, branches, roles } = useTenantContext();
   const { devMode } = useDevMode();
+  const { mode, toggleMode } = useThemeStore();
   const { toggleSidebar, isMobile, openMobile } = useSidebar();
 
   const { data: openSession } = useQuery({
@@ -62,7 +66,7 @@ function Shell() {
             {/* Search */}
             <div className="glass g-topbar-search">
               <Search size={18} />
-              <span className="g-topbar-search-text">Buscar productos, órdenes, clientes…</span>
+              <span className="g-topbar-search-text">{t("topbar.search")}</span>
               <span className="g-topbar-kbd">⌘K</span>
             </div>
 
@@ -81,6 +85,21 @@ function Shell() {
               </Select>
               <span className="g-topbar-date-text">· {today}</span>
             </div>
+
+            {/* Theme Toggle */}
+            <button
+              type="button"
+              onClick={toggleMode}
+              className="glass g-topbar-bell cursor-pointer hover:bg-white/10 active:scale-95 transition-all duration-200"
+              title={mode === "dark" ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
+              aria-label="Cambiar Tema"
+            >
+              {mode === "dark" ? (
+                <Sun size={18} className="text-amber-400 animate-in fade-in zoom-in duration-300" />
+              ) : (
+                <Moon size={18} className="text-slate-600 dark:text-slate-300 animate-in fade-in zoom-in duration-300" />
+              )}
+            </button>
 
             {/* Notifications */}
             <div className="glass g-topbar-bell">

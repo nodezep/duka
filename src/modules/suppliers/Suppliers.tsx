@@ -16,6 +16,7 @@ import {
 import { Truck, Plus, Pencil, Trash2, Search, ShoppingBag, CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { toast } from "sonner";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type Supplier = { id: string; name: string; tax_id: string | null; contact_name: string | null; phone: string | null; email: string | null; payment_terms: string | null; notes: string | null; status: string };
 type Product = { id: string; name: string; sku: string | null; cost: number };
@@ -27,6 +28,7 @@ const emptySupplier: SupplierForm = { name: "", tax_id: "", contact_name: "", ph
 
 export default function Suppliers() {
   const { tenantId, branchId } = useTenantContext();
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const [tab, setTab] = useState<"suppliers" | "orders">("suppliers");
   const [search, setSearch] = useState("");
@@ -88,7 +90,7 @@ export default function Suppliers() {
       }
     },
     onSuccess: () => {
-      toast.success(editingSupplier ? "Proveedor actualizado" : "Proveedor creado");
+      toast.success(editingSupplier ? t("suppliers.updated") : t("suppliers.created"));
       qc.invalidateQueries({ queryKey: ["suppliers"] });
       setSupplierOpen(false); setEditingSupplier(null); setSupplierForm(emptySupplier);
     },
@@ -100,7 +102,7 @@ export default function Suppliers() {
       const { error } = await supabase.from("suppliers").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Proveedor eliminado"); qc.invalidateQueries({ queryKey: ["suppliers"] }); },
+    onSuccess: () => { toast.success(t("suppliers.deleted")); qc.invalidateQueries({ queryKey: ["suppliers"] }); },
     onError: (e: any) => toast.error(e.message ?? "Error"),
   });
 
@@ -121,7 +123,7 @@ export default function Suppliers() {
       }
     },
     onSuccess: () => {
-      toast.success("Orden de compra creada");
+      toast.success(t("suppliers.order_created"));
       qc.invalidateQueries({ queryKey: ["purchase-orders"] });
       setOrderOpen(false); setOrderSupplierId(""); setOrderNotes(""); setOrderItems([]);
     },
@@ -143,7 +145,7 @@ export default function Suppliers() {
       }
     },
     onSuccess: () => {
-      toast.success("Orden recibida · Inventario actualizado");
+      toast.success(t("suppliers.order_received"));
       qc.invalidateQueries({ queryKey: ["purchase-orders"] });
       qc.invalidateQueries({ queryKey: ["pos-stocks"] });
     },
@@ -176,10 +178,10 @@ export default function Suppliers() {
             <Truck className="h-5 w-5" />
           </div>
           <div>
-            <div className="h-meta g-page-subtitle text-ink-400">INVENTARIO · PROVEEDORES</div>
-            <h1 className="h-display g-page-title">Proveedores</h1>
+            <div className="h-meta g-page-subtitle text-ink-400">{t("suppliers.meta")}</div>
+            <h1 className="h-display g-page-title">{t("suppliers.title")}</h1>
             <div className="h-meta g-page-subtitle text-ink-500">
-              {suppliers.length} proveedor{suppliers.length !== 1 ? "es" : ""}
+              {suppliers.length} {suppliers.length !== 1 ? t("suppliers.count.plural") : t("suppliers.count.single")}
             </div>
           </div>
         </div>
@@ -190,7 +192,7 @@ export default function Suppliers() {
             onClick={() => { setOrderOpen(true); setTab("orders"); }}
           >
             <ShoppingBag className="h-4 w-4" />
-            Nueva orden de compra
+            {t("suppliers.new_order")}
           </button>
           <button
             type="button"
@@ -198,7 +200,7 @@ export default function Suppliers() {
             onClick={() => { setEditingSupplier(null); setSupplierForm(emptySupplier); setSupplierOpen(true); }}
           >
             <Plus className="h-4 w-4" />
-            Nuevo proveedor
+            {t("suppliers.new")}
           </button>
         </div>
       </div>
@@ -210,14 +212,14 @@ export default function Suppliers() {
           className={`g-btn ${tab === "suppliers" ? "g-btn-primary" : "g-btn-ghost"} g-btn-sm`}
           onClick={() => setTab("suppliers")}
         >
-          Proveedores
+          {t("suppliers.title")}
         </button>
         <button
           type="button"
           className={`g-btn ${tab === "orders" ? "g-btn-primary" : "g-btn-ghost"} g-btn-sm`}
           onClick={() => setTab("orders")}
         >
-          Órdenes de compra
+          {t("suppliers.tab.orders")}
         </button>
       </div>
 
@@ -226,7 +228,7 @@ export default function Suppliers() {
         <div className="space-y-4">
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-400" />
-            <Input className="pl-9" placeholder="Buscar proveedor..." value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input className="pl-9" placeholder={t("suppliers.search_ph")} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
 
           {filteredSuppliers.length === 0 ? (
@@ -234,19 +236,17 @@ export default function Suppliers() {
               <div className="orb mx-auto mb-4">
                 <Truck className="h-7 w-7" />
               </div>
-              <h2 className="h-display font-semibold text-lg">Sin proveedores</h2>
-              <p className="h-meta g-page-subtitle text-ink-500 mt-1">
-                Registra tus proveedores para gestionar compras e inventario.
-              </p>
+              <h2 className="h-display font-semibold text-lg">{t("suppliers.empty.title")}</h2>
+              <p className="h-meta g-page-subtitle text-ink-500 mt-1">{t("suppliers.empty.desc")}</p>
             </div>
           ) : (
             <div className="glass rounded-2xl overflow-hidden">
               <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1.5fr_72px] gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-400 border-b border-white/10">
-                <span>Nombre</span>
-                <span>NIT</span>
-                <span>Contacto</span>
-                <span>Teléfono</span>
-                <span>Condición de pago</span>
+                <span>{t("suppliers.col.name")}</span>
+                <span>{t("suppliers.col.tax_id")}</span>
+                <span>{t("suppliers.col.contact")}</span>
+                <span>{t("suppliers.col.phone")}</span>
+                <span>{t("suppliers.col.payment_terms")}</span>
                 <span />
               </div>
               {filteredSuppliers.map((s, idx) => (

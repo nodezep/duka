@@ -11,6 +11,7 @@ import { FileText, Loader2, Camera, Upload, Trash2, CheckCircle2, SkipForward } 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { applyInventoryMovement } from "@/lib/inventory";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface OCRProduct {
   name: string;
@@ -37,6 +38,7 @@ export function InvoiceOCRDialog({ tenantId, branchId, userId, centers, defaultC
   const [centerId, setCenterId] = useState<string>(defaultCenterId || "");
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
 
   const { data: catalog = [] } = useQuery({
     queryKey: ["full-catalog-ocr", tenantId],
@@ -98,13 +100,13 @@ export function InvoiceOCRDialog({ tenantId, branchId, userId, centers, defaultC
       setMeta({ supplier: data.supplier, invoice_number: data.invoice_number, invoice_date: data.invoice_date });
 
       const autoMapped = mapped.filter(p => p.mapped_product_id).length;
-      toast.success(`${mapped.length} producto(s) extraídos`, {
+      toast.success(`${mapped.length} ${t("inv.ocr.toast.products_extracted")}`, {
         description: autoMapped > 0
-          ? `${autoMapped} vinculados automáticamente`
-          : "Vincula los productos manualmente",
+          ? `${autoMapped} ${t("inv.ocr.toast.auto_linked")}`
+          : t("inv.ocr.toast.manual_link"),
       });
     } catch (err: any) {
-      toast.error(`Error al procesar: ${err.message}`);
+      toast.error(`${t("inv.ocr.toast.process_error")} ${err.message}`);
     } finally {
       setProcessing(false);
     }
@@ -125,11 +127,11 @@ export function InvoiceOCRDialog({ tenantId, branchId, userId, centers, defaultC
   };
 
   const saveInventory = async () => {
-    if (!centerId) return toast.error("Selecciona un centro de inventario");
+    if (!centerId) return toast.error(t("inv.ocr.toast.select_center"));
     const toSave = products.filter(p => !p.skipped);
     const unmapped = toSave.filter(p => !p.mapped_product_id);
-    if (unmapped.length > 0) return toast.error(`Vincula o salta ${unmapped.length} producto(s) sin mapear`);
-    if (toSave.length === 0) return toast.error("No hay productos para guardar");
+    if (unmapped.length > 0) return toast.error(`${t("inv.ocr.toast.link_or_skip")} ${unmapped.length} ${t("inv.ocr.toast.unmapped")}`);
+    if (toSave.length === 0) return toast.error(t("inv.ocr.toast.no_products"));
 
     setSaving(true);
     try {
@@ -140,13 +142,13 @@ export function InvoiceOCRDialog({ tenantId, branchId, userId, centers, defaultC
           inventoryCenterId: centerId,
           type: "purchase",
           quantity: p.quantity,
-          reason: ["Factura IA", meta.supplier && `Proveedor: ${meta.supplier}`, meta.invoice_number && `#${meta.invoice_number}`]
+          reason: [t("inv.ocr.reason.ai_invoice"), meta.supplier && `${t("inv.ocr.reason.supplier")} ${meta.supplier}`, meta.invoice_number && `#${meta.invoice_number}`]
             .filter(Boolean).join(" · "),
           referenceType: "ai_ocr",
         });
       }
-      toast.success("Inventario actualizado", {
-        description: `${toSave.length} movimiento(s) registrado(s)${products.length - toSave.length > 0 ? `, ${products.length - toSave.length} saltado(s)` : ""}`,
+      toast.success(t("inv.ocr.toast.inventory_updated"), {
+        description: `${toSave.length} ${t("inv.ocr.toast.movements_registered")}${products.length - toSave.length > 0 ? `, ${products.length - toSave.length} ${t("inv.ocr.toast.skipped")}` : ""}`,
       });
       onClose();
     } catch (err: any) {
@@ -165,7 +167,7 @@ export function InvoiceOCRDialog({ tenantId, branchId, userId, centers, defaultC
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5 text-primary" />
-          Cargar Factura con IA (Gemini)
+          {t("inv.ocr.dialog.title")}
         </DialogTitle>
       </DialogHeader>
 
@@ -187,44 +189,44 @@ export function InvoiceOCRDialog({ tenantId, branchId, userId, centers, defaultC
                   <Upload className="h-8 w-8" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium">Sube una foto de tu factura de proveedor</p>
+                  <p className="text-sm font-medium">{t("inv.ocr.dialog.upload_title")}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Gemini extrae productos, cantidades y precios automáticamente
+                    {t("inv.ocr.dialog.upload_desc")}
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={() => fileInputRef.current?.click()} variant="outline">
-                    <Upload className="h-4 w-4 mr-2" /> Seleccionar archivo
+                    <Upload className="h-4 w-4 mr-2" /> {t("inv.ocr.dialog.select_file")}
                   </Button>
                   <Button onClick={() => fileInputRef.current?.click()} className="md:hidden">
-                    <Camera className="h-4 w-4 mr-2" /> Tomar foto
+                    <Camera className="h-4 w-4 mr-2" /> {t("inv.ocr.dialog.take_photo")}
                   </Button>
                 </div>
                 <input type="file" ref={fileInputRef} onChange={handleFileChange}
-                  accept="image/*" className="hidden" title="Subir factura" />
+                  accept="image/*" className="hidden" title={t("inv.ocr.dialog.upload_invoice")} />
               </div>
             )}
           </div>
           <Button className="w-full h-12 text-base" disabled={!preview || processing} onClick={processInvoice}>
             {processing
-              ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Analizando con Gemini...</>
-              : "Analizar factura"}
+              ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> {t("inv.ocr.dialog.analyzing")}</>
+              : t("inv.ocr.dialog.analyze_btn")}
           </Button>
         </div>
       ) : (
         <div className="space-y-4 py-2">
           {(meta.supplier || meta.invoice_number || meta.invoice_date) && (
             <Card className="p-3 flex flex-wrap gap-4 text-sm bg-muted/30">
-              {meta.supplier && <span><span className="text-muted-foreground">Proveedor:</span> <strong>{meta.supplier}</strong></span>}
-              {meta.invoice_number && <span><span className="text-muted-foreground">Factura #:</span> <strong>{meta.invoice_number}</strong></span>}
-              {meta.invoice_date && <span><span className="text-muted-foreground">Fecha:</span> <strong>{meta.invoice_date}</strong></span>}
+              {meta.supplier && <span><span className="text-muted-foreground">{t("inv.ocr.label.supplier")}</span> <strong>{meta.supplier}</strong></span>}
+              {meta.invoice_number && <span><span className="text-muted-foreground">{t("inv.ocr.label.invoice_num")}</span> <strong>{meta.invoice_number}</strong></span>}
+              {meta.invoice_date && <span><span className="text-muted-foreground">{t("inv.ocr.label.date")}</span> <strong>{meta.invoice_date}</strong></span>}
             </Card>
           )}
 
           <div className="max-w-xs">
-            <Label className="text-xs mb-1.5 block">Centro de inventario</Label>
+            <Label className="text-xs mb-1.5 block">{t("inv.ocr.label.center")}</Label>
             <Select value={centerId} onValueChange={setCenterId}>
-              <SelectTrigger><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t("inv.ocr.select_placeholder")} /></SelectTrigger>
               <SelectContent>
                 {centers.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
               </SelectContent>
@@ -235,10 +237,10 @@ export function InvoiceOCRDialog({ tenantId, branchId, userId, centers, defaultC
             <Table>
               <TableHeader className="bg-muted/40">
                 <TableRow>
-                  <TableHead>Producto (factura)</TableHead>
-                  <TableHead>Producto en sistema</TableHead>
-                  <TableHead className="text-right">Cant.</TableHead>
-                  <TableHead className="text-right">Costo unit.</TableHead>
+                  <TableHead>{t("inv.ocr.col.product_invoice")}</TableHead>
+                  <TableHead>{t("inv.ocr.col.product_sys")}</TableHead>
+                  <TableHead className="text-right">{t("inv.ocr.col.qty")}</TableHead>
+                  <TableHead className="text-right">{t("inv.ocr.col.unit_cost")}</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
@@ -251,11 +253,11 @@ export function InvoiceOCRDialog({ tenantId, branchId, userId, centers, defaultC
                     </TableCell>
                     <TableCell>
                       {p.skipped ? (
-                        <span className="text-xs text-muted-foreground italic">Saltado</span>
+                        <span className="text-xs text-muted-foreground italic">{t("inv.ocr.badge.skipped")}</span>
                       ) : (
                         <Select value={p.mapped_product_id ?? ""} onValueChange={v => updateMapping(idx, v)}>
                           <SelectTrigger className={p.mapped_product_id ? "border-success/60" : "border-destructive/40"}>
-                            <SelectValue placeholder="Vincular..." />
+                            <SelectValue placeholder={t("inv.ocr.btn.link")} />
                           </SelectTrigger>
                           <SelectContent>
                             {(catalog as any[]).map((ep: any) => (
@@ -271,7 +273,7 @@ export function InvoiceOCRDialog({ tenantId, branchId, userId, centers, defaultC
                     <TableCell className="text-right tabular-nums">${Number(p.unit_price).toLocaleString("es-CO")}</TableCell>
                     <TableCell>
                       <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground"
-                        title={p.skipped ? "Incluir" : "Saltar"} onClick={() => toggleSkip(idx)}>
+                        title={p.skipped ? t("inv.ocr.btn.include") : t("inv.ocr.btn.skip")} onClick={() => toggleSkip(idx)}>
                         <SkipForward className="h-3.5 w-3.5" />
                       </Button>
                     </TableCell>
@@ -284,17 +286,17 @@ export function InvoiceOCRDialog({ tenantId, branchId, userId, centers, defaultC
           <div className="flex items-center justify-between bg-muted/30 p-3 rounded-lg flex-wrap gap-3">
             <div className="flex items-center gap-3 text-sm">
               <span className="flex items-center gap-1 text-success">
-                <CheckCircle2 className="h-4 w-4" /> {mappedCount} vinculados
+                <CheckCircle2 className="h-4 w-4" /> {mappedCount} {t("inv.ocr.footer.linked")}
               </span>
-              {skippedCount > 0 && <Badge variant="secondary">{skippedCount} saltados</Badge>}
-              {pendingCount > 0 && <Badge variant="destructive">{pendingCount} sin vincular</Badge>}
+              {skippedCount > 0 && <Badge variant="secondary">{skippedCount} {t("inv.ocr.footer.skipped")}</Badge>}
+              {pendingCount > 0 && <Badge variant="destructive">{pendingCount} {t("inv.ocr.footer.unlinked")}</Badge>}
             </div>
             <div className="flex gap-2">
-              <Button variant="ghost" onClick={() => setProducts([])}>Volver</Button>
+              <Button variant="ghost" onClick={() => setProducts([])}>{t("inv.ocr.btn.back")}</Button>
               <Button onClick={saveInventory} disabled={saving || pendingCount > 0 || !centerId || mappedCount === 0}>
                 {saving
-                  ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Guardando...</>
-                  : `Cargar ${mappedCount} al inventario`}
+                  ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t("inv.ocr.btn.saving")}</>
+                  : `${t("inv.ocr.btn.load")} ${mappedCount} ${t("inv.ocr.btn.to_inventory")}`}
               </Button>
             </div>
           </div>

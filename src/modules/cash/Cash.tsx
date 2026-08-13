@@ -17,11 +17,13 @@ import {
 } from "lucide-react";
 import { PendingTableOrders } from "./PendingTableOrders";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function Cash() {
   const { tenantId, branchId, hasRole } = useTenantContext();
   const { user } = useAuth();
   const qc = useQueryClient();
+  const { t } = useLanguage();
   const [openAmount, setOpenAmount] = useState("0");
   const [closeOpen, setCloseOpen] = useState(false);
   const [moveDialog, setMoveDialog] = useState<null | "in" | "out">(null);
@@ -62,7 +64,7 @@ export default function Cash() {
       _opening_amount: Number(openAmount),
     });
     if (error) toast.error(error.message);
-    else { toast.success("Caja abierta"); qc.invalidateQueries(); }
+    else { toast.success(t("cash.success.opened")); qc.invalidateQueries(); }
   };
 
   const closeSession = async () => {
@@ -77,7 +79,7 @@ export default function Cash() {
     } as any);
     if (error) toast.error(error.message);
     else {
-      toast.success("Caja cerrada exitosamente");
+      toast.success(t("cash.success.closed"));
       setCloseOpen(false);
       setCounts({ cash: "", card: "", transfer: "", qr: "" });
       qc.invalidateQueries();
@@ -89,24 +91,24 @@ export default function Cash() {
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
         <div className="g-page-hd">
-          <div className="g-page-hd-eyebrow">OPERACIÓN · CAJA</div>
-          <div className="h-display g-page-title">Caja</div>
-          <div className="g-page-hd-meta">Apertura, cierre, arqueo y movimientos de efectivo</div>
+          <div className="g-page-hd-eyebrow">{t("cash.eyebrow")}</div>
+          <div className="h-display g-page-title">{t("cash.title")}</div>
+          <div className="g-page-hd-meta">{t("cash.subtitle")}</div>
         </div>
         {session && (
           <div className="flex items-center gap-2 flex-wrap">
             <button type="button" className="g-btn g-btn-ghost" onClick={() => setMoveDialog("in")}>
-              <ArrowDownToLine size={16} className="mr-1" />Ingreso
+              <ArrowDownToLine size={16} className="mr-1" />{t("cash.action.income")}
             </button>
             <button type="button" className="g-btn g-btn-ghost" onClick={() => setMoveDialog("out")}>
-              <ArrowUpFromLine size={16} className="mr-1" />Egreso
+              <ArrowUpFromLine size={16} className="mr-1" />{t("cash.action.expense")}
             </button>
             <button
               type="button"
               className="g-btn g-btn-primary"
               onClick={() => { setCounts({ cash: "", card: "", transfer: "", qr: "" }); setCloseOpen(true); }}
             >
-              <LockKeyhole size={16} className="mr-1" />Cerrar caja
+              <LockKeyhole size={16} className="mr-1" />{t("cash.action.close_cash")}
             </button>
           </div>
         )}
@@ -114,8 +116,8 @@ export default function Cash() {
 
       <Tabs defaultValue="current">
         <TabsList>
-          <TabsTrigger value="current">Caja actual</TabsTrigger>
-          <TabsTrigger value="history">Historial de cierres</TabsTrigger>
+          <TabsTrigger value="current">{t("cash.tab.current")}</TabsTrigger>
+          <TabsTrigger value="history">{t("cash.tab.history")}</TabsTrigger>
         </TabsList>
 
         {/* ── Current session tab ── */}
@@ -127,13 +129,13 @@ export default function Cash() {
                   <LockKeyhole size={26} />
                 </div>
                 <div>
-                  <div className="h-display-sm">Caja cerrada</div>
-                  <div className="g-page-hd-meta">Abre caja para empezar a vender</div>
+                  <div className="h-display-sm">{t("cash.closed.title")}</div>
+                  <div className="g-page-hd-meta">{t("cash.closed.desc")}</div>
                 </div>
               </div>
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label className="h-label">Monto inicial en efectivo</Label>
+                  <Label className="h-label">{t("cash.closed.initial_amount")}</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xl font-bold g-prefix-muted">$</span>
                     <Input
@@ -145,7 +147,7 @@ export default function Cash() {
                   </div>
                 </div>
                 <button type="button" className="g-btn g-btn-primary g-btn-touch w-full" onClick={openSession}>
-                  <LockOpen size={20} className="mr-2" />Abrir caja ahora
+                  <LockOpen size={20} className="mr-2" />{t("cash.closed.open_now")}
                 </button>
               </div>
             </div>
@@ -153,15 +155,15 @@ export default function Cash() {
             <>
               {/* KPI metrics */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <MetricCard icon={Wallet} label="Apertura" value={formatCurrency(Number(session.opening_amount))} />
-                <MetricCard icon={Banknote} label="Efectivo" value={formatCurrency(Number(session.total_cash))} />
-                <MetricCard icon={CreditCard} label="Tarjeta" value={formatCurrency(Number(session.total_card))} />
-                <MetricCard icon={Smartphone} label="Transfer." value={formatCurrency(Number(session.total_transfer))} />
-                <MetricCard icon={QrCode} label="QR" value={formatCurrency(Number(session.total_qr))} />
+                <MetricCard icon={Wallet} label={t("cash.kpi.opening")} value={formatCurrency(Number(session.opening_amount))} />
+                <MetricCard icon={Banknote} label={t("cash.kpi.cash")} value={formatCurrency(Number(session.total_cash))} />
+                <MetricCard icon={CreditCard} label={t("cash.kpi.card")} value={formatCurrency(Number(session.total_card))} />
+                <MetricCard icon={Smartphone} label={t("cash.kpi.transfer")} value={formatCurrency(Number(session.total_transfer))} />
+                <MetricCard icon={QrCode} label={t("cash.kpi.qr")} value={formatCurrency(Number(session.total_qr))} />
                 <MetricCard
                   icon={TrendingUp}
-                  label={canViewDifferences ? "Total esperado" : "Arqueo"}
-                  value={canViewDifferences ? formatCurrency(expectedTotal) : "Ciego"}
+                  label={canViewDifferences ? t("cash.kpi.expected_total") : t("cash.kpi.audit")}
+                  value={canViewDifferences ? formatCurrency(expectedTotal) : t("cash.kpi.blind")}
                   accent
                 />
               </div>
@@ -177,21 +179,21 @@ export default function Cash() {
                   <div className="g-cash-sect-hd">
                     <ArrowDownToLine size={16} className="g-icon-brand" />
                     <div>
-                      <div className="g-cash-sect-eyebrow">CAJA ACTIVA</div>
-                      <div className="g-cash-sect-title">Movimientos manuales</div>
+                      <div className="g-cash-sect-eyebrow">{t("cash.movements.eyebrow")}</div>
+                      <div className="g-cash-sect-title">{t("cash.movements.title")}</div>
                     </div>
                   </div>
 
                   <div className="g-cash-mov-head">
-                    <span>Hora</span>
-                    <span>Tipo</span>
-                    <span className="text-right">Monto</span>
-                    <span>Motivo</span>
+                    <span>{t("cash.movements.col.time")}</span>
+                    <span>{t("cash.movements.col.type")}</span>
+                    <span className="text-right">{t("cash.movements.col.amount")}</span>
+                    <span>{t("cash.movements.col.reason")}</span>
                   </div>
 
                   {(movements ?? []).length === 0 ? (
                     <div className="py-12 text-center g-page-hd-meta">
-                      Sin ingresos o egresos manuales en esta sesión
+                      {t("cash.movements.empty")}
                     </div>
                   ) : (
                     (movements ?? []).map((m: any) => (
@@ -201,7 +203,7 @@ export default function Cash() {
                         </span>
                         <span>
                           <span className={m.type === "in" ? "g-pill g-pill-ok" : "g-pill g-pill-bad"}>
-                            {m.type === "in" ? "Ingreso" : "Egreso"}
+                            {m.type === "in" ? t("cash.action.income") : t("cash.action.expense")}
                           </span>
                         </span>
                         <span className="g-cash-mov-amount">{formatCurrency(Number(m.amount))}</span>
@@ -214,31 +216,31 @@ export default function Cash() {
                 {/* Summary card */}
                 <div className="glass rounded-2xl p-5">
                   <div className="h-label-caps mb-4">
-                    Resumen de ventas
+                    {t("cash.summary.title")}
                   </div>
                   <div className="g-cash-summary">
                     <div className="g-cash-summary-row">
-                      <span>Ventas presenciales</span>
+                      <span>{t("cash.summary.sales")}</span>
                       <span className="g-cash-summary-val">
                         {formatCurrency(Number(session.total_cash) + Number(session.total_card) + Number(session.total_transfer) + Number(session.total_qr))}
                       </span>
                     </div>
                     <div className="g-cash-summary-row">
-                      <span>Ingresos caja</span>
+                      <span>{t("cash.summary.income")}</span>
                       <span className="g-cash-summary-val g-cash-summary-ok">
                         +{formatCurrency(Number(session.total_in))}
                       </span>
                     </div>
                     <div className="g-cash-summary-row">
-                      <span>Egresos caja</span>
+                      <span>{t("cash.summary.expense")}</span>
                       <span className="g-cash-summary-val g-cash-summary-bad">
                         -{formatCurrency(Number(session.total_out))}
                       </span>
                     </div>
                     <div className="g-cash-summary-total">
-                      <span>{canViewDifferences ? "Saldo Final" : "Saldo"}</span>
+                      <span>{canViewDifferences ? t("cash.summary.final_balance") : t("cash.summary.balance")}</span>
                       <span className="g-cash-summary-total-val">
-                        {canViewDifferences ? formatCurrency(expectedTotal) : "Ciego"}
+                        {canViewDifferences ? formatCurrency(expectedTotal) : t("cash.kpi.blind")}
                       </span>
                     </div>
                   </div>
@@ -252,11 +254,11 @@ export default function Cash() {
         <TabsContent value="history" className="mt-4">
           <div className="glass rounded-2xl overflow-hidden">
             <div className="g-cash-hist-head">
-              <span>Apertura / Cierre</span>
-              <span>Responsable</span>
-              <span className="text-right">Esperado</span>
-              <span className="text-right">Contado</span>
-              <span className="text-right">Diferencia</span>
+              <span>{t("cash.history.col.open_close")}</span>
+              <span>{t("cash.history.col.responsible")}</span>
+              <span className="text-right">{t("cash.history.col.expected")}</span>
+              <span className="text-right">{t("cash.history.col.counted")}</span>
+              <span className="text-right">{t("cash.history.col.difference")}</span>
             </div>
 
             {(history ?? []).map((s: any) => {
@@ -272,12 +274,12 @@ export default function Cash() {
                   <div>
                     <div className="g-cash-hist-date-main">{new Date(s.opened_at).toLocaleDateString()}</div>
                     <div className="g-cash-hist-date-time">
-                      {new Date(s.opened_at).toLocaleTimeString()} — {s.closed_at ? new Date(s.closed_at).toLocaleTimeString() : "Abierta"}
+                      {new Date(s.opened_at).toLocaleTimeString()} — {s.closed_at ? new Date(s.closed_at).toLocaleTimeString() : t("cash.history.status.open")}
                     </div>
                   </div>
                   <span className="g-cash-hist-dim">—</span>
                   <span className="g-cash-hist-num">
-                    {canViewDifferences && s.expected_amount ? formatCurrency(Number(s.expected_amount)) : "Restringido"}
+                    {canViewDifferences && s.expected_amount ? formatCurrency(Number(s.expected_amount)) : t("cash.history.restricted")}
                   </span>
                   <span className="g-cash-hist-num">
                     {s.closing_amount ? formatCurrency(Number(s.closing_amount)) : "—"}
@@ -285,7 +287,7 @@ export default function Cash() {
                   <span className={cn(diffClass)}>
                     {canViewDifferences && s.difference
                       ? (diff > 0 ? "+" : "") + formatCurrency(diff)
-                      : "Restringido"}
+                      : t("cash.history.restricted")}
                   </span>
                 </div>
               );
@@ -299,12 +301,12 @@ export default function Cash() {
         <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
           <DialogHeader className="px-6 py-4 border-b bg-muted/20">
             <DialogTitle className="flex items-center gap-2">
-              <LockKeyhole className="h-5 w-5 text-primary" /> Auditoría de Cierre de Caja
+              <LockKeyhole className="h-5 w-5 text-primary" /> {t("cash.close_dialog.title")}
             </DialogTitle>
           </DialogHeader>
           <div className="p-6 space-y-6">
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-black uppercase tracking-widest">Efectivo Contado</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest">{t("cash.close_dialog.cash_counted")}</Label>
               <Input
                 type="number"
                 value={counts.cash}
@@ -313,27 +315,27 @@ export default function Cash() {
               />
             </div>
             <div className="space-y-3 border-t pt-4">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Otros medios de pago</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("cash.close_dialog.other_methods")}</Label>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <div className="text-[10px] flex items-center gap-1"><CreditCard className="h-3 w-3" /> Tarjeta</div>
+                  <div className="text-[10px] flex items-center gap-1"><CreditCard className="h-3 w-3" /> {t("cash.close_dialog.card")}</div>
                   <Input type="number" value={counts.card} onChange={(e) => setCounts({ ...counts, card: e.target.value })} className="h-8 text-sm" />
                 </div>
                 <div className="space-y-1">
-                  <div className="text-[10px] flex items-center gap-1"><Smartphone className="h-3 w-3" /> Transferencia</div>
+                  <div className="text-[10px] flex items-center gap-1"><Smartphone className="h-3 w-3" /> {t("cash.close_dialog.transfer")}</div>
                   <Input type="number" value={counts.transfer} onChange={(e) => setCounts({ ...counts, transfer: e.target.value })} className="h-8 text-sm" />
                 </div>
                 <div className="space-y-1">
-                  <div className="text-[10px] flex items-center gap-1"><QrCode className="h-3 w-3" /> QR / Billetera</div>
+                  <div className="text-[10px] flex items-center gap-1"><QrCode className="h-3 w-3" /> {t("cash.close_dialog.qr")}</div>
                   <Input type="number" value={counts.qr} onChange={(e) => setCounts({ ...counts, qr: e.target.value })} className="h-8 text-sm" />
                 </div>
               </div>
             </div>
             <div className="p-4 rounded-xl border bg-muted/30 text-center text-sm text-muted-foreground">
-              El sistema calculará diferencias después de finalizar el cierre.
+              {t("cash.close_dialog.note")}
             </div>
             <button type="button" className="g-btn g-btn-primary g-btn-touch w-full" onClick={closeSession}>
-              Finalizar Cierre de Turno
+              {t("cash.close_dialog.finish")}
             </button>
           </div>
         </DialogContent>
@@ -361,6 +363,7 @@ function CashMovementDialog({
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
   const [saving, setSaving] = useState(false);
+  const { t } = useLanguage();
 
   const submit = async () => {
     if (!sessionId) return;
@@ -370,7 +373,7 @@ function CashMovementDialog({
     });
     setSaving(false);
     if (error) return toast.error(error.message);
-    toast.success(type === "in" ? "Ingreso registrado" : "Egreso registrado");
+    toast.success(type === "in" ? t("cash.movement.success.income") : t("cash.movement.success.expense"));
     setAmount(""); setReason("");
     onClose();
   };
@@ -380,20 +383,20 @@ function CashMovementDialog({
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle>
-            {type === "in" ? "Registrar ingreso de efectivo" : "Registrar egreso de efectivo"}
+            {type === "in" ? t("cash.movement.dialog.income") : t("cash.movement.dialog.expense")}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label>Monto</Label>
+            <Label>{t("cash.movement.form.amount")}</Label>
             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="h-12 text-lg" />
           </div>
           <div className="space-y-1.5">
-            <Label>Motivo</Label>
+            <Label>{t("cash.movement.form.reason")}</Label>
             <Input
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder={type === "in" ? "Ej. Fondo extra" : "Ej. Pago a proveedor"}
+              placeholder={type === "in" ? t("cash.movement.form.reason_income_ph") : t("cash.movement.form.reason_expense_ph")}
             />
           </div>
           <button
@@ -402,7 +405,7 @@ function CashMovementDialog({
             disabled={saving || !amount}
             onClick={submit}
           >
-            Registrar
+            {t("cash.movement.form.submit")}
           </button>
         </div>
       </DialogContent>

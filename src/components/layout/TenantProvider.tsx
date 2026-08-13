@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { signOutFully } from "@/lib/signOut";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useLanguage } from "@/hooks/useLanguage";
+import { LanguageSelector } from "@/components/shared/LanguageSelector";
 import type { Session } from "@supabase/supabase-js";
 
 interface TenantProviderProps {
@@ -16,6 +18,7 @@ interface TenantProviderProps {
 // normal pero dejamos que un super_admin inicie sesión para configurar el dominio.
 function UnconfiguredScreen() {
   const hostname = window.location.hostname;
+  const { t } = useLanguage();
 
   const [session, setSession]           = useState<Session | null>(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
@@ -108,29 +111,34 @@ function UnconfiguredScreen() {
   // ── Super admin autenticado: pantalla de configuración ─────────────────────
   if (session && isSuperAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
+        {/* Language selector in top-right area */}
+        <div className="absolute top-6 right-6 z-20">
+          <LanguageSelector className="w-36" />
+        </div>
+
         <div className="w-full max-w-sm space-y-6">
           <div className="flex items-center gap-2 text-amber-600">
             <Settings2 className="h-5 w-5" />
-            <span className="font-semibold text-sm">Configurar instancia</span>
+            <span className="font-semibold text-sm">{t("tenant.super_admin_title")}</span>
           </div>
 
           <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Hostname detectado</p>
+            <p className="text-xs text-muted-foreground">{t("tenant.detected_hostname")}</p>
             <code className="block text-sm font-mono bg-muted px-3 py-2 rounded">
               {hostname}
             </code>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs text-muted-foreground">Vincular a tenant</label>
+            <label className="text-xs text-muted-foreground">{t("tenant.select_tenant")}</label>
             <select
               aria-label="Tenant"
               className="w-full border rounded px-3 py-2 text-sm bg-background"
               value={selectedTenant}
               onChange={(e) => setSelectedTenant(e.target.value)}
             >
-              <option value="">Seleccionar tenant...</option>
+              <option value="">{t("tenant.select_tenant")}</option>
               {tenants.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name} ({t.slug}){t.domain ? ` — ${t.domain}` : ""}
@@ -144,7 +152,7 @@ function UnconfiguredScreen() {
             disabled={!selectedTenant || saving}
             onClick={handleSetDomain}
           >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Vincular dominio y continuar"}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : t("tenant.btn_link")}
           </Button>
 
           <Button
@@ -152,7 +160,7 @@ function UnconfiguredScreen() {
             className="w-full text-xs text-muted-foreground"
             onClick={() => signOutFully()}
           >
-            Cerrar sesión
+            {t("user.logout")}
           </Button>
         </div>
       </div>
@@ -161,27 +169,32 @@ function UnconfiguredScreen() {
 
   // ── Sin sesión o no es super_admin: login + mensaje ────────────────────────
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
+      {/* Language selector in top-right area */}
+      <div className="absolute top-6 right-6 z-20">
+        <LanguageSelector className="w-36" />
+      </div>
+
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-1">
-          <h1 className="text-lg font-semibold text-foreground">Instancia no configurada</h1>
+          <h1 className="text-lg font-semibold text-foreground">{t("tenant.unconfigured")}</h1>
           <p className="text-muted-foreground text-xs">
-            No hay un tenant vinculado a <code className="font-mono">{hostname}</code>
+            {t("tenant.no_linked")} <code className="font-mono">{hostname}</code>
           </p>
         </div>
 
         {session && !isSuperAdmin ? (
           <p className="text-center text-xs text-destructive">
-            Tu cuenta no tiene permisos para configurar esta instancia.
+            {t("tenant.auth_no_perms")}
           </p>
         ) : (
           <form onSubmit={handleLogin} className="space-y-3">
             <p className="text-xs text-muted-foreground text-center">
-              Accede como super admin para configurarla
+              {t("tenant.super_admin_config")}
             </p>
             <input
               type="email"
-              placeholder="Correo"
+              placeholder={t("tenant.placeholder_email")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border rounded px-3 py-2 text-sm bg-background"
@@ -189,14 +202,14 @@ function UnconfiguredScreen() {
             />
             <input
               type="password"
-              placeholder="Contraseña"
+              placeholder={t("tenant.placeholder_password")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full border rounded px-3 py-2 text-sm bg-background"
               required
             />
             <Button type="submit" className="w-full" disabled={loggingIn}>
-              {loggingIn ? <Loader2 className="h-4 w-4 animate-spin" /> : "Iniciar sesión"}
+              {loggingIn ? <Loader2 className="h-4 w-4 animate-spin" /> : t("tenant.btn_login")}
             </Button>
           </form>
         )}

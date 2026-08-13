@@ -11,11 +11,13 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Save, FlaskConical } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const CURRENCIES = ["COP", "USD", "MXN", "ARS", "EUR", "PEN", "CLP", "BRL"];
 
 export default function BusinessSettings() {
   const { tenantId, hasRole } = useTenantContext();
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const canEdit = hasRole("owner", "admin");
   const { devMode, canToggle, setDevMode, isPending: devModePending } = useDevMode();
@@ -48,7 +50,7 @@ export default function BusinessSettings() {
 
   const save = async () => {
     if (!tenantId) return;
-    if (!form.name.trim()) return toast.error("El nombre es requerido");
+    if (!form.name.trim()) return toast.error(t("settings.name_required"));
     const { error } = await supabase
       .from("tenants")
       .update({
@@ -58,20 +60,20 @@ export default function BusinessSettings() {
       })
       .eq("id", tenantId);
     if (error) return toast.error(error.message);
-    toast.success("Datos del negocio actualizados");
+    toast.success(t("settings.saved"));
     qc.invalidateQueries({ queryKey: ["tenant"] });
     qc.invalidateQueries({ queryKey: ["my-roles"] });
   };
 
-  if (isLoading) return <div className="h-meta">Cargando…</div>;
+  if (isLoading) return <div className="h-meta">{t("common.loading")}</div>;
 
   return (
     <div className="space-y-6">
       <div className="glass p-6 rounded-2xl max-w-2xl space-y-5">
         <div className="space-y-1.5">
-          <Label>Nombre del bar</Label>
+          <Label>{t("settings.biz.name")}</Label>
           <Input
-            placeholder="Mi Bar"
+            placeholder={t("settings.biz.name_ph")}
             value={form.name}
             disabled={!canEdit}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -80,7 +82,7 @@ export default function BusinessSettings() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label>Moneda</Label>
+            <Label>{t("settings.biz.currency")}</Label>
             <Select
               value={form.currency}
               disabled={!canEdit}
@@ -95,7 +97,7 @@ export default function BusinessSettings() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>IVA por defecto (%)</Label>
+            <Label>{t("settings.biz.tax")}</Label>
             <Input
               type="number"
               min={0}
@@ -111,17 +113,14 @@ export default function BusinessSettings() {
         {canEdit ? (
           <div className="pt-2">
             <button type="button" className="g-btn g-btn-primary" onClick={save}>
-              <Save className="h-4 w-4" /> Guardar cambios
+              <Save className="h-4 w-4" /> {t("settings.save")}
             </button>
           </div>
         ) : (
-          <p className="h-meta">
-            Solo el dueño o administradores pueden editar estos datos.
-          </p>
+          <p className="h-meta">{t("settings.biz.no_edit")}</p>
         )}
       </div>
 
-      {/* Dev mode card — visible only to owner / super_admin */}
       {canToggle && (
         <div className="glass p-6 rounded-2xl max-w-2xl border border-orange-200/60">
           <div className="flex items-start justify-between gap-4">
@@ -130,11 +129,8 @@ export default function BusinessSettings() {
                 <FlaskConical className="h-4 w-4 text-orange-500" />
               </span>
               <div className="space-y-1">
-                <p className="font-semibold text-sm text-ink-900">Modo desarrollo</p>
-                <p className="h-meta max-w-sm">
-                  Permite registrar ventas y órdenes sin importar el stock disponible.
-                  Útil para pruebas y demostraciones. Un banner naranja avisa cuando está activo.
-                </p>
+                <p className="font-semibold text-sm text-ink-900">{t("settings.dev_mode")}</p>
+                <p className="h-meta max-w-sm">{t("settings.dev_mode_desc")}</p>
               </div>
             </div>
             <Switch
@@ -143,7 +139,7 @@ export default function BusinessSettings() {
               onCheckedChange={(checked) => {
                 setDevMode(checked);
                 toast[checked ? "warning" : "success"](
-                  checked ? "Modo desarrollo ACTIVADO" : "Modo desarrollo desactivado"
+                  checked ? t("settings.dev_mode_on") : t("settings.dev_mode_off")
                 );
               }}
             />

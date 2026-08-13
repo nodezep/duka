@@ -2,103 +2,120 @@ import { Link, Navigate } from "react-router-dom";
 import { GearMark } from "@/components/shared/GearMark";
 import { LiveDot } from "@/components/shared/LiveDot";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
+import { LanguageSelector } from "@/components/shared/LanguageSelector";
 import { Loader2 } from "lucide-react";
 import {
   ShoppingCart, UtensilsCrossed, BarChart3, Wifi, Zap, Shield,
-  Bike, ChefHat, Smartphone, Package, Receipt, TrendingUp,
-  CheckCircle, ArrowRight, Star,
+  Bike, ChefHat, Smartphone, Package, CheckCircle, ArrowRight, Star,
 } from "lucide-react";
-
-/* ── Features ── */
-const FEATURES = [
-  {
-    icon: ShoppingCart,
-    sc: "sc-blue",
-    title: "Terminal POS táctil",
-    desc: "Catálogo visual por categorías, búsqueda por EAN, gestión de tickets y cobro multi-método en una sola pantalla.",
-  },
-  {
-    icon: UtensilsCrossed,
-    sc: "sc-green",
-    title: "Mesas & comandas",
-    desc: "Toma de pedidos por mesa, estado en tiempo real, envío a cocina y cobro desde el salón.",
-  },
-  {
-    icon: Bike,
-    sc: "sc-purple",
-    title: "Domicilios propios",
-    desc: "Tablero kanban de pedidos a domicilio, asignación de repartidores y seguimiento de estado.",
-  },
-  {
-    icon: Smartphone,
-    sc: "sc-amber",
-    title: "Pedidos digitales",
-    desc: "Integración con Rappi, DiDi, Uber Eats y WhatsApp. Webhook en tiempo real, comisiones y neto calculado.",
-  },
-  {
-    icon: ChefHat,
-    sc: "sc-cyan",
-    title: "KDS · Cocina",
-    desc: "Display de cocina con alertas de tiempo, colores por urgencia y control de despacho ítem a ítem.",
-  },
-  {
-    icon: Package,
-    sc: "sc-lime",
-    title: "Inventario & producción",
-    desc: "Stocks por sucursal, movimientos, mermas, recetas y producción. Alertas de stock mínimo automáticas.",
-  },
-  {
-    icon: BarChart3,
-    sc: "sc-rose",
-    title: "Reportes avanzados",
-    desc: "Ventas por día, top productos, mix de medios de pago, IVA y exportación CSV.",
-  },
-  {
-    icon: Wifi,
-    sc: "sc-slate",
-    title: "Offline-first",
-    desc: "Funciona sin internet. Sincronización automática al recuperar la conexión. PWA instalable.",
-  },
-];
-
-/* ── Stats ── */
-const STATS = [
-  { value: "5", unit: "canales", label: "de venta integrados" },
-  { value: "∞", unit: "sucursales", label: "multi-sucursal" },
-  { value: "100%", unit: "offline", label: "sin perder un ticket" },
-  { value: "8", unit: "roles", label: "de acceso granular" },
-];
-
-/* ── Plans ── */
-const PLANS = [
-  {
-    name: "Starter",
-    price: "Gratis",
-    sub: "Para empezar",
-    features: ["1 sucursal", "Terminal POS", "Caja & ventas", "Reportes básicos"],
-    cta: "Comenzar gratis",
-    accent: false,
-  },
-  {
-    name: "Pro",
-    price: "$149k",
-    sub: "COP / mes",
-    features: ["Sucursales ilimitadas", "Todo Starter +", "Mesas & comandas", "Domicilios & KDS", "Pedidos digitales", "WhatsApp IA", "Inventario avanzado"],
-    cta: "Empezar gratis 14 días",
-    accent: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    sub: "Cotización",
-    features: ["Todo Pro +", "SLA garantizado", "Onboarding dedicado", "Integraciones a medida"],
-    cta: "Hablar con ventas",
-    accent: false,
-  },
-];
 
 export default function Landing() {
   const { user, loading } = useAuth();
+  const { t } = useLanguage();
+
+  const FEATURES = [
+    {
+      icon: ShoppingCart,
+      sc: "sc-blue",
+      title: t("landing.feat.pos.title"),
+      desc: t("landing.feat.pos.desc"),
+    },
+    {
+      icon: UtensilsCrossed,
+      sc: "sc-green",
+      title: t("landing.feat.tables.title"),
+      desc: t("landing.feat.tables.desc"),
+    },
+    {
+      icon: Bike,
+      sc: "sc-purple",
+      title: t("landing.feat.delivery.title"),
+      desc: t("landing.feat.delivery.desc"),
+    },
+    {
+      icon: Smartphone,
+      sc: "sc-amber",
+      title: t("landing.feat.digital.title"),
+      desc: t("landing.feat.digital.desc"),
+    },
+    {
+      icon: ChefHat,
+      sc: "sc-cyan",
+      title: t("landing.feat.kds.title"),
+      desc: t("landing.feat.kds.desc"),
+    },
+    {
+      icon: Package,
+      sc: "sc-lime",
+      title: t("landing.feat.stock.title"),
+      desc: t("landing.feat.stock.desc"),
+    },
+    {
+      icon: BarChart3,
+      sc: "sc-rose",
+      title: t("landing.feat.reports.title"),
+      desc: t("landing.feat.reports.desc"),
+    },
+    {
+      icon: Wifi,
+      sc: "sc-slate",
+      title: t("landing.feat.offline.title"),
+      desc: t("landing.feat.offline.desc"),
+    },
+  ];
+
+  const STATS = [
+    { value: "5", unit: t("landing.stat.channels.unit"), label: t("landing.stat.channels.lbl") },
+    { value: "∞", unit: t("landing.stat.branches.unit"), label: t("landing.stat.branches.lbl") },
+    { value: "100%", unit: t("landing.stat.offline.unit"), label: t("landing.stat.offline.lbl") },
+    { value: "8", unit: t("landing.stat.roles.unit"), label: t("landing.stat.roles.lbl") },
+  ];
+
+  const PLANS = [
+    {
+      name: t("landing.plans.starter.name"),
+      price: t("landing.plans.starter.price"),
+      sub: t("landing.plans.starter.sub"),
+      features: [
+        t("landing.plans.starter.f1"),
+        t("landing.plans.starter.f2"),
+        t("landing.plans.starter.f3"),
+        t("landing.plans.starter.f4"),
+      ],
+      cta: t("landing.plans.starter.cta"),
+      accent: false,
+    },
+    {
+      name: t("landing.plans.pro.name"),
+      price: t("landing.plans.pro.price"),
+      sub: t("landing.plans.pro.sub"),
+      features: [
+        t("landing.plans.pro.f1"),
+        t("landing.plans.pro.f2"),
+        t("landing.plans.pro.f3"),
+        t("landing.plans.pro.f4"),
+        t("landing.plans.pro.f5"),
+        t("landing.plans.pro.f6"),
+        t("landing.plans.pro.f7"),
+      ],
+      cta: t("landing.plans.pro.cta"),
+      accent: true,
+    },
+    {
+      name: t("landing.plans.ent.name"),
+      price: t("landing.plans.ent.price"),
+      sub: t("landing.plans.ent.sub"),
+      features: [
+        t("landing.plans.ent.f1"),
+        t("landing.plans.ent.f2"),
+        t("landing.plans.ent.f3"),
+        t("landing.plans.ent.f4"),
+      ],
+      cta: t("landing.plans.ent.cta"),
+      accent: false,
+    },
+  ];
 
   if (loading) {
     return (
@@ -125,16 +142,18 @@ export default function Landing() {
             </span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-            <a href="#features" className="hover:text-foreground transition-colors">Funciones</a>
-            <a href="#planes" className="hover:text-foreground transition-colors">Planes</a>
-            <a href="#contacto" className="hover:text-foreground transition-colors">Contacto</a>
+            <a href="#features" className="hover:text-foreground transition-colors">{t("landing.features")}</a>
+            <a href="#planes" className="hover:text-foreground transition-colors">{t("landing.plans")}</a>
+            <a href="#contacto" className="hover:text-foreground transition-colors">{t("landing.contact")}</a>
           </nav>
           <div className="flex items-center gap-3">
-            <Link to="/auth" className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
-              Iniciar sesión
+            {/* Responsive Language Selector */}
+            <LanguageSelector className="w-28 sm:w-36" />
+            <Link to="/auth" className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors hidden md:block">
+              {t("landing.login")}
             </Link>
-            <Link to="/auth" className="landing-btn-primary">
-              Empezar gratis <ArrowRight className="h-4 w-4" />
+            <Link to="/auth" className="landing-btn-primary text-xs sm:text-sm">
+              {t("landing.start_free")} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -155,35 +174,34 @@ export default function Landing() {
         <div className="landing-container relative z-10 text-center">
           {/* Pill */}
           <div className="inline-flex items-center gap-2 s-pill s-pill-green mb-6">
-            <LiveDot /> SISTEMA POS · S360T · v1.0
+            <LiveDot /> {t("landing.system_pos")}
           </div>
 
           {/* Headline */}
           <h1 className="landing-hero-title">
-            Tu venta como<br />
-            <span className="gradient-text">sistema operativo.</span>
+            {t("landing.hero.title1")}<br />
+            <span className="gradient-text">{t("landing.hero.title2")}</span>
           </h1>
 
           <p className="landing-hero-sub">
-            Multi-canal · Multi-sucursal · Offline-first.<br className="hidden sm:block" />
-            Del mostrador al repartidor, del salón al dashboard.
+            {t("landing.hero.sub")}
           </p>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
             <Link to="/auth" className="landing-btn-primary landing-btn-lg">
-              Empezar gratis — sin tarjeta <ArrowRight className="h-4 w-4" />
+              {t("landing.hero.cta_free")} <ArrowRight className="h-4 w-4" />
             </Link>
             <a href="#features" className="landing-btn-ghost landing-btn-lg">
-              Ver funciones
+              {t("landing.hero.cta_features")}
             </a>
           </div>
 
           {/* Social proof */}
           <div className="flex items-center justify-center gap-6 mt-10 text-sm text-muted-foreground flex-wrap">
-            <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-primary" /> Sin tarjeta requerida</span>
-            <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-primary" /> 14 días gratis</span>
-            <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-primary" /> Cancela cuando quieras</span>
+            <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-primary" /> {t("landing.hero.proof.no_card")}</span>
+            <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-primary" /> {t("landing.hero.proof.14_days")}</span>
+            <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-primary" /> {t("landing.hero.proof.cancel")}</span>
           </div>
         </div>
       </section>
@@ -206,13 +224,13 @@ export default function Landing() {
       <section id="features" className="landing-section">
         <div className="landing-container">
           <div className="text-center mb-12">
-            <div className="eyebrow eyebrow-blue mb-3">FUNCIONALIDADES</div>
+            <div className="eyebrow eyebrow-blue mb-3">{t("landing.feat.eyebrow")}</div>
             <h2 className="landing-section-title">
-              Todo lo que necesita tu negocio,<br />
-              <span className="gradient-text">en una sola plataforma.</span>
+              {t("landing.feat.title1")}<br />
+              <span className="gradient-text">{t("landing.feat.title2")}</span>
             </h2>
             <p className="landing-section-sub">
-              Desde la caja registradora hasta el inventario y los pedidos digitales.
+              {t("landing.feat.sub")}
             </p>
           </div>
 
@@ -236,21 +254,19 @@ export default function Landing() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left copy */}
             <div>
-              <div className="eyebrow eyebrow-blue mb-3">BRANDING BRUTAL</div>
+              <div className="eyebrow eyebrow-blue mb-3">{t("landing.high.eyebrow")}</div>
               <h2 className="landing-section-title mb-4">
-                Tres dispositivos,<br />
-                <span className="gradient-text">un solo lenguaje.</span>
+                {t("landing.high.title1")}<br />
+                <span className="gradient-text">{t("landing.high.title2")}</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-6">
-                Navy profundo, azul de acción y verde signal. Tiles 100×100+ con glow al pulsar,
-                eyebrows en uppercase tracked y gradiente highlight en el título clave.
-                Pensado para tocar, mirar y operar.
+                {t("landing.high.desc")}
               </p>
               <ul className="space-y-3">
                 {[
-                  { label: "Tablet · Terminal POS",        sub: "Catálogo + ticket + cobro en una pantalla" },
-                  { label: "Móvil · Mesero / Repartidor",  sub: "Mesas con estado, comandas, domicilios"   },
-                  { label: "Desktop · Dashboard operativo", sub: "KPIs, feed en vivo, KDS y reportes"       },
+                  { label: t("landing.high.l1"), sub: t("landing.high.l1.desc") },
+                  { label: t("landing.high.l2"), sub: t("landing.high.l2.desc") },
+                  { label: t("landing.high.l3"), sub: t("landing.high.l3.desc") },
                 ].map(({ label, sub }) => (
                   <li key={label} className="flex items-start gap-3">
                     <div className="h-5 w-5 rounded-full bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0 mt-0.5">
@@ -264,7 +280,7 @@ export default function Landing() {
                 ))}
               </ul>
               <Link to="/auth" className="landing-btn-primary landing-btn-lg mt-8 inline-flex">
-                Ver demo <ArrowRight className="h-4 w-4" />
+                {t("landing.high.cta")} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
 
@@ -324,11 +340,11 @@ export default function Landing() {
       <section id="planes" className="landing-section">
         <div className="landing-container">
           <div className="text-center mb-12">
-            <div className="eyebrow eyebrow-blue mb-3">PLANES Y PRECIOS</div>
+            <div className="eyebrow eyebrow-blue mb-3">{t("landing.plans.eyebrow")}</div>
             <h2 className="landing-section-title">
-              Crece con <span className="gradient-text">tu negocio.</span>
+              {t("landing.plans.title1")} <span className="gradient-text">{t("landing.plans.title2")}</span>
             </h2>
-            <p className="landing-section-sub">Sin contratos anuales. Cancela cuando quieras.</p>
+            <p className="landing-section-sub">{t("landing.plans.sub")}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -336,7 +352,7 @@ export default function Landing() {
               <div key={name} className={`landing-plan-card ${accent ? "landing-plan-card-accent" : ""}`}>
                 {accent && (
                   <div className="landing-plan-badge">
-                    <Star className="h-3 w-3 fill-current" /> Más popular
+                    <Star className="h-3 w-3 fill-current" /> {t("landing.plans.popular")}
                   </div>
                 )}
                 <div className="mb-6">
@@ -369,16 +385,16 @@ export default function Landing() {
       {/* ── Final CTA ─────────────────────────────────────────── */}
       <section className="landing-section landing-cta-section">
         <div className="landing-container text-center relative z-10">
-          <div className="eyebrow mb-4">¿LISTO PARA EMPEZAR?</div>
+          <div className="eyebrow mb-4">{t("landing.cta.eyebrow")}</div>
           <h2 className="landing-section-title mb-4">
-            Empieza hoy —<br />
-            <span className="gradient-text">gratis, sin tarjeta.</span>
+            {t("landing.cta.title1")}<br />
+            <span className="gradient-text">{t("landing.cta.title2")}</span>
           </h2>
           <p className="landing-section-sub mb-8">
-            Configura tu primer negocio en menos de 5 minutos.
+            {t("landing.cta.sub")}
           </p>
           <Link to="/auth" className="landing-btn-primary landing-btn-lg">
-            Crear cuenta gratis <ArrowRight className="h-4 w-4" />
+            {t("landing.cta.cta")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
@@ -392,11 +408,11 @@ export default function Landing() {
               <span className="font-semibold text-sm">
                 POS<span className="c-blue">360</span><span className="c-green">T</span>
               </span>
-              <span className="text-muted-foreground text-xs">· Open Source</span>
+              <span className="text-muted-foreground text-xs">{t("landing.footer.sub")}</span>
             </div>
             <p className="text-xs text-muted-foreground">© 2026 POS S360T Contributors · Apache 2.0</p>
             <Link to="/auth" className="text-sm font-semibold text-primary hover:underline">
-              Iniciar sesión →
+              {t("landing.login")} →
             </Link>
           </div>
         </div>

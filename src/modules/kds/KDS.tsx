@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ChefHat, Volume2, VolumeX } from "lucide-react";
 import { toast } from "sonner";
 import type { Database, Json } from "@/integrations/supabase/types";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type TableItemStatus = Database["public"]["Enums"]["table_item_status"];
 
@@ -25,7 +26,6 @@ interface KDSItem {
 
 interface Modifier { name: string; price?: number }
 
-const STATIONS = ["Todas", "Cocina", "Bar", "Parrilla", "Frío", "Postres"];
 const SLA_MINUTES = 15;
 
 function elapsedMinutes(createdAt: string) {
@@ -107,24 +107,22 @@ interface KDSCardProps {
 }
 
 function KDSCard({ orderId, items, elapsed, onPreparing, onDispatched }: KDSCardProps) {
+  const { t } = useLanguage();
   const ratio   = elapsed / SLA_MINUTES;
   const late    = ratio >= 1;
   const urgent  = ratio > 0.8;
-  const tableName = items[0]?.table_orders?.tables?.name ?? "Mesa";
-
+  const tableName = items[0]?.table_orders?.tables?.name ?? t("kds.table");
 
   return (
     <div className={cn("glass-strong g-kds-card", late ? "g-kds-card-late" : "g-kds-card-normal")}>
-      {/* Header */}
       <div className={cn("g-kds-card-head", late ? "g-kds-card-head-late" : urgent ? "g-kds-card-head-urgent" : "g-kds-card-head-normal")}>
         <div className="g-kds-card-head-info">
           <div className="g-kds-card-id h-display">{tableName}</div>
-          <div className="g-kds-card-table">{items.length} ítem{items.length !== 1 ? "s"  : ""}</div>
+          <div className="g-kds-card-table">{items.length} {t("kds.item")}{items.length !== 1 ? "s" : ""}</div>
         </div>
         <TimerRing elapsed={elapsed} sla={SLA_MINUTES} />
       </div>
 
-      {/* Items */}
       <div className="g-kds-items">
         {items.map((item) => {
           const mods = (item.modifiers as Modifier[]) ?? [];
@@ -146,31 +144,30 @@ function KDSCard({ orderId, items, elapsed, onPreparing, onDispatched }: KDSCard
                 )}
                 {item.notes && <div className="g-kds-item-mods">{item.notes}</div>}
               </div>
-              {ready && <span className="pill pill-ok g-kds-pill-micro">Lista</span>}
-              {preparing && <span className="pill pill-warn g-kds-pill-micro">Prep.</span>}
+              {ready && <span className="pill pill-ok g-kds-pill-micro">{t("kds.ready")}</span>}
+              {preparing && <span className="pill pill-warn g-kds-pill-micro">{t("kds.prep")}</span>}
               {item.status === "pending" && (
-                <span className="pill pill-ghost g-kds-pill-micro">Pend.</span>
+                <span className="pill pill-ghost g-kds-pill-micro">{t("kds.pending")}</span>
               )}
             </div>
           );
         })}
       </div>
 
-      {/* Actions */}
       <div className="g-kds-actions">
         <button
           type="button"
           className="g-btn g-btn-ghost g-btn-touch g-kds-action-btn"
           onClick={() => items.forEach((i) => { if (i.status === "pending") onPreparing(i.id); })}
         >
-          Preparando
+          {t("kds.btn.preparing")}
         </button>
         <button
           type="button"
           className="g-btn g-btn-primary g-btn-touch g-kds-action-btn"
           onClick={() => items.forEach((i) => onDispatched(i.id))}
         >
-          {late || urgent ? "Acelerar" : "Marcar lista"} →
+          {late || urgent ? t("kds.btn.rush") : t("kds.btn.done")} →
         </button>
       </div>
     </div>
@@ -179,8 +176,10 @@ function KDSCard({ orderId, items, elapsed, onPreparing, onDispatched }: KDSCard
 
 export default function KDS() {
   const { branchId } = useTenantContext();
+  const { t } = useLanguage();
   const qc = useQueryClient();
-  const [station, setStation] = useState(() => localStorage.getItem("kds_station") || "Todas");
+  const STATIONS = [t("kds.station.all"), t("kds.station.kitchen"), t("kds.station.bar"), t("kds.station.grill"), t("kds.station.cold"), t("kds.station.desserts")];
+  const [station, setStation] = useState(() => localStorage.getItem("kds_station") || t("kds.station.all"));
   const [soundOn, setSoundOn] = useState(true);
   const [now, setNow] = useState(Date.now());
   const prevIds    = useRef<Set<string>>(new Set());
@@ -189,8 +188,8 @@ export default function KDS() {
   useEffect(() => { localStorage.setItem("kds_station", station); }, [station]);
 
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 30_000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(timer);
   }, []);
 
   const { data: items = [] } = useQuery({
@@ -221,9 +220,12 @@ export default function KDS() {
     return () => { supabase.removeChannel(ch); };
   }, [branchId, qc]);
 
+  const allStation = t("kds.station.all");
+  const kitchenStation = t("kds.station.kitchen");
+
   const filtered = useMemo(() =>
-    items.filter((i) => station === "Todas" || (i.products?.station ?? "Cocina") === station),
-  [items, station]);
+    items.filter((i) => station === allStation || (i.products?.station ?? kitchenStation) === station),
+  [items, station, allStation, kitchenStation]);
 
   const byOrder = useMemo(() =>
     filtered.reduce((acc: Record<string, KDSItem[]>, item) => {
@@ -232,7 +234,6 @@ export default function KDS() {
     }, {}),
   [filtered]);
 
-  // Sound alerts
   useEffect(() => {
     const currentIds = new Set(filtered.map((i) => i.id));
     const isFirst = prevIds.current.size === 0;
@@ -279,18 +280,17 @@ export default function KDS() {
 
   return (
     <div className="g-kds-stage">
-      {/* Header */}
       <div className="g-kds-header">
         <div className="g-kds-header-info">
-          <div className="h-display g-page-title">KDS Cocina</div>
-          <div className="h-meta g-page-subtitle">Estación activa · {station}</div>
+          <div className="h-display g-page-title">{t("kds.title")}</div>
+          <div className="h-meta g-page-subtitle">{t("kds.active_station")} · {station}</div>
         </div>
 
         <div className="glass g-kds-header-stat">
           <span className="dot dot-ok" />
           <div className="g-kds-header-stat-inner">
-            <div className="g-kds-header-stat-label">Conectado a POS</div>
-            <div className="g-kds-header-stat-val">Tiempo prom. {SLA_MINUTES} min</div>
+            <div className="g-kds-header-stat-label">{t("kds.connected")}</div>
+            <div className="g-kds-header-stat-val">{t("kds.avg_time")} {SLA_MINUTES} min</div>
           </div>
         </div>
 
@@ -298,15 +298,15 @@ export default function KDS() {
           <div className="glass g-kds-header-stat">
             <span className="dot dot-bad" />
             <div className="g-kds-header-stat-inner">
-              <div className="g-kds-header-stat-label">Demoradas</div>
-              <div className="g-kds-header-stat-val">{lateCount} orden{lateCount !== 1 ? "es" : ""}</div>
+              <div className="g-kds-header-stat-label">{t("kds.delayed")}</div>
+              <div className="g-kds-header-stat-val">{lateCount} {t("kds.order")}{lateCount !== 1 ? "s" : ""}</div>
             </div>
           </div>
         )}
 
         <div className="glass g-kds-header-stat">
           <div className="g-kds-header-stat-inner">
-            <div className="g-kds-header-stat-label">En curso</div>
+            <div className="g-kds-header-stat-label">{t("kds.in_progress")}</div>
             <div className="h-num g-kds-count-val">{orderCount}</div>
           </div>
         </div>
@@ -314,7 +314,7 @@ export default function KDS() {
         <button
           type="button"
           className="g-kds-sound-btn"
-          title={soundOn ? "Silenciar alertas" : "Activar alertas"}
+          title={soundOn ? t("kds.mute") : t("kds.unmute")}
           onClick={() => setSoundOn((v) => !v)}
         >
           {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
@@ -329,7 +329,7 @@ export default function KDS() {
             className={cn("pill pill-md", station === s ? "pill-brand" : "pill-ghost")}
             onClick={() => setStation(s)}
           >
-            {s}{s === "Todas" ? ` · ${orderCount}` : ""}
+            {s}{s === allStation ? ` · ${orderCount}` : ""}
           </button>
         ))}
         <div className="flex-1" />
@@ -340,18 +340,16 @@ export default function KDS() {
         </div>
       </div>
 
-      {/* Empty state */}
       {orderCount === 0 && (
         <div className="g-kds-empty">
           <div className="orb g-kds-empty-orb">
             <ChefHat size={32} />
           </div>
-          <p className="h-display g-kds-empty-title">Sin órdenes pendientes</p>
-          <p className="h-meta">La cocina está al día</p>
+          <p className="h-display g-kds-empty-title">{t("kds.empty.title")}</p>
+          <p className="h-meta">{t("kds.empty.desc")}</p>
         </div>
       )}
 
-      {/* Order cards grid */}
       {orderCount > 0 && (
         <div className="g-kds-grid">
           {Object.entries(byOrder).map(([orderId, orderItems]) => {

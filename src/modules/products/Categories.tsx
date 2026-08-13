@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/hooks/useLanguage";
 import { useTenantContext } from "@/hooks/useTenantContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, Pencil, Clock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-const DAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const getDays = (t: any) => [t("cat.days.sun"), t("cat.days.mon"), t("cat.days.tue"), t("cat.days.wed"), t("cat.days.thu"), t("cat.days.fri"), t("cat.days.sat")];
 
 function isCategoryActive(cat: any): boolean {
   if (!cat.schedule_enabled) return true;
@@ -31,6 +32,7 @@ export { isCategoryActive };
 export default function Categories() {
   const { tenantId } = useTenantContext();
   const qc = useQueryClient();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -42,16 +44,16 @@ export default function Categories() {
   });
 
   const handleDelete = async (cat: any) => {
-    if (!confirm(`¿Eliminar la categoría "${cat.name}"?\n\nEsta acción no se puede deshacer. Los productos asociados quedarán sin categoría.`)) return;
+    if (!confirm(t("cat.delete_confirm").replace("{name}", cat.name))) return;
     setDeleting(cat.id);
     try {
       await supabase.from("products").update({ category_id: null }).eq("category_id", cat.id);
       const { error } = await supabase.from("categories").delete().eq("id", cat.id);
       if (error) throw error;
-      toast.success(`Categoría "${cat.name}" eliminada`);
+      toast.success(t("cat.deleted").replace("{name}", cat.name));
       qc.invalidateQueries({ queryKey: ["categories"] });
     } catch (e: any) {
-      toast.error(e.message ?? "No se pudo eliminar");
+      toast.error(e.message ?? t("cat.delete_failed"));
     } finally {
       setDeleting(null);
     }
@@ -62,14 +64,14 @@ export default function Categories() {
       {/* Page header */}
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div className="flex flex-col gap-1">
-          <div className="h-display g-page-title">Categorías</div>
-          <div className="h-meta g-page-subtitle">{categories?.length ?? 0} categorías · CATÁLOGO</div>
+          <div className="h-display g-page-title">{t("cat.title")}</div>
+          <div className="h-meta g-page-subtitle">{categories?.length ?? 0} {t("cat.subtitle")}</div>
         </div>
 
         <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
           <DialogTrigger asChild>
             <button type="button" className="g-btn g-btn-primary" onClick={() => setEditing(null)}>
-              <Plus className="h-4 w-4" />Nueva
+              <Plus className="h-4 w-4" />{t("cat.new")}
             </button>
           </DialogTrigger>
           <CategoryDialog
@@ -106,7 +108,7 @@ export default function Categories() {
                 <div className="mt-0.5">
                   {c.schedule_enabled ? (
                     <span className={active ? "pill pill-ok" : "pill pill-ghost"}>
-                      {active ? "Activa ahora" : "Fuera de horario"}
+                      {active ? t("cat.active_now") : t("cat.out_of_hours")}
                     </span>
                   ) : (
                     <span className="text-xs text-ink-400 capitalize">{c.status}</span>
@@ -118,8 +120,8 @@ export default function Categories() {
                 <button
                   type="button"
                   className="g-btn g-btn-ghost g-btn-icon"
-                  title="Editar categoría"
-                  aria-label="Editar categoría"
+                  title={t("cat.edit")}
+                  aria-label={t("cat.edit")}
                   onClick={() => { setEditing(c); setOpen(true); }}
                 >
                   <Pencil className="h-4 w-4" />
@@ -127,8 +129,8 @@ export default function Categories() {
                 <button
                   type="button"
                   className="g-btn g-btn-ghost g-btn-icon g-btn-danger"
-                  title="Eliminar categoría"
-                  aria-label="Eliminar categoría"
+                  title={t("cat.delete")}
+                  aria-label={t("cat.delete")}
                   disabled={isDeleting}
                   onClick={() => handleDelete(c)}
                 >
@@ -144,6 +146,8 @@ export default function Categories() {
 }
 
 function CategoryDialog({ tenantId, editing, onClose }: { tenantId: string; editing: any; onClose: () => void }) {
+  const { t } = useLanguage();
+  const DAYS = getDays(t);
   const [form, setForm] = useState<any>(editing ?? {
     name: "", color: "#c2410c", sort_order: 0, status: "active",
     schedule_enabled: false, schedule_from: "08:00", schedule_until: "22:00",
@@ -166,7 +170,7 @@ function CategoryDialog({ tenantId, editing, onClose }: { tenantId: string; edit
       };
       if (editing) await supabase.from("categories").update(payload).eq("id", editing.id);
       else await supabase.from("categories").insert(payload);
-      toast.success("Guardado");
+      toast.success(t("common.save"));
       onClose();
     } catch (err: any) { toast.error(err.message); }
   };
@@ -174,20 +178,20 @@ function CategoryDialog({ tenantId, editing, onClose }: { tenantId: string; edit
   return (
     <DialogContent className="max-w-md">
       <DialogHeader>
-        <DialogTitle>{editing ? "Editar categoría" : "Nueva categoría"}</DialogTitle>
+        <DialogTitle>{editing ? t("cat.edit") : t("cat.new_cat")}</DialogTitle>
       </DialogHeader>
       <form onSubmit={submit} className="space-y-3">
         <div className="space-y-1.5">
-          <Label>Nombre</Label>
+          <Label>{t("cat.name")}</Label>
           <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label>Color</Label>
+            <Label>{t("cat.color")}</Label>
             <Input type="color" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} />
           </div>
           <div className="space-y-1.5">
-            <Label>Orden</Label>
+            <Label>{t("cat.order")}</Label>
             <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} />
           </div>
         </div>
@@ -197,7 +201,7 @@ function CategoryDialog({ tenantId, editing, onClose }: { tenantId: string; edit
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-ink-400" />
-              <Label>Horario programado</Label>
+              <Label>{t("cat.schedule")}</Label>
             </div>
             <Switch checked={form.schedule_enabled} onCheckedChange={(v) => setForm({ ...form, schedule_enabled: v })} />
           </div>
@@ -205,16 +209,16 @@ function CategoryDialog({ tenantId, editing, onClose }: { tenantId: string; edit
             <div className="space-y-2 pl-6">
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-xs">Desde</Label>
+                  <Label className="text-xs">{t("cat.from")}</Label>
                   <Input type="time" value={form.schedule_from ?? "08:00"} onChange={(e) => setForm({ ...form, schedule_from: e.target.value })} className="h-8" />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Hasta</Label>
+                  <Label className="text-xs">{t("cat.until")}</Label>
                   <Input type="time" value={form.schedule_until ?? "22:00"} onChange={(e) => setForm({ ...form, schedule_until: e.target.value })} className="h-8" />
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Días activos</Label>
+                <Label className="text-xs">{t("cat.active_days")}</Label>
                 <div className="flex gap-1 flex-wrap">
                   {DAYS.map((d, i) => (
                     <button
@@ -237,12 +241,12 @@ function CategoryDialog({ tenantId, editing, onClose }: { tenantId: string; edit
         </div>
 
         <div className="flex items-center justify-between p-3 border rounded-lg">
-          <Label>Activa</Label>
+          <Label>{t("cat.is_active")}</Label>
           <Switch checked={form.status === "active"} onCheckedChange={(c) => setForm({ ...form, status: c ? "active" : "inactive" })} />
         </div>
 
         <button type="submit" className="g-btn g-btn-primary w-full g-btn-touch">
-          Guardar
+          {t("common.save")}
         </button>
       </form>
     </DialogContent>

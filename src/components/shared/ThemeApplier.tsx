@@ -41,28 +41,29 @@ function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
 }
 
 export function ThemeApplier() {
-  const { accent, spacing } = useThemeStore()
+  const { mode, accent, spacing } = useThemeStore()
   const { primaryColor } = useBrandingStore()
 
   useEffect(() => {
     const root = document.documentElement
-    // Dark mode is disabled — the glassmorphism design system is light-only.
-    root.classList.remove('dark')
+    
+    // Apply dark mode class AND data-theme attribute based on mode
+    root.classList.toggle('dark', mode === 'dark')
+    root.setAttribute('data-theme', mode === 'dark' ? 'dark' : 'light')
     root.classList.toggle('spacing-compact', spacing === 'compacto')
 
-    // Remove old class-based accent markers (kept for any residual CSS selectors)
+    // Remove old class-based accent markers
     root.classList.remove('accent-indigo', 'accent-teal')
 
     let colors: ColorSet
+    const isDark = mode === 'dark'
 
     if (accent === 'azul' && primaryColor) {
       const hsl = hexToHsl(primaryColor)
-      // Only accept colors in a "cool" hue range (blue 170°–270°, teal 150°–195°).
-      // Olive / yellow-green (40°–140°) are off-brand and get rejected → fall back to S360T blue.
       const isBrandHue = hsl && hsl.s >= 35 && (hsl.h >= 150 && hsl.h <= 270)
       if (hsl && isBrandHue) {
-        const glowL = Math.min(hsl.l + 11, 95)
-        const sidebarL = Math.min(hsl.l + 20, 95)
+        const glowL = isDark ? Math.min(hsl.l + 15, 85) : Math.min(hsl.l + 11, 95)
+        const sidebarL = isDark ? Math.min(hsl.l + 25, 85) : Math.min(hsl.l + 20, 95)
         colors = {
           primary: `${hsl.h} ${hsl.s}% ${hsl.l}%`,
           glow: `${hsl.h} ${hsl.s}% ${glowL}%`,
@@ -70,10 +71,11 @@ export function ThemeApplier() {
           gradient: `linear-gradient(135deg, hsl(${hsl.h} ${hsl.s}% ${hsl.l}%), hsl(${hsl.h} ${hsl.s}% ${glowL}%))`,
         }
       } else {
-        colors = ACCENT_COLORS.azul.light
+        colors = ACCENT_COLORS.azul[isDark ? 'dark' : 'light']
       }
     } else {
-      colors = (ACCENT_COLORS[accent] ?? ACCENT_COLORS.azul).light
+      const accentEntry = ACCENT_COLORS[accent] ?? ACCENT_COLORS.azul
+      colors = accentEntry[isDark ? 'dark' : 'light']
     }
 
     root.style.setProperty('--primary', colors.primary)
@@ -86,7 +88,7 @@ export function ThemeApplier() {
     document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach(el => {
       el.content = `hsl(${colors.primary})`
     })
-  }, [accent, spacing, primaryColor])
+  }, [mode, accent, spacing, primaryColor])
 
   return null
 }

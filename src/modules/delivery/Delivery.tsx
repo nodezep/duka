@@ -17,17 +17,18 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { resolvePrice } from "@/lib/channels";
 import { Button } from "@/components/ui/button";
 import type { Database } from "@/integrations/supabase/types";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type DeliveryStatus = Database["public"]["Enums"]["delivery_status"];
 
-const STATUSES: { id: DeliveryStatus; label: string; pillClass: string }[] = [
-  { id: "received",  label: "Recibido",  pillClass: "s-pill s-pill-mute" },
-  { id: "preparing", label: "Preparando",pillClass: "s-pill s-pill-warn" },
-  { id: "ready",     label: "Listo",     pillClass: "s-pill s-pill-blue" },
-  { id: "assigned",  label: "Asignado",  pillClass: "s-pill s-pill-blue" },
-  { id: "on_way",    label: "En camino", pillClass: "s-pill s-pill-green" },
-  { id: "delivered", label: "Entregado", pillClass: "s-pill s-pill-green" },
-  { id: "cancelled", label: "Cancelado", pillClass: "s-pill s-pill-danger" },
+const STATUSES = (t: any): { id: DeliveryStatus; label: string; pillClass: string }[] => [
+  { id: "received",  label: t("delivery.status.received"),  pillClass: "s-pill s-pill-mute" },
+  { id: "preparing", label: t("delivery.status.preparing"),pillClass: "s-pill s-pill-warn" },
+  { id: "ready",     label: t("delivery.status.ready"),     pillClass: "s-pill s-pill-blue" },
+  { id: "assigned",  label: t("delivery.status.assigned"),  pillClass: "s-pill s-pill-blue" },
+  { id: "on_way",    label: t("delivery.status.on_way"), pillClass: "s-pill s-pill-green" },
+  { id: "delivered", label: t("delivery.status.delivered"), pillClass: "s-pill s-pill-green" },
+  { id: "cancelled", label: t("delivery.status.cancelled"), pillClass: "s-pill s-pill-danger" },
 ];
 
 const NEXT_STATUS: Record<DeliveryStatus, DeliveryStatus | null> = {
@@ -51,6 +52,8 @@ type LineDraft = {
 export default function Delivery() {
   const { tenantId, branchId, branches } = useTenantContext();
   const qc = useQueryClient();
+  const { t } = useLanguage();
+  const statuses = useMemo(() => STATUSES(t), [t]);
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -147,7 +150,7 @@ export default function Delivery() {
 
   const grouped = useMemo(() => {
     const g: Record<string, any[]> = {};
-    STATUSES.forEach((s) => (g[s.id] = []));
+    statuses.forEach((s) => (g[s.id] = []));
     (orders ?? []).forEach((o) => {
       if (g[o.status]) g[o.status].push(o);
     });
@@ -182,8 +185,8 @@ export default function Delivery() {
 
   const submit = async () => {
     if (!tenantId || !branchId) return;
-    if (!form.address.trim()) return toast.error("Dirección requerida");
-    if (lines.length === 0) return toast.error("Agrega productos");
+    if (!form.address.trim()) return toast.error(t("delivery.error.address_required"));
+    if (lines.length === 0) return toast.error(t("delivery.error.add_products"));
     setSubmitting(true);
     try {
       const items = lines.map((l) => ({
@@ -206,7 +209,7 @@ export default function Delivery() {
         _notes: form.notes || null,
       });
       if (error) throw error;
-      toast.success("Domicilio registrado");
+      toast.success(t("delivery.success.registered"));
       qc.invalidateQueries({ queryKey: ["delivery-orders"] });
       qc.invalidateQueries({ queryKey: ["sales"] });
       qc.invalidateQueries({ queryKey: ["dashboard-metrics"] });
@@ -234,27 +237,27 @@ export default function Delivery() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        eyebrow="OPERACIÓN · DOMICILIOS"
-        title="Domicilios propios"
-        description={`Tablero de pedidos a domicilio · ${branchName}`}
+        eyebrow={t("delivery.eyebrow")}
+        title={t("delivery.title")}
+        description={`${t("delivery.subtitle")} · ${branchName}`}
         actions={
           <button type="button" className="g-btn g-btn-primary" onClick={() => { resetForm(); setOpen(true); }}>
-            <Plus size={15} className="mr-1" /> Nuevo domicilio
+            <Plus size={15} className="mr-1" /> {t("delivery.action.new")}
           </button>
         }
       />
 
       {isLoading ? (
-        <div className="h-meta py-6">Cargando…</div>
+        <div className="h-meta py-6">{t("delivery.loading")}</div>
       ) : (orders?.length ?? 0) === 0 ? (
         <EmptyState
           icon={Bike}
-          title="Sin domicilios"
-          description="Registra tu primer pedido a domicilio para empezar el tablero"
+          title={t("delivery.empty.title")}
+          description={t("delivery.empty.desc")}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {STATUSES.filter((s) => s.id !== "cancelled").map((col) => (
+          {statuses.filter((s) => s.id !== "cancelled").map((col) => (
             <div key={col.id} className="flex flex-col gap-2">
               {/* Column header */}
               <div className="flex items-center justify-between px-1">
@@ -265,7 +268,7 @@ export default function Delivery() {
               <div className="flex flex-col gap-2 min-h-[80px]">
                 {grouped[col.id].length === 0 && (
                   <div className="glass-thin rounded-xl px-3 py-6 text-center h-meta border border-dashed border-[var(--hairline)]">
-                    Vacío
+                    {t("delivery.col.empty")}
                   </div>
                 )}
 
@@ -275,7 +278,7 @@ export default function Delivery() {
                     <div key={o.id} className="glass rounded-2xl p-3 flex flex-col gap-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="font-semibold text-sm text-ink-900 leading-tight">
-                          {o.customer_name || "Sin nombre"}
+                          {o.customer_name || t("delivery.no_name")}
                         </div>
                         <span className={col.pillClass}>{col.label}</span>
                       </div>
@@ -296,7 +299,7 @@ export default function Delivery() {
                       </div>
 
                       <div className="flex items-center justify-between text-xs pt-1 border-t border-[var(--hairline)]">
-                        <span className="h-meta">Envío</span>
+                        <span className="h-meta">{t("delivery.fee")}</span>
                         <span className="tabular-nums text-ink-900 font-semibold">{formatCurrency(Number(o.delivery_fee))}</span>
                       </div>
 
@@ -306,7 +309,7 @@ export default function Delivery() {
                           onValueChange={(v) => updateStatus(o.id, "assigned", v)}
                         >
                           <SelectTrigger className="h-8 text-xs">
-                            <SelectValue placeholder="Asignar domiciliario" />
+                            <SelectValue placeholder={t("delivery.assign_courier")} />
                           </SelectTrigger>
                           <SelectContent>
                             {(couriers ?? []).map((c) => (
@@ -323,7 +326,7 @@ export default function Delivery() {
                             className="g-btn g-btn-primary g-btn-sm flex-1"
                             onClick={() => updateStatus(o.id, next)}
                           >
-                            → {STATUSES.find((s) => s.id === next)?.label}
+                            → {statuses.find((s) => s.id === next)?.label}
                           </button>
                         )}
                         {o.status !== "delivered" && o.status !== "cancelled" && (
@@ -332,7 +335,7 @@ export default function Delivery() {
                             className="g-btn g-btn-ghost g-btn-sm text-red-500"
                             onClick={() => updateStatus(o.id, "cancelled")}
                           >
-                            Cancelar
+                            {t("delivery.action.cancel")}
                           </button>
                         )}
                       </div>
@@ -348,28 +351,28 @@ export default function Delivery() {
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Nuevo domicilio</DialogTitle>
+            <DialogTitle>{t("delivery.dialog.title")}</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-3">
               <div>
-                <Label>Cliente</Label>
+                <Label>{t("delivery.dialog.customer")}</Label>
                 <Input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
               </div>
               <div>
-                <Label>Teléfono</Label>
+                <Label>{t("delivery.dialog.phone")}</Label>
                 <Input value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} />
               </div>
               <div>
-                <Label>Dirección</Label>
+                <Label>{t("delivery.dialog.address")}</Label>
                 <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
               </div>
               <div>
-                <Label>Barrio / zona</Label>
+                <Label>{t("delivery.dialog.neighborhood")}</Label>
                 <Input value={form.neighborhood} onChange={(e) => setForm({ ...form, neighborhood: e.target.value })} />
               </div>
               <div>
-                <Label>Costo de envío</Label>
+                <Label>{t("delivery.dialog.fee")}</Label>
                 <Input
                   type="number"
                   min="0"
@@ -379,13 +382,13 @@ export default function Delivery() {
                 />
               </div>
               <div>
-                <Label>Notas</Label>
+                <Label>{t("delivery.dialog.notes")}</Label>
                 <Input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Agregar productos</Label>
-              <Input placeholder="Buscar producto..." value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Label>{t("delivery.dialog.add_products")}</Label>
+              <Input placeholder={t("delivery.dialog.search_ph")} value={search} onChange={(e) => setSearch(e.target.value)} />
               {search && (
                 <ScrollArea className="h-44 border rounded-lg">
                   <div className="divide-y">
@@ -409,7 +412,7 @@ export default function Delivery() {
               )}
               <div className="glass rounded-2xl p-3">
                 {lines.length === 0 ? (
-                  <div className="h-meta py-3 text-center">Sin items todavía</div>
+                  <div className="h-meta py-3 text-center">{t("delivery.dialog.no_items")}</div>
                 ) : (
                   <div className="space-y-2 max-h-40 overflow-auto">
                     {lines.map((l) => (
@@ -441,15 +444,15 @@ export default function Delivery() {
                   </div>
                 )}
                 <div className="mt-3 pt-3 border-t border-[var(--hairline)] flex justify-between font-bold">
-                  <span className="h-label">Total</span>
+                  <span className="h-label">{t("delivery.dialog.total")}</span>
                   <span className="tabular-nums text-brand-600 h-num g-val-16">{formatCurrency(total)}</span>
                 </div>
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={submit} disabled={submitting || lines.length === 0}>Registrar domicilio</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>{t("delivery.dialog.cancel")}</Button>
+            <Button onClick={submit} disabled={submitting || lines.length === 0}>{t("delivery.dialog.submit")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingDown, Plus, Pencil, Trash2, Tag } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { toast } from "sonner";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type Category = { id: string; name: string };
 type Expense = {
@@ -43,10 +44,10 @@ const emptyExpense: ExpenseForm = {
   expense_date: new Date().toISOString().slice(0, 10),
 };
 
-const PAY_METHODS = [
-  { id: "cash",     label: "Efectivo" },
-  { id: "card",     label: "Tarjeta" },
-  { id: "transfer", label: "Transferencia" },
+const PAY_METHODS = (t: any) => [
+  { id: "cash",     label: t("expenses.payment.cash") || "Efectivo" },
+  { id: "card",     label: t("expenses.payment.card") || "Tarjeta" },
+  { id: "transfer", label: t("expenses.payment.transfer") || "Transferencia" },
 ];
 
 export default function Expenses() {
@@ -58,6 +59,8 @@ export default function Expenses() {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [expenseForm, setExpenseForm] = useState<ExpenseForm>(emptyExpense);
   const [catName, setCatName] = useState("");
+  const { t } = useLanguage();
+  const payMethods = PAY_METHODS(t);
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["expense-categories", tenantId],
@@ -111,13 +114,13 @@ export default function Expenses() {
       }
     },
     onSuccess: () => {
-      toast.success(editingExpense ? "Gasto actualizado" : "Gasto registrado");
+      toast.success(editingExpense ? t("expenses.success.updated") : t("expenses.success.registered"));
       qc.invalidateQueries({ queryKey: ["expenses"] });
       setExpenseOpen(false);
       setEditingExpense(null);
       setExpenseForm(emptyExpense);
     },
-    onError: (e: any) => toast.error(e.message ?? "Error al guardar"),
+    onError: (e: any) => toast.error(e.message ?? t("expenses.error.save")),
   });
 
   const removeExpense = useMutation({
@@ -126,7 +129,7 @@ export default function Expenses() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Gasto eliminado");
+      toast.success(t("expenses.success.deleted"));
       qc.invalidateQueries({ queryKey: ["expenses"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Error"),
@@ -140,7 +143,7 @@ export default function Expenses() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Categoría creada");
+      toast.success(t("expenses.success.cat_created"));
       qc.invalidateQueries({ queryKey: ["expense-categories"] });
       setCatOpen(false);
       setCatName("");
@@ -171,19 +174,19 @@ export default function Expenses() {
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
         <div className="g-page-hd">
-          <div className="g-page-hd-eyebrow">FINANZAS · GASTOS</div>
-          <div className="h-display g-page-title">Gastos</div>
-          <div className="g-page-hd-meta">Este mes: {formatCurrency(totalMonth)}</div>
+          <div className="g-page-hd-eyebrow">{t("expenses.eyebrow")}</div>
+          <div className="h-display g-page-title">{t("expenses.title")}</div>
+          <div className="g-page-hd-meta">{t("expenses.this_month")} {formatCurrency(totalMonth)}</div>
         </div>
         <button type="button" className="g-btn g-btn-primary" onClick={openCreate}>
-          <Plus size={16} className="mr-1" />Registrar gasto
+          <Plus size={16} className="mr-1" />{t("expenses.action.new")}
         </button>
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
-          <TabsTrigger value="expenses">Gastos</TabsTrigger>
-          <TabsTrigger value="categories">Categorías</TabsTrigger>
+          <TabsTrigger value="expenses">{t("expenses.tab.expenses")}</TabsTrigger>
+          <TabsTrigger value="categories">{t("expenses.tab.categories")}</TabsTrigger>
         </TabsList>
 
         {/* ── Expenses tab ── */}
@@ -191,17 +194,17 @@ export default function Expenses() {
           {expenses.length === 0 ? (
             <EmptyState
               icon={TrendingDown}
-              title="Sin gastos registrados"
-              description="Registra arriendo, nómina, servicios y otros gastos operativos."
+              title={t("expenses.empty.title")}
+              description={t("expenses.empty.desc")}
             />
           ) : (
             <div className="glass rounded-2xl overflow-hidden">
               <div className="g-exp-head">
-                <span>Fecha</span>
-                <span>Descripción</span>
-                <span>Categoría</span>
-                <span>Método</span>
-                <span className="text-right">Monto</span>
+                <span>{t("expenses.col.date")}</span>
+                <span>{t("expenses.col.desc")}</span>
+                <span>{t("expenses.col.category")}</span>
+                <span>{t("expenses.col.method")}</span>
+                <span className="text-right">{t("expenses.col.amount")}</span>
                 <span />
               </div>
               {expenses.map((e) => (
@@ -215,17 +218,17 @@ export default function Expenses() {
                         {e.expense_categories.name}
                       </span>
                     ) : (
-                      <span className="h-meta">Sin categoría</span>
+                      <span className="h-meta">{t("expenses.no_category")}</span>
                     )}
                   </span>
                   <span className="g-exp-pay">
-                    {PAY_METHODS.find((m) => m.id === e.payment_method)?.label ?? e.payment_method}
+                    {payMethods.find((m) => m.id === e.payment_method)?.label ?? e.payment_method}
                   </span>
                   <span className="g-exp-amt">{formatCurrency(Number(e.amount))}</span>
                   <span className="g-exp-actions">
                     <button
                       type="button"
-                      title="Editar gasto"
+                      title={t("expenses.action.edit")}
                       className="g-exp-icon-btn"
                       onClick={() => openEdit(e)}
                     >
@@ -233,9 +236,9 @@ export default function Expenses() {
                     </button>
                     <button
                       type="button"
-                      title="Eliminar gasto"
+                      title={t("expenses.action.delete")}
                       className="g-exp-icon-btn g-exp-icon-btn-del"
-                      onClick={() => { if (confirm("¿Eliminar gasto?")) removeExpense.mutate(e.id); }}
+                      onClick={() => { if (confirm(t("expenses.confirm_delete"))) removeExpense.mutate(e.id); }}
                     >
                       <Trash2 size={14} />
                     </button>
@@ -250,19 +253,19 @@ export default function Expenses() {
         <TabsContent value="categories" className="mt-4">
           <div className="flex gap-2 mb-4">
             <button type="button" className="g-btn g-btn-ghost" onClick={() => setCatOpen(true)}>
-              <Plus size={16} className="mr-1" />Nueva categoría
+              <Plus size={16} className="mr-1" />{t("expenses.cat.new")}
             </button>
           </div>
           {categories.length === 0 ? (
             <EmptyState
               icon={Tag}
-              title="Sin categorías"
-              description="Crea categorías como Arriendo, Nómina, Servicios, etc."
+              title={t("expenses.cat.empty.title")}
+              description={t("expenses.cat.empty.desc")}
             />
           ) : (
             <div className="glass rounded-2xl overflow-hidden">
               <div className="g-cat-head">
-                <span>Nombre</span>
+                <span>{t("expenses.cat.col.name")}</span>
               </div>
               {categories.map((c) => (
                 <div key={c.id} className="g-cat-row">
@@ -284,12 +287,12 @@ export default function Expenses() {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingExpense ? "Editar gasto" : "Registrar gasto"}</DialogTitle>
+            <DialogTitle>{editingExpense ? t("expenses.dialog.edit") : t("expenses.dialog.new")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Monto *</Label>
+                <Label>{t("expenses.dialog.amount")}</Label>
                 <Input
                   type="number"
                   min="0"
@@ -299,7 +302,7 @@ export default function Expenses() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Fecha *</Label>
+                <Label>{t("expenses.dialog.date")}</Label>
                 <Input
                   type="date"
                   value={expenseForm.expense_date}
@@ -308,35 +311,35 @@ export default function Expenses() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label>Categoría</Label>
+              <Label>{t("expenses.dialog.category")}</Label>
               <Select
                 value={expenseForm.category_id}
                 onValueChange={(v) => setExpenseForm((f) => ({ ...f, category_id: v }))}
               >
-                <SelectTrigger><SelectValue placeholder="Seleccionar categoría" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("expenses.dialog.select_cat")} /></SelectTrigger>
                 <SelectContent>
                   {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Método de pago</Label>
+              <Label>{t("expenses.dialog.method")}</Label>
               <Select
                 value={expenseForm.payment_method}
                 onValueChange={(v) => setExpenseForm((f) => ({ ...f, payment_method: v }))}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {PAY_METHODS.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
+                  {payMethods.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Descripción</Label>
+              <Label>{t("expenses.dialog.desc")}</Label>
               <Input
                 value={expenseForm.description}
                 onChange={(e) => setExpenseForm((f) => ({ ...f, description: e.target.value }))}
-                placeholder="Ej: Arriendo local, pago de servicios..."
+                placeholder={t("expenses.dialog.desc_ph")}
               />
             </div>
             <button
@@ -345,7 +348,7 @@ export default function Expenses() {
               disabled={!expenseForm.amount || saveExpense.isPending}
               onClick={() => saveExpense.mutate(expenseForm)}
             >
-              {saveExpense.isPending ? "Guardando..." : editingExpense ? "Guardar cambios" : "Registrar gasto"}
+              {saveExpense.isPending ? t("expenses.dialog.saving") : editingExpense ? t("expenses.dialog.save") : t("expenses.dialog.submit")}
             </button>
           </div>
         </DialogContent>
@@ -354,14 +357,14 @@ export default function Expenses() {
       {/* Category dialog */}
       <Dialog open={catOpen} onOpenChange={setCatOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>Nueva categoría</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("expenses.cat.dialog.title")}</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label>Nombre *</Label>
+              <Label>{t("expenses.cat.dialog.name")}</Label>
               <Input
                 value={catName}
                 onChange={(e) => setCatName(e.target.value)}
-                placeholder="Ej: Arriendo, Nómina, Servicios..."
+                placeholder={t("expenses.cat.dialog.name_ph")}
               />
             </div>
             <button
@@ -370,7 +373,7 @@ export default function Expenses() {
               disabled={!catName.trim() || saveCat.isPending}
               onClick={() => saveCat.mutate()}
             >
-              {saveCat.isPending ? "Guardando..." : "Crear categoría"}
+              {saveCat.isPending ? t("expenses.dialog.saving") : t("expenses.cat.dialog.submit")}
             </button>
           </div>
         </DialogContent>

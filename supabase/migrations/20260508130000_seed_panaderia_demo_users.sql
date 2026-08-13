@@ -4,12 +4,13 @@
 -- Emails en auth.users: @demos360t  (ej: admin@demos360t, cajero@demos360t)
 -- Solo para desarrollo / demo. Eliminar en producción real.
 -- ═══════════════════════════════════════════════════════════════════════════════
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 
 DO $$
 DECLARE
   v_tenant_id UUID;
   u_id        UUID;
-  demo_pwd    TEXT := crypt('Demo2026!', gen_salt('bf'));
+  demo_pwd    TEXT := extensions.crypt('Demo2026!', extensions.gen_salt('bf'));
   roles_data  RECORD;
 BEGIN
   SELECT id INTO v_tenant_id FROM public.tenants WHERE slug = 'panaderia';
@@ -34,19 +35,37 @@ BEGIN
         email_confirmed_at,
         confirmation_token, recovery_token,
         email_change_token_new, reauthentication_token,
+        email_change_token_current, phone_change_token,
+        raw_app_meta_data,
         raw_user_meta_data,
-        created_at, updated_at
+        created_at, updated_at,
+        is_sso_user,
+        is_anonymous
       ) VALUES (
         '00000000-0000-0000-0000-000000000000',
         u_id, 'authenticated', 'authenticated',
         roles_data.email,
         demo_pwd,
         now(),
-        '', '', '', '',
+        '', '', '', '', '', '',
+        '{"provider": "email", "providers": ["email"]}'::jsonb,
         jsonb_build_object('full_name', roles_data.full_name),
-        now(), now()
+        now(), now(),
+        false,
+        false
       );
     END IF;
+
+    -- Insert corresponding identity for demo users
+    INSERT INTO auth.identities (
+      id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at
+    )
+    VALUES (
+      u_id::text, u_id, u_id::text, 'email',
+      jsonb_build_object('sub', u_id::text, 'email', roles_data.email, 'email_verified', true, 'phone_verified', false),
+      now(), now(), now()
+    )
+    ON CONFLICT (provider, id) DO NOTHING;
 
     INSERT INTO public.user_roles (user_id, tenant_id, role)
     VALUES (u_id, v_tenant_id, roles_data.rol)

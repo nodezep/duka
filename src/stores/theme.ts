@@ -11,6 +11,7 @@ interface ThemeState {
   spacing:    ThemeSpacing
   showIntro:  boolean
   setMode:      (mode: ThemeMode)       => void
+  toggleMode:   ()                      => void
   setAccent:    (accent: ThemeAccent)   => void
   setSpacing:   (spacing: ThemeSpacing) => void
   setShowIntro: (show: boolean)         => void
@@ -24,6 +25,7 @@ export const useThemeStore = create<ThemeState>()(
       spacing:   'comodo',
       showIntro: true,
       setMode:      (mode)      => set({ mode }),
+      toggleMode:   ()          => set((s) => ({ mode: s.mode === 'dark' ? 'light' : 'dark' })),
       setAccent:    (accent)    => set({ accent }),
       setSpacing:   (spacing)   => set({ spacing }),
       setShowIntro: (showIntro) => set({ showIntro }),

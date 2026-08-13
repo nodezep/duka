@@ -9,6 +9,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Users, Plus, Pencil, Trash2, Search, Phone, Mail, Heart } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type Customer = {
   id: string;
@@ -22,11 +23,11 @@ type Customer = {
 };
 
 type FormData = { name: string; phone: string; email: string; document_number: string; address: string };
-
 const empty: FormData = { name: "", phone: "", email: "", document_number: "", address: "" };
 
 export default function Customers() {
   const { tenantId } = useTenantContext();
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -62,13 +63,13 @@ export default function Customers() {
       }
     },
     onSuccess: () => {
-      toast.success(editing ? "Cliente actualizado" : "Cliente creado");
+      toast.success(editing ? t("customers.updated") : t("customers.created"));
       qc.invalidateQueries({ queryKey: ["customers"] });
       setOpen(false);
       setEditing(null);
       setForm(empty);
     },
-    onError: (e: any) => toast.error(e.message ?? "Error al guardar"),
+    onError: (e: any) => toast.error(e.message ?? t("common.error")),
   });
 
   const remove = useMutation({
@@ -77,10 +78,10 @@ export default function Customers() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Cliente eliminado");
+      toast.success(t("customers.deleted"));
       qc.invalidateQueries({ queryKey: ["customers"] });
     },
-    onError: (e: any) => toast.error(e.message ?? "Error al eliminar"),
+    onError: (e: any) => toast.error(e.message ?? t("common.error")),
   });
 
   const openCreate = () => { setEditing(null); setForm(empty); setOpen(true); };
@@ -99,23 +100,19 @@ export default function Customers() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Page header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="orb">
-            <Users className="h-5 w-5" />
-          </div>
+          <div className="orb"><Users className="h-5 w-5" /></div>
           <div>
-            <div className="h-meta g-page-subtitle text-ink-400">OPERACIÓN · CLIENTES</div>
-            <h1 className="h-display g-page-title">Clientes</h1>
+            <div className="h-meta g-page-subtitle text-ink-400">{t("customers.meta")}</div>
+            <h1 className="h-display g-page-title">{t("customers.title")}</h1>
             <div className="h-meta g-page-subtitle text-ink-500">
-              {customers.length} cliente{customers.length !== 1 ? "s" : ""} registrado{customers.length !== 1 ? "s" : ""}
+              {customers.length} {t("customers.subtitle")}
             </div>
           </div>
         </div>
         <button type="button" className="g-btn g-btn-primary" onClick={openCreate}>
-          <Plus className="h-4 w-4" />
-          Nuevo cliente
+          <Plus className="h-4 w-4" /> {t("customers.new")}
         </button>
       </div>
 
@@ -124,123 +121,90 @@ export default function Customers() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-400" />
         <Input
           className="pl-9"
-          placeholder="Buscar por nombre, teléfono, NIT..."
+          placeholder={t("customers.search_ph")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      {/* Table / Empty */}
       {filtered.length === 0 ? (
         <div className="glass rounded-2xl p-12 text-center">
-          <div className="orb mx-auto mb-4">
-            <Users className="h-7 w-7" />
-          </div>
-          <h2 className="h-display font-semibold text-lg">Sin clientes</h2>
-          <p className="h-meta g-page-subtitle text-ink-500 mt-1">
-            Registra tus clientes para vincularlos a ventas y ver su historial.
-          </p>
+          <div className="orb mx-auto mb-4"><Users className="h-7 w-7" /></div>
+          <h2 className="h-display font-semibold text-lg">{t("customers.empty.title")}</h2>
+          <p className="h-meta g-page-subtitle text-ink-500 mt-1">{t("customers.empty.desc")}</p>
         </div>
       ) : (
         <div className="glass rounded-2xl overflow-hidden">
-          {/* Table header */}
           <div className="grid grid-cols-[2fr_1fr_2fr_2fr_100px_72px] gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-400 border-b border-white/10">
-            <span>Nombre</span>
-            <span>Documento</span>
-            <span>Contacto</span>
-            <span>Dirección</span>
-            <span className="text-right">Puntos</span>
+            <span>{t("customers.col.name")}</span>
+            <span>{t("customers.col.doc")}</span>
+            <span>{t("customers.col.contact")}</span>
+            <span>{t("customers.col.address")}</span>
+            <span className="text-right">{t("customers.col.points")}</span>
             <span />
           </div>
-
-          {/* Rows */}
           {filtered.map((c, idx) => (
             <div
               key={c.id}
               className={`grid grid-cols-[2fr_1fr_2fr_2fr_100px_72px] gap-3 px-4 py-3 items-center hover:bg-white/5 transition-colors${idx < filtered.length - 1 ? " border-b border-white/10" : ""}`}
             >
               <span className="font-medium text-sm text-ink-900">{c.name}</span>
-
-              <span className="text-sm tabular-nums text-ink-500">
-                {c.document_number ?? "—"}
-              </span>
-
+              <span className="text-sm tabular-nums text-ink-500">{c.document_number ?? "—"}</span>
               <div className="flex flex-col gap-0.5">
-                {c.phone && (
-                  <span className="flex items-center gap-1 text-sm text-ink-700">
-                    <Phone className="h-3 w-3 text-ink-400" />{c.phone}
-                  </span>
-                )}
-                {c.email && (
-                  <span className="flex items-center gap-1 text-sm text-ink-500">
-                    <Mail className="h-3 w-3 text-ink-400" />{c.email}
-                  </span>
-                )}
+                {c.phone && <span className="flex items-center gap-1 text-sm text-ink-700"><Phone className="h-3 w-3 text-ink-400" />{c.phone}</span>}
+                {c.email && <span className="flex items-center gap-1 text-sm text-ink-500"><Mail className="h-3 w-3 text-ink-400" />{c.email}</span>}
                 {!c.phone && !c.email && <span className="text-sm text-ink-400">—</span>}
               </div>
-
-              <span className="text-sm text-ink-500">
-                {(c as any).address ?? "—"}
-              </span>
-
+              <span className="text-sm text-ink-500">{(c as any).address ?? "—"}</span>
               <div className="flex justify-end">
                 <span className="g-pill g-pill-warn flex items-center gap-1">
-                  <Heart className="h-3 w-3 fill-current" />
-                  {c.loyalty_points ?? 0}
+                  <Heart className="h-3 w-3 fill-current" />{c.loyalty_points ?? 0}
                 </span>
               </div>
-
               <div className="flex gap-1 justify-end">
                 <button
-                  type="button"
-                  aria-label="Editar cliente"
+                  type="button" aria-label={t("common.edit")}
                   className="g-btn g-btn-ghost h-8 w-8 p-0 flex items-center justify-center"
                   onClick={() => openEdit(c)}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
+                ><Pencil className="h-3.5 w-3.5" /></button>
                 <button
-                  type="button"
-                  aria-label="Eliminar cliente"
+                  type="button" aria-label={t("common.delete")}
                   className="g-btn g-btn-ghost h-8 w-8 p-0 flex items-center justify-center text-g-bad"
-                  onClick={() => { if (confirm("¿Eliminar cliente?")) remove.mutate(c.id); }}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                  onClick={() => { if (confirm(t("customers.confirm_delete"))) remove.mutate(c.id); }}
+                ><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Dialog */}
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(empty); } }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editing ? "Editar cliente" : "Nuevo cliente"}</DialogTitle>
+            <DialogTitle>{editing ? t("customers.dialog.edit") : t("customers.dialog.new")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label>Nombre *</Label>
-              <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Nombre completo o razón social" />
+              <Label>{t("customers.form.name")} *</Label>
+              <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder={t("customers.form.name_ph")} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>NIT / CC</Label>
+                <Label>{t("customers.form.doc")}</Label>
                 <Input value={form.document_number} onChange={(e) => setForm((f) => ({ ...f, document_number: e.target.value }))} placeholder="123456789" />
               </div>
               <div className="space-y-1.5">
-                <Label>Teléfono</Label>
+                <Label>{t("customers.form.phone")}</Label>
                 <Input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="300 000 0000" />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label>Correo electrónico</Label>
-              <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="cliente@email.com" />
+              <Label>{t("customers.form.email")}</Label>
+              <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="customer@email.com" />
             </div>
             <div className="space-y-1.5">
-              <Label>Dirección</Label>
-              <Input value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} placeholder="Calle 123 # 45-67" />
+              <Label>{t("customers.form.address")}</Label>
+              <Input value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} placeholder={t("customers.form.address_ph")} />
             </div>
             <button
               type="button"
@@ -248,7 +212,7 @@ export default function Customers() {
               disabled={!form.name.trim() || save.isPending}
               onClick={() => save.mutate(form)}
             >
-              {save.isPending ? "Guardando..." : editing ? "Guardar cambios" : "Crear cliente"}
+              {save.isPending ? t("common.saving") : editing ? t("common.save_changes") : t("customers.dialog.new")}
             </button>
           </div>
         </DialogContent>

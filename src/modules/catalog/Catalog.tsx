@@ -10,11 +10,13 @@ import { formatCurrency } from "@/lib/format";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Layers } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function Catalog() {
   const { tenantId, branches } = useTenantContext();
   const qc = useQueryClient();
   const [branchId, setBranchId] = useState<string | undefined>(undefined);
+  const { t } = useLanguage();
 
   // Default selected branch
   const selected = branchId ?? branches[0]?.id;
@@ -82,9 +84,9 @@ export default function Catalog() {
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        eyebrow="CATÁLOGO · SUCURSAL"
-        title="Catálogo por sucursal"
-        description="Activa o desactiva productos y define precios locales por sucursal"
+        eyebrow={t("catalog.eyebrow")}
+        title={t("catalog.title")}
+        description={t("catalog.desc")}
         actions={
           branches.length > 0 && (
             <Select value={selected ?? undefined} onValueChange={setBranchId}>
@@ -100,16 +102,16 @@ export default function Catalog() {
       />
 
       {!selected ? (
-        <EmptyState icon={Layers} title="Selecciona una sucursal" description="Elige la sucursal cuyo catálogo deseas configurar" />
+        <EmptyState icon={Layers} title={t("catalog.empty.branch_title")} description={t("catalog.empty.branch_desc")} />
       ) : !products || products.length === 0 ? (
-        <EmptyState icon={Layers} title="Sin productos" description="Crea productos primero en el módulo Productos" />
+        <EmptyState icon={Layers} title={t("catalog.empty.products_title")} description={t("catalog.empty.products_desc")} />
       ) : (
         <div className="glass rounded-2xl overflow-hidden">
           <div className="grid grid-cols-[1fr_120px_180px_120px] px-5 py-3 text-xs font-semibold text-ink-400 uppercase tracking-wider border-b border-[var(--g-hairline)]">
-            <div>Producto</div>
-            <div className="text-right">Precio base</div>
-            <div className="text-right">Precio local</div>
-            <div className="text-center">Disponible</div>
+            <div>{t("catalog.col.product")}</div>
+            <div className="text-right">{t("catalog.col.base_price")}</div>
+            <div className="text-right">{t("catalog.col.local_price")}</div>
+            <div className="text-center">{t("catalog.col.available")}</div>
           </div>
           <div className="divide-y divide-[var(--g-hairline)]">
             {products.map((p) => {
@@ -133,7 +135,7 @@ export default function Catalog() {
                       type="number"
                       min="0"
                       step="100"
-                      placeholder="Usar base"
+                      placeholder={t("catalog.placeholder.use_base")}
                       defaultValue={local ?? ""}
                       onBlur={(e) => {
                         const v = e.target.value === "" ? null : Number(e.target.value);

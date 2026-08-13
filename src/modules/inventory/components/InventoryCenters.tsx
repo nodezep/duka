@@ -9,9 +9,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Settings2, Warehouse } from "lucide-react";
 import { useInventoryCenters, InventoryCenter } from "@/hooks/useInventoryCenters";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function InventoryCenters() {
   const { centers, isLoading, createCenter, updateCenter } = useInventoryCenters();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<InventoryCenter | null>(null);
 
@@ -32,41 +34,41 @@ export function InventoryCenters() {
     setEditing(null);
   };
 
-  if (isLoading) return <div className="p-8 text-center text-muted-foreground">Cargando centros...</div>;
+  if (isLoading) return <div className="p-8 text-center text-muted-foreground">{t("inv.centers.loading")}</div>;
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Centros de Inventario</h3>
+        <h3 className="text-lg font-semibold">{t("inv.centers.title")}</h3>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="h-4 w-4 mr-2" />Nuevo Centro</Button>
+            <Button size="sm"><Plus className="h-4 w-4 mr-2" />{t("inv.centers.new")}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editing ? "Editar Centro" : "Nuevo Centro de Inventario"}</DialogTitle>
+              <DialogTitle>{editing ? t("inv.centers.edit") : t("inv.centers.new_title")}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Nombre del Centro</Label>
-                <Input id="name" name="name" defaultValue={editing?.name} placeholder="Ej: Bodega 2, Barra Principal" required />
+                <Label htmlFor="name">{t("inv.centers.name")}</Label>
+                <Input id="name" name="name" defaultValue={editing?.name} placeholder={t("inv.centers.name_ph")} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="type">Tipo</Label>
+                <Label htmlFor="type">{t("inv.centers.type")}</Label>
                 <Select name="type" defaultValue={editing?.type || "warehouse"}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="warehouse">Bodega (Almacén)</SelectItem>
-                    <SelectItem value="point_of_sale">Punto de Venta</SelectItem>
-                    <SelectItem value="bar">Barra</SelectItem>
-                    <SelectItem value="kitchen">Cocina</SelectItem>
+                    <SelectItem value="warehouse">{t("inv.centers.type_warehouse")}</SelectItem>
+                    <SelectItem value="point_of_sale">{t("inv.centers.type_pos")}</SelectItem>
+                    <SelectItem value="bar">{t("inv.centers.type_bar")}</SelectItem>
+                    <SelectItem value="kitchen">{t("inv.centers.type_kitchen")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <Button type="submit" className="w-full" disabled={createCenter.isPending || updateCenter.isPending}>
-                {editing ? "Guardar Cambios" : "Crear Centro"}
+                {editing ? t("inv.centers.save") : t("inv.centers.create")}
               </Button>
             </form>
           </DialogContent>
@@ -77,10 +79,10 @@ export function InventoryCenters() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              <TableHead>{t("inv.centers.col.name")}</TableHead>
+              <TableHead>{t("inv.centers.col.type")}</TableHead>
+              <TableHead>{t("inv.centers.col.status")}</TableHead>
+              <TableHead className="text-right">{t("inv.centers.col.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -93,7 +95,7 @@ export function InventoryCenters() {
                 <TableCell className="capitalize">{center.type.replace("_", " ")}</TableCell>
                 <TableCell>
                   <Badge variant={center.status === "active" ? "default" : "secondary"} className={center.status === "active" ? "bg-success text-success-foreground" : ""}>
-                    {center.status === "active" ? "Activo" : "Inactivo"}
+                    {center.status === "active" ? t("inv.centers.status.active") : t("inv.centers.status.inactive")}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">

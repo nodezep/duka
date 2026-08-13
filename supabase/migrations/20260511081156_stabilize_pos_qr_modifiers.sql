@@ -637,12 +637,13 @@ BEGIN
   RETURN _sale_id;
 END;
 $$;
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 
 DO $$
 DECLARE
   v_tenant_id uuid;
   u_id uuid;
-  demo_pwd text := crypt('Demo2026!', gen_salt('bf'));
+  demo_pwd text := extensions.crypt('Demo2026!', extensions.gen_salt('bf'));
   roles_data record;
 BEGIN
   SELECT id INTO v_tenant_id FROM public.tenants WHERE slug = 'panaderia';

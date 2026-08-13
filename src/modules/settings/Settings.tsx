@@ -11,54 +11,56 @@ import AiAgentSettings from "./AiAgentSettings";
 import { DataManagement } from "./DataManagement";
 import { SystemMaintenance } from "./SystemMaintenance";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/hooks/useLanguage";
 import {
   Building2, GitBranch, UtensilsCrossed, Users, Globe,
   MessageCircle, Bot, Receipt, Palette, Database, Wrench,
   ChevronRight,
 } from "lucide-react";
 
-const TABS = [
-  { id: "business",   label: "Mi negocio",       icon: Building2 },
-  { id: "branches",   label: "Sucursales",        icon: GitBranch },
-  { id: "tables",     label: "Mesas",             icon: UtensilsCrossed },
-  { id: "users",      label: "Usuarios y permisos", icon: Users },
-  { id: "canales",    label: "Canales de venta",  icon: Globe },
-  { id: "whatsapp",   label: "WhatsApp IA",       icon: MessageCircle },
-  { id: "agente",     label: "Agente IA",         icon: Bot },
-  { id: "receipt",    label: "Recibo",            icon: Receipt },
-  { id: "apariencia", label: "Apariencia",        icon: Palette },
-  { id: "datos",      label: "Datos",             icon: Database },
-  { id: "ops",        label: "Operaciones",       icon: Wrench },
-] as const;
-
-type TabId = (typeof TABS)[number]["id"];
+type TabId = "business" | "branches" | "tables" | "users" | "canales" | "whatsapp" | "agente" | "receipt" | "apariencia" | "datos" | "ops";
 
 export default function Settings() {
   const [active, setActive] = useState<TabId>("business");
+  const { t } = useLanguage();
+
+  const TABS = [
+    { id: "business",   label: t("settings.tab.business"),   icon: Building2 },
+    { id: "branches",   label: t("settings.tab.branches"),   icon: GitBranch },
+    { id: "tables",     label: t("settings.tab.tables"),     icon: UtensilsCrossed },
+    { id: "users",      label: t("settings.tab.users"),      icon: Users },
+    { id: "canales",    label: t("settings.tab.channels"),   icon: Globe },
+    { id: "whatsapp",   label: t("settings.tab.whatsapp"),   icon: MessageCircle },
+    { id: "agente",     label: t("settings.tab.agent"),      icon: Bot },
+    { id: "receipt",    label: t("settings.tab.receipt"),    icon: Receipt },
+    { id: "apariencia", label: t("settings.tab.appearance"), icon: Palette },
+    { id: "datos",      label: t("settings.tab.data"),       icon: Database },
+    { id: "ops",        label: t("settings.tab.ops"),        icon: Wrench },
+  ] as const;
 
   return (
     <div className="g-cfg-stage">
       {/* Left nav */}
       <div className="glass g-cfg-nav-panel">
-        <div className="h-display g-cfg-nav-title">Configuración</div>
-        {TABS.map((t) => {
-          const Icon = t.icon;
-          const isActive = active === t.id;
+        <div className="h-display g-cfg-nav-title">{t("settings.title")}</div>
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = active === tab.id;
           return (
             <button
-              key={t.id}
+              key={tab.id}
               type="button"
               className={cn("g-cfg-nav-item", isActive && "is-active")}
-              onClick={() => setActive(t.id)}
+              onClick={() => setActive(tab.id as TabId)}
             >
               <Icon size={15} />
-              <span className="flex-1 text-left">{t.label}</span>
+              <span className="flex-1 text-left">{tab.label}</span>
               {isActive && <ChevronRight size={12} />}
             </button>
           );
         })}
         <div className="g-cfg-nav-hint glass-thin">
-          Cambios aplicados en tiempo real a esta sucursal.
+          {t("settings.hint")}
         </div>
       </div>
 

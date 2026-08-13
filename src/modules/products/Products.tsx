@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/hooks/useLanguage";
 import { useTenantContext } from "@/hooks/useTenantContext";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -13,20 +14,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 
-const TYPE_LABELS: Record<string, string> = {
-  simple: "Simple",
-  composite: "Compuesto",
-  production: "Producción",
-  combo: "Combo",
-  ingredient: "Ingrediente",
-  modifier: "Modificador"
-};
+const getTypeLabels = (t: any): Record<string, string> => ({
+  simple: t("prod_list.type.simple"),
+  composite: t("prod_list.type.composite"),
+  production: t("prod_list.type.production"),
+  combo: t("prod_list.type.combo"),
+  ingredient: t("prod_list.type.ingredient"),
+  modifier: t("prod_list.type.modifier")
+});
 
 export default function Products() {
   const { tenantId } = useTenantContext();
   const qc = useQueryClient();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const TYPE_LABELS = getTypeLabels(t);
 
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string>("all");
@@ -67,10 +70,10 @@ export default function Products() {
     try {
       const { error } = await supabase.from("products").delete().eq("id", deletingId).eq("tenant_id", tenantId);
       if (error) throw error;
-      toast({ title: "Producto eliminado", description: "El producto ha sido eliminado correctamente." });
+      toast({ title: t("prod_list.deleted_title"), description: t("prod_list.deleted_desc") });
       qc.invalidateQueries({ queryKey: ["products"] });
     } catch (err: any) {
-      toast({ title: "Error al eliminar", description: err.message, variant: "destructive" });
+      toast({ title: t("prod_list.delete_err"), description: err.message, variant: "destructive" });
     } finally {
       setDeletingId(null);
     }
@@ -103,12 +106,12 @@ export default function Products() {
         const content = event.target?.result as string;
         const parsed = parseCsv(content);
         if (parsed.length === 0) {
-          toast({ title: "Error", description: "El archivo está vacío o tiene un formato incorrecto.", variant: "destructive" });
+          toast({ title: t("common.error"), description: t("prod_list.empty_file"), variant: "destructive" });
           return;
         }
         const isValid = parsed.every(row => row.name && row.name.trim() !== "");
         if (!isValid) {
-          toast({ title: "Formato inválido", description: "Asegúrate de que todos los productos tengan al menos un 'name' (nombre).", variant: "destructive" });
+          toast({ title: t("prod_list.invalid_format"), description: t("prod_list.missing_name"), variant: "destructive" });
           return;
         }
         const mapProductType = (type: string | undefined): string => {
@@ -156,19 +159,19 @@ export default function Products() {
         if (deleteError) {
           console.error("Error al borrar productos:", deleteError);
           if (deleteError.code === "23503") {
-            throw new Error("No se pueden borrar los productos actuales porque están asociados a pedidos, recetas o movimientos de inventario existentes. Contacta a soporte para una limpieza profunda.");
+            throw new Error(t("prod_list.delete_deps_err"));
           }
-          throw new Error("Ocurrió un error al intentar limpiar la base de datos de productos.");
+          throw new Error(t("prod_list.clear_err"));
         }
         const { error: insertError } = await supabase.from("products").insert(dataToInsert);
         if (insertError) {
           console.error("Error al insertar:", insertError);
-          throw new Error("La base de datos se limpió, pero hubo un error insertando los nuevos productos. Verifica que la categoría u otros campos sean válidos.");
+          throw new Error(t("prod_list.insert_err"));
         }
-        toast({ title: "Sincronización exitosa", description: `Se eliminaron los datos anteriores y se importaron ${dataToInsert.length} productos nuevos.` });
+        toast({ title: t("prod_list.sync_success"), description: t("prod_list.sync_desc").replace("{count}", dataToInsert.length.toString()) });
         qc.invalidateQueries({ queryKey: ["products"] });
       } catch (err: any) {
-        toast({ title: "Error de Sincronización", description: err.message, variant: "destructive" });
+        toast({ title: t("prod_list.sync_err"), description: err.message, variant: "destructive" });
       } finally {
         setImportFile(null);
       }
@@ -180,8 +183,8 @@ export default function Products() {
     <div className="flex flex-col gap-5">
       {/* Page header */}
       <div className="flex flex-col gap-1">
-        <div className="h-display g-page-title">Productos</div>
-        <div className="h-meta g-page-subtitle">{products?.length ?? 0} productos · CATÁLOGO</div>
+        <div className="h-display g-page-title">{t("prod_list.title")}</div>
+        <div className="h-meta g-page-subtitle">{products?.length ?? 0} {t("prod_list.subtitle")}</div>
       </div>
 
       {/* Toolbar */}
@@ -193,26 +196,26 @@ export default function Products() {
 
         <Select value={categoryId} onValueChange={setCategoryId}>
           <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Categoría" />
+            <SelectValue placeholder={t("prod_list.category")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas</SelectItem>
+            <SelectItem value="all">{t("prod.all")}</SelectItem>
             {categories?.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
 
         <Select value={productType} onValueChange={setProductType}>
           <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Tipo" />
+            <SelectValue placeholder={t("prod_list.type")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="simple">Simple</SelectItem>
-            <SelectItem value="composite">Compuesto</SelectItem>
-            <SelectItem value="production">Producción</SelectItem>
-            <SelectItem value="combo">Combo</SelectItem>
-            <SelectItem value="ingredient">Ingrediente</SelectItem>
-            <SelectItem value="modifier">Modificador</SelectItem>
+            <SelectItem value="all">{t("prod.all")}</SelectItem>
+            <SelectItem value="simple">{t("prod_list.type.simple")}</SelectItem>
+            <SelectItem value="composite">{t("prod_list.type.composite")}</SelectItem>
+            <SelectItem value="production">{t("prod_list.type.production")}</SelectItem>
+            <SelectItem value="combo">{t("prod_list.type.combo")}</SelectItem>
+            <SelectItem value="ingredient">{t("prod_list.type.ingredient")}</SelectItem>
+            <SelectItem value="modifier">{t("prod_list.type.modifier")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -225,17 +228,17 @@ export default function Products() {
           </DialogTrigger>
           <DialogContent className="max-w-xl">
             <DialogHeader>
-              <DialogTitle>Guía de Tipos de Producto</DialogTitle>
+              <DialogTitle>{t("prod_list.guide_title")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-2">
               <div className="grid gap-4">
                 {[
-                  { label: "1. Simple", desc: "Producto terminado que se vende directamente. El inventario se descuenta por unidad vendida. Ej: Gaseosa embotellada." },
-                  { label: "2. Compuesto (Composite)", desc: "Producto que tiene una receta. Al venderse, descuenta del inventario los ingredientes definidos en su receta. Ej: Hamburguesa." },
-                  { label: "3. Producción (Production)", desc: "Producto que preparas en lote para generar stock propio a partir de otros ingredientes. Ej: Salsa de la casa o masa." },
-                  { label: "4. Combo", desc: "Agrupación de varios productos que se venden juntos bajo un solo precio. Ej: Combo Almuerzo." },
-                  { label: "5. Ingrediente (Ingredient)", desc: "Materias primas que no se venden solas, sino que se usan exclusivamente para recetas. Ej: Sal, harina, carne molida." },
-                  { label: "6. Modificador (Modifier)", desc: 'Opciones adicionales para personalizar un pedido. Ej: "Extra Tocino" o "Sin Cebolla".' },
+                  { label: `1. ${t("prod_list.type.simple")}`, desc: t("prod_list.desc_simple") },
+                  { label: `2. ${t("prod_list.type.composite")}`, desc: t("prod_list.desc_composite") },
+                  { label: `3. ${t("prod_list.type.production")}`, desc: t("prod_list.desc_prod") },
+                  { label: `4. ${t("prod_list.type.combo")}`, desc: t("prod_list.desc_combo") },
+                  { label: `5. ${t("prod_list.type.ingredient")}`, desc: t("prod_list.desc_ingredient") },
+                  { label: `6. ${t("prod_list.type.modifier")}`, desc: t("prod_list.desc_modifier") },
                 ].map(({ label, desc }) => (
                   <div key={label} className="space-y-1">
                     <div className="font-semibold text-sm text-brand-500">{label}</div>
@@ -249,27 +252,26 @@ export default function Products() {
 
         <input type="file" accept=".csv" className="hidden" ref={fileInputRef} onChange={handleFileSelect} title="Importar archivo CSV" aria-label="Importar archivo CSV" />
 
-        <button type="button" className="g-btn g-btn-ghost" onClick={() => fileInputRef.current?.click()} title="Importar CSV">
-          <Upload className="h-4 w-4" /> Importar
+        <button type="button" className="g-btn g-btn-ghost" onClick={() => fileInputRef.current?.click()}>
+          <Upload className="h-4 w-4" /> {t("prod_list.import")}
         </button>
 
-        <button type="button" className="g-btn g-btn-ghost" onClick={handleDownloadTemplate} title="Descargar plantilla CSV">
-          <FileDown className="h-4 w-4" /> Plantilla
+        <button type="button" className="g-btn g-btn-ghost" onClick={handleDownloadTemplate}>
+          <FileDown className="h-4 w-4" /> {t("prod_list.template")}
         </button>
 
         <button
           type="button"
           className="g-btn g-btn-ghost"
           onClick={() => exportToCsv(`productos_${tenantId}.csv`, filtered)}
-          title="Exportar filtrados a CSV"
         >
-          <Download className="h-4 w-4" /> Exportar
+          <Download className="h-4 w-4" /> {t("prod_list.export")}
         </button>
 
         <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
           <DialogTrigger asChild>
             <button type="button" className="g-btn g-btn-primary" onClick={() => setEditing(null)}>
-              <Plus className="h-4 w-4" />Nuevo
+              <Plus className="h-4 w-4" />{t("prod_list.new")}
             </button>
           </DialogTrigger>
           <ProductForm
@@ -290,14 +292,14 @@ export default function Products() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Categoría</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>SKU / Código</TableHead>
-              <TableHead className="text-right">Precio</TableHead>
-              <TableHead className="text-right">Costo</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              <TableHead>{t("cat.name")}</TableHead>
+              <TableHead>{t("prod_list.category")}</TableHead>
+              <TableHead>{t("prod_list.type")}</TableHead>
+              <TableHead>SKU / Barcode</TableHead>
+              <TableHead className="text-right">{t("prod_list.price")}</TableHead>
+              <TableHead className="text-right">{t("prod_list.cost")}</TableHead>
+              <TableHead>{t("prod.status")}</TableHead>
+              <TableHead className="text-right">{t("prod_list.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -353,7 +355,7 @@ export default function Products() {
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-12 text-ink-400">
-                  Sin productos
+                  {t("prod_list.no_products")}
                 </TableCell>
               </TableRow>
             )}
@@ -365,16 +367,15 @@ export default function Products() {
       <AlertDialog open={!!deletingId} onOpenChange={(o) => !o && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar producto?</AlertDialogTitle>
+            <AlertDialogTitle>{t("prod_list.del_confirm_title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. El producto será eliminado permanentemente de la base de datos.
-              Si tiene historial de ventas asociado, es posible que no se pueda eliminar.
+              {t("prod_list.del_confirm_desc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Eliminar
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -385,18 +386,18 @@ export default function Products() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-destructive flex items-center gap-2">
-              ⚠️ Advertencia de Importación
+              {t("prod_list.import_warn_title")}
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
-              <p>Estás a punto de importar <strong>{importFile?.name}</strong>.</p>
-              <p>Esta acción <strong>borrará TODOS los productos actuales</strong> y los reemplazará por los del archivo.</p>
-              <p className="font-semibold text-destructive">¿Estás completamente seguro de continuar con el borrado y sincronización total?</p>
+              <p>{t("prod_list.import_warn_1")} <strong>{importFile?.name}</strong>.</p>
+              <p>{t("prod_list.import_warn_2")}</p>
+              <p className="font-semibold text-destructive">{t("prod_list.import_warn_3")}</p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={executeImport} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Sí, Borrar e Importar
+              {t("prod_list.yes_import")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

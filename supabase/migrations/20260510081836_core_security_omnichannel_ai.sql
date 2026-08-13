@@ -4,3 +4,4 @@ ALTER TYPE public.sale_status ADD VALUE IF NOT EXISTS 'partially_refunded';
 ALTER TYPE public.sales_channel ADD VALUE IF NOT EXISTS 'whatsapp';
 ALTER TYPE public.sales_channel ADD VALUE IF NOT EXISTS 'didi';
 ALTER TYPE public.sales_channel ADD VALUE IF NOT EXISTS 'uber';
+ALTER TYPE public.sales_channel ADD VALUE IF NOT EXISTS 'qr';

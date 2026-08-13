@@ -10,12 +10,14 @@ import { CHANNELS, type SalesChannel } from "@/lib/channels";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Tags } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 import "./channel-prices.css";
 
 
 export default function ChannelPrices() {
   const { tenantId, branches } = useTenantContext();
   const qc = useQueryClient();
+  const { t } = useLanguage();
 
   // branchId === "" means "Global (all branches)"
   const [branchScope, setBranchScope] = useState<string>("__global__");
@@ -115,16 +117,16 @@ export default function ChannelPrices() {
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        eyebrow="CATÁLOGO · PRECIOS"
-        title="Precios por canal"
-        description="Define un precio diferente para cada canal de venta. Deja vacío para usar el precio base."
+        eyebrow={t("chprices.eyebrow")}
+        title={t("chprices.title")}
+        description={t("chprices.desc")}
         actions={
           <Select value={branchScope} onValueChange={setBranchScope}>
             <SelectTrigger className="w-[260px]"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="__global__">Global (todas las sucursales)</SelectItem>
+              <SelectItem value="__global__">{t("chprices.select.global")}</SelectItem>
               {branches.map((b) => (
-                <SelectItem key={b.id} value={b.id}>Solo: {b.name}</SelectItem>
+                <SelectItem key={b.id} value={b.id}>{t("chprices.select.only")} {b.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -132,12 +134,12 @@ export default function ChannelPrices() {
       />
 
       {!products || products.length === 0 ? (
-        <EmptyState icon={Tags} title="Sin productos" description="Crea productos primero en el módulo Productos" />
+        <EmptyState icon={Tags} title={t("catalog.empty.products_title")} description={t("catalog.empty.products_desc")} />
       ) : (
         <div className="glass rounded-2xl overflow-hidden">
           <div className="grid px-5 py-3 text-xs font-semibold text-ink-400 uppercase tracking-wider border-b border-[var(--g-hairline)] g-channel-grid">
-            <div>Producto</div>
-            <div className="text-right">Precio base</div>
+            <div>{t("catalog.col.product")}</div>
+            <div className="text-right">{t("catalog.col.base_price")}</div>
             {CHANNELS.map((c) => (
               <div key={c.id} className="text-right">{c.label}</div>
             ))}

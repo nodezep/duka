@@ -11,12 +11,14 @@ import { Plus, Store, Pencil, Trash2, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Branch } from "@/types/branch";
+import { useLanguage } from "@/hooks/useLanguage";
 
 
 export default function Branches() {
   const { tenantId, hasRole } = useTenantContext();
   const qc = useQueryClient();
   const canManage = hasRole("owner", "admin");
+  const { t } = useLanguage();
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Branch | null>(null);
@@ -51,7 +53,7 @@ export default function Branches() {
 
   const save = async () => {
     if (!tenantId) return;
-    if (!form.name.trim()) return toast.error("Nombre requerido");
+    if (!form.name.trim()) return toast.error(t("branches.toast.name_required"));
     try {
       if (editing) {
         const { error } = await supabase
@@ -59,7 +61,7 @@ export default function Branches() {
           .update({ name: form.name, address: form.address || null, phone: form.phone || null })
           .eq("id", editing.id);
         if (error) throw error;
-        toast.success("Sucursal actualizada");
+        toast.success(t("branches.toast.updated"));
       } else {
         const { data: branch, error } = await supabase
           .from("branches")
@@ -75,7 +77,7 @@ export default function Branches() {
         await supabase
           .from("cash_registers")
           .insert({ tenant_id: tenantId, branch_id: branch.id, name: "Caja 1" });
-        toast.success("Sucursal creada");
+        toast.success(t("branches.toast.created"));
       }
       qc.invalidateQueries({ queryKey: ["branches-admin"] });
       qc.invalidateQueries({ queryKey: ["branches"] });
@@ -89,7 +91,7 @@ export default function Branches() {
     const next = b.status === "active" ? "inactive" : "active";
     const { error } = await supabase.from("branches").update({ status: next }).eq("id", b.id);
     if (error) return toast.error(error.message);
-    toast.success(`Sucursal ${next === "active" ? "activada" : "desactivada"}`);
+    toast.success(`${t("branches.toast.branch")} ${next === "active" ? t("branches.toast.activated") : t("branches.toast.deactivated")}`);
     qc.invalidateQueries({ queryKey: ["branches-admin"] });
     qc.invalidateQueries({ queryKey: ["branches"] });
   };
@@ -97,11 +99,11 @@ export default function Branches() {
   const handleDelete = async (b: Branch) => {
     const total = branches?.length ?? 0;
     if (total <= 1) {
-      return toast.error("No puedes eliminar la única sucursal. Debes tener al menos una.");
+      return toast.error(t("branches.toast.cannot_delete_only"));
     }
     if (
       !confirm(
-        `¿Eliminar la sucursal "${b.name}"?\n\nSe eliminarán también sus cajas registradoras y datos asociados. Esta acción no se puede deshacer.`
+        `${t("branches.confirm.delete_1")} "${b.name}"?\n\n${t("branches.confirm.delete_2")}`
       )
     )
       return;
@@ -111,11 +113,11 @@ export default function Branches() {
       await supabase.from("cash_registers").delete().eq("branch_id", b.id);
       const { error } = await supabase.from("branches").delete().eq("id", b.id);
       if (error) throw error;
-      toast.success(`Sucursal "${b.name}" eliminada`);
+      toast.success(`${t("branches.toast.branch")} "${b.name}" ${t("branches.toast.deleted")}`);
       qc.invalidateQueries({ queryKey: ["branches-admin"] });
       qc.invalidateQueries({ queryKey: ["branches"] });
     } catch (e: any) {
-      toast.error(e.message ?? "No se pudo eliminar");
+      toast.error(e.message ?? t("branches.toast.delete_failed"));
     } finally {
       setDeleting(null);
     }
@@ -131,28 +133,28 @@ export default function Branches() {
           <Store className="h-5 w-5" />
         </div>
         <div className="g-branches-header-info">
-          <div className="g-branches-eyebrow">NEGOCIO · SUCURSALES</div>
-          <h1 className="g-branches-title">Sucursales</h1>
+          <div className="g-branches-eyebrow">{t("branches.eyebrow")}</div>
+          <h1 className="g-branches-title">{t("branches.title")}</h1>
           <div className="h-meta">
-            {branches?.length ?? 0} registradas · {activeCount} activas
+            {branches?.length ?? 0} {t("branches.registered")} · {activeCount} {t("branches.active")}
           </div>
         </div>
         {canManage && (
           <button type="button" className="g-btn g-btn-primary" onClick={openCreate}>
             <Plus className="h-4 w-4" />
-            Nueva sucursal
+            {t("branches.btn.new")}
           </button>
         )}
       </div>
 
       {/* Content */}
       {isLoading ? (
-        <div className="h-meta text-center py-16">Cargando…</div>
+        <div className="h-meta text-center py-16">{t("branches.loading")}</div>
       ) : !branches || branches.length === 0 ? (
         <EmptyState
           icon={Store}
-          title="Sin sucursales"
-          description="Crea tu primera sucursal para empezar a operar"
+          title={t("branches.empty.title")}
+          description={t("branches.empty.desc")}
         />
       ) : (
         <div className="g-branches-grid">
@@ -171,7 +173,7 @@ export default function Branches() {
                       <div className="g-branch-card-name">{b.name}</div>
                       <div className="g-branch-card-pill-row">
                         <span className={"g-pill " + (isActive ? "g-pill-ok" : "g-pill-ghost")}>
-                          {isActive ? "Activa" : "Inactiva"}
+                          {isActive ? t("branches.status.active") : t("branches.status.inactive")}
                         </span>
                       </div>
                     </div>
@@ -182,7 +184,7 @@ export default function Branches() {
                         type="button"
                         className="g-btn g-btn-ghost g-btn-icon"
                         onClick={() => openEdit(b)}
-                        title="Editar sucursal"
+                        title={t("branches.action.edit")}
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
@@ -191,7 +193,7 @@ export default function Branches() {
                         className="g-btn g-btn-ghost g-btn-icon g-branch-card-del-btn"
                         disabled={isDeleting || (branches?.length ?? 0) <= 1}
                         onClick={() => handleDelete(b)}
-                        title={(branches?.length ?? 0) <= 1 ? "No puedes eliminar la única sucursal" : "Eliminar sucursal"}
+                        title={(branches?.length ?? 0) <= 1 ? t("branches.tooltip.cannot_delete") : t("branches.action.delete")}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -224,7 +226,7 @@ export default function Branches() {
                     className="g-btn g-btn-ghost g-branch-toggle-btn"
                     onClick={() => toggleStatus(b)}
                   >
-                    {isActive ? "Desactivar" : "Activar"}
+                    {isActive ? t("branches.action.deactivate") : t("branches.action.activate")}
                   </button>
                 )}
               </div>
@@ -237,25 +239,25 @@ export default function Branches() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Editar sucursal" : "Nueva sucursal"}</DialogTitle>
+            <DialogTitle>{editing ? t("branches.dialog.edit") : t("branches.dialog.new")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <Label>Nombre</Label>
+              <Label>{t("branches.dialog.name")}</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
             <div>
-              <Label>Dirección</Label>
+              <Label>{t("branches.dialog.address")}</Label>
               <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
             </div>
             <div>
-              <Label>Teléfono</Label>
+              <Label>{t("branches.dialog.phone")}</Label>
               <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
             </div>
           </div>
           <DialogFooter>
-            <button type="button" className="g-btn g-btn-ghost" onClick={() => setOpen(false)}>Cancelar</button>
-            <button type="button" className="g-btn g-btn-primary" onClick={save}>Guardar</button>
+            <button type="button" className="g-btn g-btn-ghost" onClick={() => setOpen(false)}>{t("branches.dialog.cancel")}</button>
+            <button type="button" className="g-btn g-btn-primary" onClick={save}>{t("branches.dialog.save")}</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

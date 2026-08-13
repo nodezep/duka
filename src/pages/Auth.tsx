@@ -7,34 +7,35 @@ import { Button } from "@/components/ui/button";
 import { GearMark } from "@/components/shared/GearMark";
 import { LiveDot } from "@/components/shared/LiveDot";
 import { toast } from "sonner";
+import { useLanguage } from "@/hooks/useLanguage";
+import { LanguageSelector } from "@/components/shared/LanguageSelector";
 import {
   Loader2, Shield, Zap, Wifi, ArrowLeft,
   ShoppingCart, UtensilsCrossed, BarChart3,
 } from "lucide-react";
 
-/* ── Left panel features ── */
-const FEATURES = [
-  { icon: Zap,           text: "Táctil y rápido · Tiles con glow al pulsar" },
-  { icon: Wifi,          text: "Offline-first · Sync automático al reconectar" },
-  { icon: Shield,        text: "Multi-sucursal · Roles y canales granulares" },
-];
-
-/* ── Social proof stats ── */
-const PROOF = [
-  { icon: ShoppingCart,   label: "Ventas procesadas",  value: "Sin límite" },
-  { icon: UtensilsCrossed, label: "Canales integrados",  value: "5+"         },
-  { icon: BarChart3,      label: "Reportes en tiempo real", value: "Siempre"   },
-];
-
 export default function Auth() {
-  const navigate   = useNavigate();
-  const [email,    setEmail]    = useState("");
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading,  setLoading]  = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    document.title = "Iniciar sesión | POS S360T";
-  }, []);
+    document.title = t("auth.doc.title");
+  }, [t]);
+
+  const FEATURES = [
+    { icon: Zap, text: t("auth.feat.1") },
+    { icon: Wifi, text: t("auth.feat.2") },
+    { icon: Shield, text: t("auth.feat.3") },
+  ];
+
+  const PROOF = [
+    { icon: ShoppingCart, label: t("auth.stat.sales.lbl"), value: t("auth.stat.sales.val") },
+    { icon: UtensilsCrossed, label: t("auth.stat.channels.lbl"), value: t("auth.stat.channels.val") },
+    { icon: BarChart3, label: t("auth.stat.reports.lbl"), value: t("auth.stat.reports.val") },
+  ];
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,10 +43,10 @@ export default function Auth() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      toast.success("Bienvenido de vuelta");
+      toast.success(t("auth.welcome"));
       navigate("/dashboard", { replace: true });
     } catch (err: any) {
-      toast.error(err.message ?? "Error de autenticación");
+      toast.error(err.message || t("auth.error"));
     } finally {
       setLoading(false);
     }
@@ -76,26 +77,25 @@ export default function Auth() {
               </div>
             </div>
             <Link to="/" className="auth-back-link">
-              <ArrowLeft className="h-3.5 w-3.5" /> Volver al inicio
+              <ArrowLeft className="h-3.5 w-3.5" /> {t("auth.back")}
             </Link>
           </div>
 
           {/* Status pill */}
           <div className="mt-6 self-start">
             <span className="s-pill s-pill-green inline-flex items-center gap-2">
-              <LiveDot /> SISTEMA OPERATIVO · v1.0
+              <LiveDot /> {t("auth.system.status")}
             </span>
           </div>
 
           {/* Hero copy */}
           <div className="mt-auto mb-auto pt-12">
             <h1 className="auth-hero-title">
-              Tu venta como<br />
-              <span className="gradient-text">sistema operativo.</span>
+              {t("auth.hero.title1")}<br />
+              <span className="gradient-text">{t("auth.hero.title2")}</span>
             </h1>
             <p className="auth-hero-sub">
-              Multi-canal · Multi-sucursal · Offline-first.<br />
-              Del mostrador al repartidor, del salón al dashboard.
+              {t("auth.hero.sub")}
             </p>
 
             {/* Features */}
@@ -129,8 +129,14 @@ export default function Auth() {
       </div>
 
       {/* ── Panel derecho: formulario ── */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-10 overflow-y-auto">
-        <div className="w-full max-w-sm space-y-5">
+      <div className="flex-1 flex flex-col justify-center p-6 sm:p-10 overflow-y-auto relative">
+        
+        {/* Language selector in top-right area */}
+        <div className="absolute top-6 right-6 z-20">
+          <LanguageSelector className="w-36" />
+        </div>
+
+        <div className="w-full max-w-sm space-y-5 mx-auto">
 
           {/* Mobile brand + back link */}
           <div className="flex items-center justify-between lg:hidden">
@@ -141,21 +147,21 @@ export default function Auth() {
               </div>
             </div>
             <Link to="/" className="auth-back-link">
-              <ArrowLeft className="h-3.5 w-3.5" /> Inicio
+              <ArrowLeft className="h-3.5 w-3.5" /> {t("auth.start")}
             </Link>
           </div>
 
           {/* Form card */}
           <div className="glass p-7 rounded-3xl">
             <div className="mb-6">
-              <div className="h-label g-auth-eyebrow mb-2">ACCESO OPERATIVO</div>
-              <div className="h-display g-auth-title">Iniciar sesión</div>
-              <div className="h-meta mt-1">Ingresa con tu cuenta de usuario autorizado.</div>
+              <div className="h-label g-auth-eyebrow mb-2">{t("auth.eyebrow")}</div>
+              <div className="h-display g-auth-title">{t("auth.title")}</div>
+              <div className="h-meta mt-1">{t("auth.subtitle")}</div>
             </div>
 
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                <Label htmlFor="email" className="text-sm font-medium">{t("auth.email")}</Label>
                 <Input
                   id="email" type="email" required
                   inputMode="email" autoComplete="email"
@@ -166,7 +172,7 @@ export default function Auth() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="pwd" className="text-sm font-medium">Contraseña</Label>
+                <Label htmlFor="pwd" className="text-sm font-medium">{t("auth.password")}</Label>
                 <Input
                   id="pwd" type="password" required minLength={6}
                   autoComplete="current-password"
@@ -182,8 +188,8 @@ export default function Auth() {
                 disabled={loading}
               >
                 {loading
-                  ? <><Loader2 className="h-4 w-4 animate-spin" /> Verificando…</>
-                  : "Entrar al sistema"
+                  ? <><Loader2 className="h-4 w-4 animate-spin" /> {t("auth.verifying")}</>
+                  : t("auth.submit")
                 }
               </button>
             </form>
@@ -201,7 +207,7 @@ export default function Auth() {
           </div>
 
           <p className="text-[10px] text-muted-foreground/50 text-center">
-            Acceso restringido · Reportar incidencias al administrador
+            {t("auth.restricted")}
           </p>
         </div>
       </div>

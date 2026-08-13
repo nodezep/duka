@@ -2,9 +2,9 @@ import { useRef, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, ShoppingCart, Package, Boxes, ChefHat, Factory,
-  Wallet, Receipt, Users, Calendar, BarChart3, Settings, Store,
+  Wallet, Receipt, Users, Calendar, BarChart3, Settings,
   Bike, UtensilsCrossed, UserRound, Truck,
-  LogOut, ChevronRight, Sparkles, Bot,
+  LogOut, ChevronRight, Sparkles,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, useSidebar,
@@ -14,17 +14,25 @@ import { canAccessRoles, type AppRole } from "@/lib/roles";
 import { useWhatsAppNotifs } from "@/contexts/WhatsAppNotifsContext";
 import { cn } from "@/lib/utils";
 import { signOutFully } from "@/lib/signOut";
+import { useLanguage } from "@/hooks/useLanguage";
+import { LanguageSelector } from "@/components/shared/LanguageSelector";
+import type { TranslationKeys } from "@/lib/translations";
 import type { LucideIcon } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type Item = {
   title: string;
+  translationKey: TranslationKeys;
   url: string;
   icon: LucideIcon;
   roles?: AppRole[];
   channel?: Database["public"]["Enums"]["sales_channel"];
 };
-type Section = { label: string; items: Item[] };
+type Section = {
+  label: string;
+  translationKey: TranslationKeys;
+  items: Item[];
+};
 
 /* ──────────────────────────────────────────────────────────
    PRIMARY navigation — items visible every day by operators.
@@ -34,41 +42,45 @@ type Section = { label: string; items: Item[] };
 const sections: Section[] = [
   {
     label: "Operación",
+    translationKey: "nav.operations",
     items: [
-      { title: "Dashboard",   url: "/dashboard",      icon: LayoutDashboard, roles: ["owner","admin","manager","cashier","waiter","kitchen","inventory","courier","staff"] },
-      { title: "POS",         url: "/pos",            icon: ShoppingCart,    roles: ["owner","admin","manager","cashier"], channel: "pos" },
-      { title: "Mesas",       url: "/tables",         icon: UtensilsCrossed, roles: ["owner","admin","manager","cashier","waiter"], channel: "tables" },
-      { title: "Mesero",      url: "/waiter",         icon: UtensilsCrossed, roles: ["waiter"], channel: "tables" },
-      { title: "Domicilios",  url: "/delivery",       icon: Bike,            roles: ["owner","admin","manager","cashier","courier","staff"], channel: "delivery" },
-      { title: "Courier",     url: "/courier",        icon: Bike,            roles: ["courier","staff"], channel: "delivery" },
-      { title: "Caja",        url: "/cash",           icon: Wallet,          roles: ["owner","admin","manager","cashier"] },
-      { title: "Ventas",      url: "/sales",          icon: Receipt,         roles: ["owner","admin","manager","cashier"] },
-      { title: "Clientes",    url: "/customers",      icon: UserRound,       roles: ["owner","admin","manager","cashier"] },
+      { title: "Dashboard",   translationKey: "nav.dashboard",   url: "/dashboard",      icon: LayoutDashboard, roles: ["owner","admin","manager","cashier","waiter","kitchen","inventory","courier","staff"] },
+      { title: "POS",         translationKey: "nav.pos",         url: "/pos",            icon: ShoppingCart,    roles: ["owner","admin","manager","cashier"], channel: "pos" },
+      { title: "Mesas",       translationKey: "nav.tables",       url: "/tables",         icon: UtensilsCrossed, roles: ["owner","admin","manager","cashier","waiter"], channel: "tables" },
+      { title: "Mesero",      translationKey: "nav.waiter",      url: "/waiter",         icon: UtensilsCrossed, roles: ["waiter"], channel: "tables" },
+      { title: "Domicilios",  translationKey: "nav.delivery",    url: "/delivery",       icon: Bike,            roles: ["owner","admin","manager","cashier","courier","staff"], channel: "delivery" },
+      { title: "Courier",     translationKey: "nav.courier",     url: "/courier",        icon: Bike,            roles: ["courier","staff"], channel: "delivery" },
+      { title: "Caja",        translationKey: "nav.cash",        url: "/cash",           icon: Wallet,          roles: ["owner","admin","manager","cashier"] },
+      { title: "Ventas",      translationKey: "nav.sales",       url: "/sales",          icon: Receipt,         roles: ["owner","admin","manager","cashier"] },
+      { title: "Clientes",    translationKey: "nav.customers",   url: "/customers",      icon: UserRound,       roles: ["owner","admin","manager","cashier"] },
     ],
   },
   {
     label: "Catálogo",
+    translationKey: "nav.catalog",
     items: [
-      { title: "Productos",   url: "/products",   icon: Package,   roles: ["owner","admin","manager"] },
-      { title: "Recetas",     url: "/recipes",    icon: ChefHat,   roles: ["owner","admin","manager","kitchen"] },
+      { title: "Productos",   translationKey: "nav.products",   url: "/products",   icon: Package,   roles: ["owner","admin","manager"] },
+      { title: "Recetas",     translationKey: "nav.recipes",    url: "/recipes",    icon: ChefHat,   roles: ["owner","admin","manager","kitchen"] },
     ],
   },
   {
     label: "Stock",
+    translationKey: "nav.stock",
     items: [
-      { title: "Inventario",  url: "/inventory",  icon: Boxes,     roles: ["owner","admin","manager","inventory","cashier"] },
-      { title: "Producción",  url: "/production", icon: Factory,   roles: ["owner","admin","manager","kitchen"] },
-      { title: "KDS Cocina",  url: "/kds",        icon: ChefHat,   roles: ["owner","admin","manager","kitchen"] },
-      { title: "Proveedores", url: "/suppliers",  icon: Truck,     roles: ["owner","admin","manager"] },
+      { title: "Inventario",  translationKey: "nav.inventory",  url: "/inventory",  icon: Boxes,     roles: ["owner","admin","manager","inventory","cashier"] },
+      { title: "Producción",  translationKey: "nav.production", url: "/production", icon: Factory,   roles: ["owner","admin","manager","kitchen"] },
+      { title: "KDS Cocina",  translationKey: "nav.kds",        url: "/kds",        icon: ChefHat,   roles: ["owner","admin","manager","kitchen"] },
+      { title: "Proveedores", translationKey: "nav.suppliers",  url: "/suppliers",  icon: Truck,     roles: ["owner","admin","manager"] },
     ],
   },
   {
     label: "Negocio",
+    translationKey: "nav.business",
     items: [
-      { title: "Empleados",     url: "/employees", icon: Users,      roles: ["owner","admin","manager"] },
-      { title: "Horarios",      url: "/shifts",    icon: Calendar,   roles: ["owner","admin","manager"] },
-      { title: "Reportes",      url: "/reports",   icon: BarChart3,  roles: ["owner","admin","manager"] },
-      { title: "Configuración", url: "/settings",  icon: Settings,   roles: ["owner","admin"] },
+      { title: "Empleados",     translationKey: "nav.employees",   url: "/employees", icon: Users,      roles: ["owner","admin","manager"] },
+      { title: "Horarios",      translationKey: "nav.shifts",      url: "/shifts",    icon: Calendar,   roles: ["owner","admin","manager"] },
+      { title: "Reportes",      translationKey: "nav.reports",     url: "/reports",   icon: BarChart3,  roles: ["owner","admin","manager"] },
+      { title: "Configuración", translationKey: "nav.settings",    url: "/settings",  icon: Settings,   roles: ["owner","admin"] },
     ],
   },
 ];
@@ -95,6 +107,7 @@ export function AppSidebar() {
   const { pathname } = useLocation();
   const { roles, activeChannels, branchId, branches } = useTenantContext();
   const { unreadCount } = useWhatsAppNotifs();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
 
@@ -131,9 +144,16 @@ export function AppSidebar() {
                   <div className="g-sb-brand-name">
                     POS<span>-S360T</span>
                   </div>
-                  <div className="g-sb-brand-sub">POS / ERP Omnicanal</div>
+                  <div className="g-sb-brand-sub">{t("brand.sub")}</div>
                 </div>
               )}
+            </div>
+
+            <div className="g-sb-divider" />
+
+            {/* Language Selector */}
+            <div className={cn("px-4 py-2", collapsed && "px-2 py-2")}>
+              <LanguageSelector collapsed={collapsed} />
             </div>
 
             <div className="g-sb-divider" />
@@ -144,9 +164,9 @@ export function AppSidebar() {
                 const visible = section.items.filter(canSee);
                 if (visible.length === 0) return null;
                 return (
-                  <div key={section.label}>
+                  <div key={section.translationKey}>
                     {!collapsed && (
-                      <div className="g-sb-section-label">{section.label}</div>
+                      <div className="g-sb-section-label">{t(section.translationKey)}</div>
                     )}
                     {visible.map((item) => {
                       const active =
@@ -156,7 +176,7 @@ export function AppSidebar() {
                         <NavLink
                           key={item.url}
                           to={item.url}
-                          title={collapsed ? item.title : undefined}
+                          title={collapsed ? t(item.translationKey) : undefined}
                           className={cn(
                             "g-sb-nav-item",
                             active && "is-active",
@@ -165,7 +185,7 @@ export function AppSidebar() {
                         >
                           <item.icon size={18} style={{ flexShrink: 0 }} />
                           {!collapsed && (
-                            <span className="truncate flex-1">{item.title}</span>
+                            <span className="truncate flex-1">{t(item.translationKey)}</span>
                           )}
                           {item.url === "/whatsapp" && unreadCount > 0 && (
                             <span className={cn("g-sb-badge", collapsed && "g-sb-badge-float")}>
@@ -188,8 +208,8 @@ export function AppSidebar() {
                     <Sparkles size={14} color="white" />
                   </div>
                   <div>
-                    <div className="g-sb-plan-title">Plan Premium</div>
-                    <div className="g-sb-plan-sub">Tu plan está activo</div>
+                    <div className="g-sb-plan-title">{t("plan.premium")}</div>
+                    <div className="g-sb-plan-sub">{t("plan.active")}</div>
                   </div>
                 </div>
                 <button
@@ -197,7 +217,7 @@ export function AppSidebar() {
                   className="g-sb-plan-btn"
                   onClick={() => navigate("/settings")}
                 >
-                  Ver beneficios <ChevronRight size={12} />
+                  {t("plan.benefits")} <ChevronRight size={12} />
                 </button>
               </div>
             )}
@@ -214,7 +234,7 @@ export function AppSidebar() {
                   <button
                     type="button"
                     className="g-sb-logout-btn"
-                    title="Cerrar sesión"
+                    title={t("user.logout")}
                     onClick={async () => {
                       await signOutFully();
                       navigate("/auth");

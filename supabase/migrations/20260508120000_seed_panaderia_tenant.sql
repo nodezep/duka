@@ -11,6 +11,7 @@
 --   primary_color = '#BF7B1E'  (trigo dorado)
 --   theme_kind    = 'bakery'   → activa [data-tenant-theme="bakery"] en el CSS
 -- ═══════════════════════════════════════════════════════════════════════════════
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 
 DO $$
 DECLARE
@@ -32,10 +33,11 @@ DECLARE
 BEGIN
 
   -- ── 1. Tenant ──────────────────────────────────────────────────────────────
-  INSERT INTO public.tenants (name, slug, currency, tax_rate, primary_color, theme_kind)
-  VALUES ('La Panadería', 'panaderia', 'COP', 0, '#BF7B1E', 'bakery')
+  INSERT INTO public.tenants (name, slug, currency, tax_rate, domain, primary_color, theme_kind)
+  VALUES ('La Panadería', 'panaderia', 'COP', 0, 'demo.localhost', '#BF7B1E', 'bakery')
   ON CONFLICT (slug) DO UPDATE
-    SET primary_color = EXCLUDED.primary_color,
+    SET domain        = COALESCE(public.tenants.domain, EXCLUDED.domain),
+        primary_color = EXCLUDED.primary_color,
         theme_kind    = EXCLUDED.theme_kind
   RETURNING id INTO v_tenant_id;
 
@@ -150,32 +152,55 @@ END $$;
 -- Cambiar el email y contraseña antes de ejecutar.
 DO $$
 DECLARE
-  v_user_id   UUID := gen_random_uuid();
+  v_user_id   UUID;
   v_tenant_id UUID;
 BEGIN
   SELECT id INTO v_tenant_id FROM public.tenants WHERE slug = 'panaderia';
 
-  INSERT INTO auth.users (
-    instance_id, id, aud, role,
-    email, encrypted_password,
-    email_confirmed_at,
-    raw_user_meta_data,
-    created_at, updated_at
+  -- Verificar si el usuario ya existe
+  SELECT id INTO v_user_id FROM auth.users WHERE email = 'admin@panaderia.local';
+
+  IF v_user_id IS NULL THEN
+    v_user_id := gen_random_uuid();
+    INSERT INTO auth.users (
+      instance_id, id, aud, role,
+      email, encrypted_password,
+      email_confirmed_at,
+      confirmation_token, recovery_token,
+      email_change_token_new, reauthentication_token,
+      email_change_token_current, phone_change_token,
+      raw_app_meta_data,
+      raw_user_meta_data,
+      created_at, updated_at,
+      is_sso_user,
+      is_anonymous
+    )
+    VALUES (
+      '00000000-0000-0000-0000-000000000000',
+      v_user_id,
+      'authenticated', 'authenticated',
+      'admin@panaderia.local',
+      extensions.crypt('CambiarEsta2026!', extensions.gen_salt('bf')),
+      now(),
+      '', '', '', '', '', '',
+      '{"provider": "email", "providers": ["email"]}'::jsonb,
+      '{"full_name": "Admin Panadería"}'::jsonb,
+      now(), now(),
+      false,
+      false
+    );
+  END IF;
+
+  -- Insert corresponding identity for admin
+  INSERT INTO auth.identities (
+    id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at
   )
   VALUES (
-    '00000000-0000-0000-0000-000000000000',
-    v_user_id,
-    'authenticated', 'authenticated',
-    'admin@panaderia.local',
-    crypt('CambiarEsta2026!', gen_salt('bf')),
-    now(),
-    '{"full_name": "Admin Panadería"}'::jsonb,
-    now(), now()
+    v_user_id::text, v_user_id, v_user_id::text, 'email',
+    jsonb_build_object('sub', v_user_id::text, 'email', 'admin@panaderia.local', 'email_verified', true, 'phone_verified', false),
+    now(), now(), now()
   )
-  ON CONFLICT (email) DO NOTHING;
-
-  -- Recuperar el id si ya existía
-  SELECT id INTO v_user_id FROM auth.users WHERE email = 'admin@panaderia.local';
+  ON CONFLICT (provider, id) DO NOTHING;
 
   INSERT INTO public.user_roles (user_id, tenant_id, role)
   VALUES (v_user_id, v_tenant_id, 'owner')

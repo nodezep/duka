@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { resolvePrice, type SalesChannel } from "@/lib/channels";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type LineDraft = {
   product_id: string;
@@ -222,6 +223,7 @@ function ComandaModal({ order, onClose, onConfirm, onRappiAction }: {
 
 export default function DigitalOrders() {
   const { tenantId, branchId, branches } = useTenantContext();
+  const { t } = useLanguage();
   const qc = useQueryClient();
 
   const [open, setOpen] = useState(false);
@@ -411,12 +413,12 @@ export default function DigitalOrders() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        eyebrow="OPERACIÓN · PLATAFORMAS"
-        title="Pedidos digitales"
-        description={`Rappi, plataformas y otros canales digitales · ${branchName}`}
+        eyebrow={t("digital_orders.meta") || "OPERACIÓN · PLATAFORMAS"}
+        title={t("digital_orders.title") || "Pedidos digitales"}
+        description={`${t("digital_orders.subtitle") || "Rappi, plataformas y otros canales digitales"} · ${branchName}`}
         actions={
           <button type="button" className="g-btn g-btn-primary" onClick={() => { resetForm(); setOpen(true); }}>
-            <Plus size={15} className="mr-1" /> Nuevo pedido
+            <Plus size={15} className="mr-1" /> {t("digital_orders.new") || "Nuevo pedido"}
           </button>
         }
       />

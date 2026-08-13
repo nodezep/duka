@@ -11,26 +11,10 @@ import { Phone, MapPin, Bike, CheckCircle2, Navigation, CreditCard, Banknote, Sm
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type DeliveryStatus = Database["public"]["Enums"]["delivery_status"];
 type PayMethod = "cash" | "card" | "transfer" | "qr";
-
-const STATUS_META: Record<DeliveryStatus, { label: string; pillClass: string }> = {
-  received:   { label: "Recibido",          pillClass: "g-pill-ghost" },
-  preparing:  { label: "Preparando",        pillClass: "g-pill-warn" },
-  ready:      { label: "Listo para recoger",pillClass: "g-pill-sky" },
-  assigned:   { label: "Asignado a mí",     pillClass: "g-pill-brand" },
-  on_way:     { label: "En camino",         pillClass: "g-pill-brand" },
-  delivered:  { label: "Entregado",         pillClass: "g-pill-ok" },
-  cancelled:  { label: "Cancelado",         pillClass: "g-pill-bad" },
-};
-
-const PAY_METHODS: { id: PayMethod; label: string; icon: any }[] = [
-  { id: "cash",     label: "Efectivo",      icon: Banknote },
-  { id: "card",     label: "Datáfono",      icon: CreditCard },
-  { id: "transfer", label: "Transferencia", icon: Smartphone },
-  { id: "qr",       label: "QR",            icon: QrCode },
-];
 
 export default function CourierDashboard() {
   const { tenantId, branchId, branches, roles } = useTenantContext();
@@ -42,6 +26,24 @@ export default function CourierDashboard() {
   const [payOrder, setPayOrder] = useState<any | null>(null);
   const [method, setMethod] = useState<PayMethod>("cash");
   const [submitting, setSubmitting] = useState(false);
+  const { t } = useLanguage();
+
+  const STATUS_META = useMemo(() => ({
+    received:   { label: t("courier.status.received"),   pillClass: "g-pill-ghost" },
+    preparing:  { label: t("courier.status.preparing"),  pillClass: "g-pill-warn" },
+    ready:      { label: t("courier.status.ready"),      pillClass: "g-pill-sky" },
+    assigned:   { label: t("courier.status.assigned"),   pillClass: "g-pill-brand" },
+    on_way:     { label: t("courier.status.on_way"),     pillClass: "g-pill-brand" },
+    delivered:  { label: t("courier.status.delivered"),  pillClass: "g-pill-ok" },
+    cancelled:  { label: t("courier.status.cancelled"),  pillClass: "g-pill-bad" },
+  } as Record<DeliveryStatus, { label: string; pillClass: string }>), [t]);
+
+  const PAY_METHODS = useMemo(() => [
+    { id: "cash" as PayMethod,     label: t("courier.pay_method.cash"),      icon: Banknote },
+    { id: "card" as PayMethod,     label: t("courier.pay_method.card"),      icon: CreditCard },
+    { id: "transfer" as PayMethod, label: t("courier.pay_method.transfer"),  icon: Smartphone },
+    { id: "qr" as PayMethod,       label: t("courier.pay_method.qr"),        icon: QrCode },
+  ], [t]);
 
   // Buscar el employee_id del courier basado en el user_id
   const { data: employee } = useQuery({
@@ -86,14 +88,14 @@ export default function CourierDashboard() {
   }, [orders]);
 
   if (!user || !tenantId || !branchId) {
-    return <div className="p-6 h-meta">Cargando...</div>;
+    return <div className="p-6 h-meta">{t("courier.loading")}</div>;
   }
 
   if (!isSuperAdmin && !employee) {
     return (
       <div className="p-6">
         <div className="glass rounded-2xl p-8 text-center h-meta">
-          Tu usuario no está vinculado a un empleado en esta sucursal. Pide al administrador que te registre como domiciliario.
+          {t("courier.not_linked")}
         </div>
       </div>
     );
@@ -104,7 +106,7 @@ export default function CourierDashboard() {
       _order_id: id, _status: status, _courier_id: null,
     });
     if (error) return toast.error(error.message);
-    toast.success(`Estado: ${STATUS_META[status].label}`);
+    toast.success(`${t("courier.toast.status_updated")} ${STATUS_META[status].label}`);
     qc.invalidateQueries({ queryKey: ["courier-orders"] });
   };
 
@@ -121,7 +123,7 @@ export default function CourierDashboard() {
   const confirmPayment = async () => {
     if (!payOrder) return;
     const amount = Number(payOrder.sales?.total ?? 0) + Number(payOrder.delivery_fee ?? 0);
-    if (amount <= 0) return toast.error("Monto inválido");
+    if (amount <= 0) return toast.error(t("courier.toast.invalid_amount"));
     setSubmitting(true);
     try {
       const { error } = await supabase.rpc("register_delivery_payment", {
@@ -135,7 +137,7 @@ export default function CourierDashboard() {
       await supabase.rpc("update_delivery_status", {
         _order_id: payOrder.id, _status: "delivered" as DeliveryStatus, _courier_id: null,
       });
-      toast.success(`Cobro registrado · ${formatCurrency(amount)}`);
+      toast.success(`${t("courier.toast.payment_registered")} ${formatCurrency(amount)}`);
       setPayOrder(null);
       qc.invalidateQueries({ queryKey: ["courier-orders"] });
     } catch (e: any) {
@@ -152,7 +154,7 @@ export default function CourierDashboard() {
       <div key={o.id} className="glass rounded-2xl p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <div className="font-bold leading-tight truncate text-[var(--ink-900)]">{o.customer_name || "Sin nombre"}</div>
+            <div className="font-bold leading-tight truncate text-[var(--ink-900)]">{o.customer_name || t("courier.card.no_name")}</div>
             <div className="h-meta">{formatDate(o.created_at)}</div>
           </div>
           <span className={cn("g-pill g-pill-h22 whitespace-nowrap", meta.pillClass)}>{meta.label}</span>
@@ -176,23 +178,23 @@ export default function CourierDashboard() {
         </div>
 
         <div className="flex items-center justify-between border-t border-[var(--g-hairline)] pt-2">
-          <span className="h-label">Total a cobrar</span>
+          <span className="h-label">{t("courier.card.total")}</span>
           <span className="h-num text-lg text-[var(--brand-600)]">{formatCurrency(total)}</span>
         </div>
 
         {o.status === "assigned" && (
           <button type="button" className="g-btn g-btn-primary w-full" onClick={() => updateStatus(o.id, "on_way")}>
-            <Bike className="h-3.5 w-3.5 mr-1" /> Salir / En camino
+            <Bike className="h-3.5 w-3.5 mr-1" /> {t("courier.card.btn_leave")}
           </button>
         )}
         {o.status === "on_way" && (
           <button type="button" className="g-btn g-btn-primary w-full" onClick={() => openPay(o)}>
-            <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Cobrar y entregar
+            <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> {t("courier.card.btn_pay")}
           </button>
         )}
         {o.status === "ready" && (
           <button type="button" className="g-btn g-btn-ghost w-full" onClick={() => updateStatus(o.id, "on_way")}>
-            <Bike className="h-3.5 w-3.5 mr-1" /> Recoger y salir
+            <Bike className="h-3.5 w-3.5 mr-1" /> {t("courier.card.btn_pickup")}
           </button>
         )}
       </div>
@@ -202,23 +204,23 @@ export default function CourierDashboard() {
   return (
     <div className="p-6 space-y-6">
       <PageHeader
-        eyebrow="OPERACIÓN · DOMICILIOS"
-        title="Panel del domiciliario"
-        description={`${employee?.full_name ?? (isSuperAdmin ? "Super Admin" : "—")} · ${branchName}`}
+        eyebrow={t("courier.eyebrow")}
+        title={t("courier.title")}
+        description={`${employee?.full_name ?? (isSuperAdmin ? t("courier.super_admin") : "—")} · ${branchName}`}
       />
 
       {/* KPI row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="glass g-kpi">
-          <div className="h-label uppercase tracking-wider">Activos</div>
+          <div className="h-label uppercase tracking-wider">{t("courier.kpi.active")}</div>
           <div className="h-num text-2xl text-[var(--brand-600)]">{grouped.active.length}</div>
         </div>
         <div className="glass g-kpi">
-          <div className="h-label uppercase tracking-wider">En camino</div>
+          <div className="h-label uppercase tracking-wider">{t("courier.kpi.on_way")}</div>
           <div className="h-num text-2xl">{grouped.active.filter((o: any) => o.status === "on_way").length}</div>
         </div>
         <div className="glass g-kpi">
-          <div className="h-label uppercase tracking-wider">Entregados hoy</div>
+          <div className="h-label uppercase tracking-wider">{t("courier.kpi.delivered_today")}</div>
           <div className="h-num text-2xl text-[var(--g-ok)]">
             {grouped.done.filter((o: any) => {
               const d = new Date(o.delivered_at ?? o.updated_at);
@@ -228,7 +230,7 @@ export default function CourierDashboard() {
           </div>
         </div>
         <div className="glass g-kpi">
-          <div className="h-label uppercase tracking-wider">Total a cobrar</div>
+          <div className="h-label uppercase tracking-wider">{t("courier.kpi.total")}</div>
           <div className="h-num text-2xl tabular-nums">
             {formatCurrency(grouped.active.reduce((s: number, o: any) =>
               s + Number(o.sales?.total ?? 0) + Number(o.delivery_fee ?? 0), 0))}
@@ -238,16 +240,16 @@ export default function CourierDashboard() {
 
       <Tabs defaultValue="active">
         <TabsList>
-          <TabsTrigger value="active">Activos ({grouped.active.length})</TabsTrigger>
-          <TabsTrigger value="done">Historial ({grouped.done.length})</TabsTrigger>
+          <TabsTrigger value="active">{t("courier.tabs.active")}{grouped.active.length})</TabsTrigger>
+          <TabsTrigger value="done">{t("courier.tabs.history")}{grouped.done.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="active" className="mt-4">
           {isLoading ? (
-            <div className="h-meta">Cargando…</div>
+            <div className="h-meta">{t("courier.loading_short")}</div>
           ) : grouped.active.length === 0 ? (
             <div className="glass rounded-2xl p-8 text-center h-meta">
-              No tienes pedidos asignados.
+              {t("courier.empty.active")}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -258,7 +260,7 @@ export default function CourierDashboard() {
 
         <TabsContent value="done" className="mt-4">
           {grouped.done.length === 0 ? (
-            <div className="glass rounded-2xl p-8 text-center h-meta">Sin historial.</div>
+            <div className="glass rounded-2xl p-8 text-center h-meta">{t("courier.empty.history")}</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {grouped.done.map(renderCard)}
@@ -271,23 +273,23 @@ export default function CourierDashboard() {
       <Dialog open={!!payOrder} onOpenChange={(o) => !o && setPayOrder(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="h-display text-lg">Cobrar y entregar</DialogTitle>
+            <DialogTitle className="h-display text-lg">{t("courier.dialog.title")}</DialogTitle>
           </DialogHeader>
           {payOrder && (
             <div className="space-y-4">
               <div className="glass rounded-xl p-3 space-y-0.5">
-                <div className="h-label">Cliente</div>
+                <div className="h-label">{t("courier.dialog.client")}</div>
                 <div className="font-semibold text-[var(--ink-900)]">{payOrder.customer_name}</div>
                 <div className="h-meta">{payOrder.address}</div>
               </div>
               <div className="flex items-baseline justify-between border-t border-b border-[var(--g-hairline)] py-3">
-                <span className="h-label">Total recibido</span>
+                <span className="h-label">{t("courier.dialog.total_received")}</span>
                 <span className="h-num text-3xl text-[var(--brand-600)]">
                   {formatCurrency(Number(payOrder.sales?.total ?? 0) + Number(payOrder.delivery_fee ?? 0))}
                 </span>
               </div>
               <div>
-                <div className="h-label mb-2">Método de pago</div>
+                <div className="h-label mb-2">{t("courier.dialog.pay_method")}</div>
                 <div className="grid grid-cols-2 gap-2">
                   {PAY_METHODS.map((m) => {
                     const Icon = m.icon;
@@ -313,10 +315,10 @@ export default function CourierDashboard() {
             </div>
           )}
           <DialogFooter>
-            <button type="button" className="g-btn g-btn-ghost" onClick={() => setPayOrder(null)} disabled={submitting}>Cancelar</button>
+            <button type="button" className="g-btn g-btn-ghost" onClick={() => setPayOrder(null)} disabled={submitting}>{t("courier.dialog.cancel")}</button>
             <button type="button" className="g-btn g-btn-primary" onClick={confirmPayment} disabled={submitting}>
               {submitting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-              Confirmar entrega
+              {t("courier.dialog.confirm")}
             </button>
           </DialogFooter>
         </DialogContent>
