@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { Loader2, Settings2 } from "lucide-react";
+import { Loader2, Settings2, Sun, Moon } from "lucide-react";
 import { useTenantByDomain } from "@/hooks/useTenantByDomain";
 import { supabase } from "@/integrations/supabase/client";
 import { signOutFully } from "@/lib/signOut";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useThemeStore } from "@/stores/theme";
 import { LanguageSelector } from "@/components/shared/LanguageSelector";
 import type { Session } from "@supabase/supabase-js";
 
@@ -19,6 +20,7 @@ interface TenantProviderProps {
 function UnconfiguredScreen() {
   const hostname = window.location.hostname;
   const { t } = useLanguage();
+  const { mode, toggleMode } = useThemeStore();
 
   const [session, setSession]           = useState<Session | null>(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
@@ -112,9 +114,22 @@ function UnconfiguredScreen() {
   if (session && isSuperAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
-        {/* Language selector in top-right area */}
-        <div className="absolute top-6 right-6 z-20">
-          <LanguageSelector className="w-36" />
+        {/* Top-right controls */}
+        <div className="absolute top-6 right-6 z-20 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleMode}
+            className="flex items-center justify-center h-9 w-9 rounded-xl border border-border bg-card/60 hover:bg-muted text-foreground transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0"
+            title={mode === "dark" ? t("topbar.theme_light") : t("topbar.theme_dark")}
+            aria-label={t("topbar.toggle_theme")}
+          >
+            {mode === "dark" ? (
+              <Sun size={18} className="text-amber-400 animate-in fade-in zoom-in duration-300" />
+            ) : (
+              <Moon size={18} className="text-slate-600 dark:text-slate-300 animate-in fade-in zoom-in duration-300" />
+            )}
+          </button>
+          <LanguageSelector className="w-32 sm:w-36" />
         </div>
 
         <div className="w-full max-w-sm space-y-6">
@@ -170,10 +185,23 @@ function UnconfiguredScreen() {
   // ── Sin sesión o no es super_admin: login + mensaje ────────────────────────
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
-      {/* Language selector in top-right area */}
-      <div className="absolute top-6 right-6 z-20">
-        <LanguageSelector className="w-36" />
-      </div>
+        {/* Top-right controls */}
+        <div className="absolute top-6 right-6 z-20 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleMode}
+            className="flex items-center justify-center h-9 w-9 rounded-xl border border-border bg-card/60 hover:bg-muted text-foreground transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0"
+            title={mode === "dark" ? t("topbar.theme_light") : t("topbar.theme_dark")}
+            aria-label={t("topbar.toggle_theme")}
+          >
+            {mode === "dark" ? (
+              <Sun size={18} className="text-amber-400 animate-in fade-in zoom-in duration-300" />
+            ) : (
+              <Moon size={18} className="text-slate-600 dark:text-slate-300 animate-in fade-in zoom-in duration-300" />
+            )}
+          </button>
+          <LanguageSelector className="w-32 sm:w-36" />
+        </div>
 
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-1">

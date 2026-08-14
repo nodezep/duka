@@ -8,11 +8,14 @@ import { Loader2 } from "lucide-react";
 import {
   ShoppingCart, UtensilsCrossed, BarChart3, Wifi, Zap, Shield,
   Bike, ChefHat, Smartphone, Package, CheckCircle, ArrowRight, Star,
+  Sun, Moon,
 } from "lucide-react";
+import { useThemeStore } from "@/stores/theme";
 
 export default function Landing() {
   const { user, loading } = useAuth();
   const { t } = useLanguage();
+  const { mode, toggleMode } = useThemeStore();
 
   const FEATURES = [
     {
@@ -146,7 +149,22 @@ export default function Landing() {
             <a href="#planes" className="hover:text-foreground transition-colors">{t("landing.plans")}</a>
             <a href="#contacto" className="hover:text-foreground transition-colors">{t("landing.contact")}</a>
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Global Light/Dark Theme Switcher */}
+            <button
+              type="button"
+              onClick={toggleMode}
+              className="flex items-center justify-center h-9 w-9 rounded-xl border border-border bg-card/60 hover:bg-muted text-foreground transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0"
+              title={mode === "dark" ? t("topbar.theme_light") : t("topbar.theme_dark")}
+              aria-label={t("topbar.toggle_theme")}
+            >
+              {mode === "dark" ? (
+                <Sun size={18} className="text-amber-400 animate-in fade-in zoom-in duration-300" />
+              ) : (
+                <Moon size={18} className="text-slate-600 dark:text-slate-300 animate-in fade-in zoom-in duration-300" />
+              )}
+            </button>
+
             {/* Responsive Language Selector */}
             <LanguageSelector className="w-28 sm:w-36" />
             <Link to="/auth" className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors hidden md:block">
@@ -411,9 +429,20 @@ export default function Landing() {
               <span className="text-muted-foreground text-xs">{t("landing.footer.sub")}</span>
             </div>
             <p className="text-xs text-muted-foreground">© 2026 ElyonPOS360T Contributors · Apache 2.0</p>
-            <Link to="/auth" className="text-sm font-semibold text-primary hover:underline">
-              {t("landing.login")} →
-            </Link>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={toggleMode}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground py-1 px-2.5 rounded-lg border border-border/60 hover:border-border transition-colors cursor-pointer"
+                title={mode === "dark" ? t("topbar.theme_light") : t("topbar.theme_dark")}
+              >
+                {mode === "dark" ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} />}
+                <span>{mode === "dark" ? "Light" : "Dark"}</span>
+              </button>
+              <Link to="/auth" className="text-sm font-semibold text-primary hover:underline">
+                {t("landing.login")} →
+              </Link>
+            </div>
           </div>
         </div>
       </footer>

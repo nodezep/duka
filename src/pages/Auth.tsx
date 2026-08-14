@@ -11,12 +11,14 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { LanguageSelector } from "@/components/shared/LanguageSelector";
 import {
   Loader2, Shield, Zap, Wifi, ArrowLeft,
-  ShoppingCart, UtensilsCrossed, BarChart3,
+  ShoppingCart, UtensilsCrossed, BarChart3, Sun, Moon,
 } from "lucide-react";
+import { useThemeStore } from "@/stores/theme";
 
 export default function Auth() {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { mode, toggleMode } = useThemeStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -71,7 +73,7 @@ export default function Auth() {
               <GearMark size={34} />
               <div>
                 <div className="auth-lockup-title">
-                  POS<span className="c-blue">360</span><span className="c-green">T</span>
+                  ElyonPOS<span className="c-blue">360</span><span className="c-green">T</span>
                 </div>
                 <div className="auth-lockup-sub">Open Source POS</div>
               </div>
@@ -131,9 +133,22 @@ export default function Auth() {
       {/* ── Panel derecho: formulario ── */}
       <div className="flex-1 flex flex-col justify-center p-6 sm:p-10 overflow-y-auto relative">
         
-        {/* Language selector in top-right area */}
-        <div className="absolute top-6 right-6 z-20">
-          <LanguageSelector className="w-36" />
+        {/* Controls in top-right area */}
+        <div className="absolute top-6 right-6 z-20 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleMode}
+            className="flex items-center justify-center h-9 w-9 rounded-xl border border-border bg-card/60 hover:bg-muted text-foreground transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0"
+            title={mode === "dark" ? t("topbar.theme_light") : t("topbar.theme_dark")}
+            aria-label={t("topbar.toggle_theme")}
+          >
+            {mode === "dark" ? (
+              <Sun size={18} className="text-amber-400 animate-in fade-in zoom-in duration-300" />
+            ) : (
+              <Moon size={18} className="text-slate-600 dark:text-slate-300 animate-in fade-in zoom-in duration-300" />
+            )}
+          </button>
+          <LanguageSelector className="w-32 sm:w-36" />
         </div>
 
         <div className="w-full max-w-sm space-y-5 mx-auto">
@@ -143,7 +158,7 @@ export default function Auth() {
             <div className="flex items-center gap-2.5">
               <GearMark size={28} />
               <div className="auth-lockup-title">
-                POS<span className="c-blue">360</span><span className="c-green">T</span>
+                ElyonPOS<span className="c-blue">360</span><span className="c-green">T</span>
               </div>
             </div>
             <Link to="/" className="auth-back-link">
