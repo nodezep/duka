@@ -20,7 +20,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      mode:      'light',
+      mode:      'dark',
       accent:    'azul',
       spacing:   'comodo',
       showIntro: true,
@@ -30,6 +30,6 @@ export const useThemeStore = create<ThemeState>()(
       setSpacing:   (spacing)   => set({ spacing }),
       setShowIntro: (showIntro) => set({ showIntro }),
     }),
-    { name: 'poss360t-theme' }
+    { name: 'elyonpos-theme' }
   )
 )
