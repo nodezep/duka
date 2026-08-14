@@ -59,7 +59,10 @@ function applyBranding(config: TenantConfig): void {
       : "bar";
 
   root.dataset.tenantTheme = kind;
-  document.title = config.name;
+  const brandName = !config.name || config.name === "La Panadería" || config.name.toLowerCase().includes("panader")
+    ? "ElyonPOS"
+    : config.name;
+  document.title = brandName;
 }
 
 function resolveHostname(): string {
@@ -116,6 +119,10 @@ export function useTenantByDomain() {
         setError("not-found");
         setLoading(false);
         return;
+      }
+
+      if (!data.name || data.name === "La Panadería" || data.name.toLowerCase().includes("panader")) {
+        data.name = "ElyonPOS";
       }
 
       setTenant(data.id);
