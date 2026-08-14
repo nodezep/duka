@@ -10,9 +10,9 @@ export function LanguageSelector({ className, collapsed = false }: { className?:
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const languages: { code: Language; label: string; flag: string }[] = [
-    { code: "es", label: t("lang.es"), flag: "🇪🇸" },
+    { code: "sw", label: t("lang.sw"), flag: "🇹🇿" },
     { code: "en", label: t("lang.en"), flag: "🇬🇧" },
-    { code: "sw", label: t("lang.sw"), flag: "🇰🇪" }
+    { code: "es", label: t("lang.es"), flag: "🇪🇸" },
   ];
 
   const currentLang = languages.find((l) => l.code === language) || languages[0];

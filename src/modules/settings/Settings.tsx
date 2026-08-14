@@ -8,6 +8,7 @@ import ReceiptSettings from "./ReceiptSettings";
 import AppearanceSettings from "./AppearanceSettings";
 import WhatsAppSettings from "./WhatsAppSettings";
 import AiAgentSettings from "./AiAgentSettings";
+import PlanBillingSettings from "./PlanBillingSettings";
 import { DataManagement } from "./DataManagement";
 import { SystemMaintenance } from "./SystemMaintenance";
 import { cn } from "@/lib/utils";
@@ -15,10 +16,22 @@ import { useLanguage } from "@/hooks/useLanguage";
 import {
   Building2, GitBranch, UtensilsCrossed, Users, Globe,
   MessageCircle, Bot, Receipt, Palette, Database, Wrench,
-  ChevronRight,
+  ChevronRight, Sparkles,
 } from "lucide-react";
 
-type TabId = "business" | "branches" | "tables" | "users" | "canales" | "whatsapp" | "agente" | "receipt" | "apariencia" | "datos" | "ops";
+type TabId =
+  | "business"
+  | "billing"
+  | "branches"
+  | "tables"
+  | "users"
+  | "canales"
+  | "whatsapp"
+  | "agente"
+  | "receipt"
+  | "apariencia"
+  | "datos"
+  | "ops";
 
 export default function Settings() {
   const [active, setActive] = useState<TabId>("business");
@@ -26,6 +39,7 @@ export default function Settings() {
 
   const TABS = [
     { id: "business",   label: t("settings.tab.business"),   icon: Building2 },
+    { id: "billing",    label: t("settings.tab.billing"),    icon: Sparkles },
     { id: "branches",   label: t("settings.tab.branches"),   icon: GitBranch },
     { id: "tables",     label: t("settings.tab.tables"),     icon: UtensilsCrossed },
     { id: "users",      label: t("settings.tab.users"),      icon: Users },
@@ -67,6 +81,7 @@ export default function Settings() {
       {/* Content */}
       <div className="g-cfg-content">
         {active === "business"   && <BusinessSettings />}
+        {active === "billing"    && <PlanBillingSettings />}
         {active === "branches"   && <BranchesSettings />}
         {active === "tables"     && <TablesSettings />}
         {active === "users"      && <UsersSettings />}

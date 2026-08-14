@@ -113,6 +113,7 @@ export function AppSidebar() {
 
   const branchName = branches.find((b) => b.id === branchId)?.name ?? "—";
   const userRole = roles[0] ?? "";
+  const roleTranslated = userRole ? (t(`role.${userRole}` as any) || userRole) : t("role.user");
   const initials = userRole.slice(0, 2).toUpperCase() || "U";
 
   const canSee = (item: Item) => {
@@ -229,7 +230,7 @@ export function AppSidebar() {
                 <>
                   <div className="flex-1 min-w-0">
                     <div className="g-sb-user-name truncate">{branchName}</div>
-                    <div className="g-sb-user-sub">{userRole}</div>
+                    <div className="g-sb-user-sub">{roleTranslated}</div>
                   </div>
                   <button
                     type="button"

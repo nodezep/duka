@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { Save, FlaskConical } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 
-const CURRENCIES = ["COP", "USD", "MXN", "ARS", "EUR", "PEN", "CLP", "BRL"];
+const CURRENCIES = ["TZS", "KES", "UGX", "USD", "EUR", "COP", "MXN", "ARS", "PEN", "CLP", "BRL"];
 
 export default function BusinessSettings() {
   const { tenantId, hasRole } = useTenantContext();
@@ -36,13 +36,13 @@ export default function BusinessSettings() {
     },
   });
 
-  const [form, setForm] = useState({ name: "", currency: "COP", tax_rate: 19 });
+  const [form, setForm] = useState({ name: "", currency: "TZS", tax_rate: 18 });
 
   useEffect(() => {
     if (tenant) {
       setForm({
         name: tenant.name ?? "",
-        currency: tenant.currency ?? "COP",
+        currency: tenant.currency ?? "TZS",
         tax_rate: Number(tenant.tax_rate ?? 0),
       });
     }

@@ -38,7 +38,7 @@ const BAKERY_PRESET: Preset = {
   key: "bakery",
   label: "Panadería",
   description: "Panes, pastelería, café y sándwiches.",
-  business: { name: "Panadería Pan de Oro", currency: "COP", tax_rate: 19 },
+  business: { name: "Panadería Pan de Oro", currency: "TZS", tax_rate: 19 },
   categories: [
     { name: "Panes", color: "#c2410c" },
     { name: "Pastelería", color: "#d97706" },
@@ -85,7 +85,7 @@ const BAR_PRESET: Preset = {
   key: "bar",
   label: "Bar",
   description: "Cervezas, cocteles, licores y tapas.",
-  business: { name: "La Barra de Lúpulo", currency: "COP", tax_rate: 19 },
+  business: { name: "La Barra de Lúpulo", currency: "TZS", tax_rate: 19 },
   categories: [
     { name: "Cervezas", color: "#ca8a04" },
     { name: "Cocteles", color: "#db2777" },
@@ -143,7 +143,7 @@ const ICECREAM_PRESET: Preset = {
   key: "icecream",
   label: "Heladería",
   description: "Helados, waffles, crepes y malteadas.",
-  business: { name: "Glacé Postres & Helados", currency: "COP", tax_rate: 19 },
+  business: { name: "Glacé Postres & Helados", currency: "TZS", tax_rate: 19 },
   categories: [
     { name: "Helados", color: "#ec4899" },
     { name: "Waffles", color: "#f59e0b" },

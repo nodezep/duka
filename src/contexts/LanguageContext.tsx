@@ -12,7 +12,7 @@ export const LanguageContext = createContext<LanguageContextType | undefined>(un
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem("app_language");
-    return (saved === "es" || saved === "en" || saved === "sw") ? saved : "en";
+    return (saved === "es" || saved === "en" || saved === "sw") ? saved : "sw";
   });
 
   const setLanguage = (lang: Language) => {

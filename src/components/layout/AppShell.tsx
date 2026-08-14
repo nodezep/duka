@@ -20,7 +20,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 
 function Shell() {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [tweaksOpen, setTweaksOpen] = useState(false);
   const { branchId, setBranch, branches, roles } = useTenantContext();
   const { devMode } = useDevMode();
@@ -42,8 +42,10 @@ function Shell() {
     refetchInterval: 15000,
   });
 
-  const today = new Date().toLocaleDateString("es-CO", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const dateLocale = language === "en" ? "en-US" : language === "sw" ? "sw-TZ" : "es-CO";
+  const today = new Date().toLocaleDateString(dateLocale, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
   const roleInitials = (roles[0] ?? "U").slice(0, 2).toUpperCase();
+  const roleTranslated = roles[0] ? (t(`role.${roles[0]}` as any) || roles[0]) : t("role.user");
   const branchName = branches.find((b) => b.id === branchId)?.name ?? "—";
 
   return (
@@ -58,7 +60,7 @@ function Shell() {
               type="button"
               onClick={toggleSidebar}
               className="glass g-topbar-toggle"
-              aria-label="Menú"
+              aria-label={t("topbar.menu")}
             >
               {isMobile && openMobile ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -75,7 +77,7 @@ function Shell() {
               <Calendar size={16} className="text-[--ink-700] shrink-0" />
               <Select value={branchId ?? undefined} onValueChange={setBranch}>
                 <SelectTrigger className="h-auto border-0 bg-transparent p-0 focus:ring-0 shadow-none text-sm font-semibold min-w-[90px]">
-                  <SelectValue placeholder="Sucursal" />
+                  <SelectValue placeholder={t("topbar.branch")} />
                 </SelectTrigger>
                 <SelectContent>
                   {branches.map((b) => (
@@ -91,8 +93,8 @@ function Shell() {
               type="button"
               onClick={toggleMode}
               className="glass g-topbar-bell cursor-pointer hover:bg-white/10 active:scale-95 transition-all duration-200"
-              title={mode === "dark" ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
-              aria-label="Cambiar Tema"
+              title={mode === "dark" ? t("topbar.theme_light") : t("topbar.theme_dark")}
+              aria-label={t("topbar.toggle_theme")}
             >
               {mode === "dark" ? (
                 <Sun size={18} className="text-amber-400 animate-in fade-in zoom-in duration-300" />
@@ -113,13 +115,13 @@ function Shell() {
             {/* User / Tweaks */}
             <Popover open={tweaksOpen} onOpenChange={setTweaksOpen}>
               <PopoverTrigger asChild>
-                <div className="glass g-topbar-user">
+                <div className="glass g-topbar-user cursor-pointer">
                   <div className="g-topbar-avatar">{roleInitials}</div>
                   <div className="g-topbar-user-info hidden md:block">
                     <div className="g-topbar-user-name">{branchName}</div>
                     <div className={cn("g-topbar-user-role", openSession ? "g-topbar-user-role-ok" : "g-topbar-user-role-off")}>
                       <span className={cn("g-dot", openSession ? "g-dot-ok" : "")} />
-                      {roles[0] ?? "Usuario"}
+                      {roleTranslated}
                     </div>
                   </div>
                   <ChevronDown size={14} className="hidden md:block shrink-0 text-[--ink-500]" />
@@ -135,7 +137,7 @@ function Shell() {
         {devMode && (
           <div className="g-dev-banner">
             <FlaskConical className="h-3.5 w-3.5 shrink-0" />
-            MODO DESARROLLO — Las ventas no respetan el stock del inventario
+            {t("topbar.dev_banner")}
           </div>
         )}
 
