@@ -138,7 +138,7 @@ export default function Landing() {
           <div className="flex items-center gap-2.5">
             <GearMark size={28} />
             <span className="landing-logo-text">
-              POS<span className="c-blue">360</span><span className="c-green">T</span>
+              ElyonPOS<span className="c-blue">360</span><span className="c-green">T</span>
             </span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">

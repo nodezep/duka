@@ -82,11 +82,27 @@ export function useTenantByDomain() {
     async function resolve() {
       const domain = resolveHostname();
 
-      const { data, error: qErr } = await supabase
+      // 1. Try exact domain match
+      let { data, error: qErr } = await supabase
         .from("tenants")
         .select("id, name, domain, logo_url, primary_color, theme_kind")
         .eq("domain", domain)
         .maybeSingle();
+
+      // 2. If no exact domain match (e.g. Netlify/Vercel preview URL or unconfigured host),
+      // fallback to the default/primary tenant so the app & landing load immediately
+      if (!data && !qErr) {
+        const { data: fallbackData } = await supabase
+          .from("tenants")
+          .select("id, name, domain, logo_url, primary_color, theme_kind")
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (fallbackData) {
+          data = fallbackData;
+        }
+      }
 
       if (cancelled) return;
 
