@@ -402,7 +402,7 @@ export default function POS() {
           const receiptConfig = (tenant?.receipt_config as Record<string, any>) ?? {};
           await printTicket({
             ticketNumber: sale?.ticket_number ?? saleId.slice(0, 8),
-            businessName: tenant?.name ?? "POSS360T",
+            businessName: tenant?.name ?? "ElyonPOS360T",
             branchName,
             items: lines.map((line) => ({
               name: line.product.name,

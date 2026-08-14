@@ -159,7 +159,7 @@ export default function PlanBillingSettings() {
               <Sparkles className="h-3.5 w-3.5" /> {t("billing.title")}
             </div>
             <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
-              Boresha Biashara Yako na POS S360T
+              Boresha Biashara Yako na ElyonPOS360T
             </h2>
             <p className="text-sm text-muted-foreground max-w-xl">
               {t("billing.subtitle")}

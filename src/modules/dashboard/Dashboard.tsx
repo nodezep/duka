@@ -400,7 +400,7 @@ export default function Dashboard() {
       </div>
 
       <p className="g-footer-note">
-        POS-S360T © 2026 — POS S360T Contributors · Apache 2.0
+        ElyonPOS360T © 2026 — ElyonPOS360T Contributors · Apache 2.0
       </p>
     </div>
   );

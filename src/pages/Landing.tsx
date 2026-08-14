@@ -406,11 +406,11 @@ export default function Landing() {
             <div className="flex items-center gap-2">
               <GearMark size={22} />
               <span className="font-semibold text-sm">
-                POS<span className="c-blue">360</span><span className="c-green">T</span>
+                ElyonPOS<span className="c-blue">360</span><span className="c-green">T</span>
               </span>
               <span className="text-muted-foreground text-xs">{t("landing.footer.sub")}</span>
             </div>
-            <p className="text-xs text-muted-foreground">© 2026 POS S360T Contributors · Apache 2.0</p>
+            <p className="text-xs text-muted-foreground">© 2026 ElyonPOS360T Contributors · Apache 2.0</p>
             <Link to="/auth" className="text-sm font-semibold text-primary hover:underline">
               {t("landing.login")} →
             </Link>

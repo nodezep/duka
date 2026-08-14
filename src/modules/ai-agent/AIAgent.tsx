@@ -88,7 +88,7 @@ export default function AIAgent() {
     {
       id: "welcome",
       role: "ai",
-      text: "Hola, soy el Agente S360T. Tengo acceso completo a tus ventas, inventario, clientes y más. ¿En qué puedo ayudarte hoy?",
+      text: "Hujambo, mimi ni Wakala wa ElyonPOS360T. Nina ufikiaji kamili wa mauzo yako, stoki, wateja na mengine. Ninawezaje kukusaidia leo?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -151,7 +151,7 @@ export default function AIAgent() {
           <AiOrb size={50} />
           <div className="g-ai-header-info">
             <div className="g-ai-header-title h-display">
-              Agente S360T
+              Agente ElyonPOS360T
               <span className="pill pill-brand g-kds-pill-micro">BETA</span>
             </div>
             <div className="h-meta">Conectado a tu inventario, ventas y CRM</div>

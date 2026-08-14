@@ -33,8 +33,8 @@ export default defineConfig(async ({ mode }) => {
           enabled: false,
         },
         manifest: {
-          name: "POS S360T",
-          short_name: "POS S360T",
+          name: "ElyonPOS360T",
+          short_name: "ElyonPOS360T",
           description:
             "Multi-branch POS system. Sales, cash register, inventory, production, and reports.",
           theme_color: "#1469A1",

@@ -143,7 +143,7 @@ export function AppSidebar() {
               {!collapsed && (
                 <div>
                   <div className="g-sb-brand-name">
-                    POS<span>-S360T</span>
+                    ElyonPOS<span>360T</span>
                   </div>
                   <div className="g-sb-brand-sub">{t("brand.sub")}</div>
                 </div>
