@@ -9,6 +9,7 @@ import {
   RotateCcw, ShoppingBag, Grid3x3, ChefHat, Bell, FlaskConical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/hooks/useLanguage";
 import { ITEM_STATUS_META, deriveOrderState, ORDER_STATE_META, countByStatus, type TableItemStatus } from "./itemStatus";
 
 type Tab = "products" | "order";
@@ -43,6 +44,7 @@ export function TableOrderMobile(props: Props) {
     onBack, onAdd, onSetQty, onSetItemStatus, onUndispatch,
     onSendToKitchen, onMarkAllReady, onSendToCashier, onCancel, onPay,
   } = props;
+  const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>(isOpen ? "products" : "order");
 
   const itemCount = useMemo(
@@ -56,7 +58,6 @@ export function TableOrderMobile(props: Props) {
 
   const handleAdd = (p: any) => {
     onAdd(p);
-    // si ya hay 3+ items, sugerimos saltar al pedido
   };
 
   return (
@@ -68,7 +69,7 @@ export function TableOrderMobile(props: Props) {
         </Button>
         <div className="flex-1 min-w-0">
           <div className="font-bold text-base leading-tight truncate">
-            {order?.tables?.name ?? "Mesa"}
+            {order?.tables?.name ?? (t("nav.tables") || "Table")}
           </div>
           <div className="text-[11px] text-muted-foreground tabular-nums">
             {itemCount} items · {formatCurrency(Number(order?.total ?? 0))}
@@ -80,7 +81,7 @@ export function TableOrderMobile(props: Props) {
       {devMode && (
         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 text-white text-[11px] font-semibold">
           <FlaskConical className="h-3 w-3 shrink-0" />
-          MODO DEV · Sin validación de stock ni caja
+          {t("settings.dev_mode") || "DEV MODE"}
         </div>
       )}
 
@@ -97,7 +98,7 @@ export function TableOrderMobile(props: Props) {
             !isOpen && "opacity-40"
           )}
         >
-          <Grid3x3 className="h-4 w-4" /> Productos
+          <Grid3x3 className="h-4 w-4" /> {t("nav.products") || "Products"}
         </button>
         <button
           onClick={() => setTab("order")}
@@ -108,7 +109,7 @@ export function TableOrderMobile(props: Props) {
               : "text-muted-foreground"
           )}
         >
-          <ShoppingBag className="h-4 w-4" /> Pedido
+          <ShoppingBag className="h-4 w-4" /> {t("table_order.order") || "Order"}
           {itemCount > 0 && (
             <span className="ml-1 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold">
               {itemCount}
@@ -124,7 +125,7 @@ export function TableOrderMobile(props: Props) {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar producto..."
+                placeholder={t("table_order.search_product") || "Search product..."}
                 className="pl-9 h-11"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -141,7 +142,7 @@ export function TableOrderMobile(props: Props) {
                   className="rounded-full px-4 h-8"
                   onClick={() => setSelectedCategory("all")}
                 >
-                  Todos
+                  {t("common.all") || "All"}
                 </Button>
                 {(categories ?? []).map((cat: any) => (
                   <Button
@@ -174,7 +175,7 @@ export function TableOrderMobile(props: Props) {
               ))}
               {filtered.length === 0 && (
                 <div className="col-span-full text-center py-12 text-muted-foreground text-sm">
-                  Sin productos
+                  {t("table_order.no_products") || "No products"}
                 </div>
               )}
             </div>
@@ -188,7 +189,7 @@ export function TableOrderMobile(props: Props) {
                 onClick={() => setTab("order")}
               >
                 <ShoppingBag className="h-5 w-5 mr-2" />
-                Ver pedido ({itemCount}) · {formatCurrency(Number(order?.total ?? 0))}
+                {t("table_order.order") || "Order"} ({itemCount}) · {formatCurrency(Number(order?.total ?? 0))}
               </Button>
             </div>
           )}
@@ -197,7 +198,7 @@ export function TableOrderMobile(props: Props) {
 
       {tab === "products" && !isOpen && (
         <div className="flex-1 grid place-items-center text-muted-foreground p-8 text-center text-sm">
-          Pedido enviado a caja. Pendiente de cobro.
+          {t("table_order.sent_to_cashier_msg") || "Order sent to cashier. Awaiting payment."}
         </div>
       )}
 
@@ -208,7 +209,7 @@ export function TableOrderMobile(props: Props) {
             <div className="p-3 space-y-2 pb-2">
               {items.length === 0 && (
                 <div className="text-center text-muted-foreground py-16 text-sm">
-                  Sin productos. Agrega desde la pestaña Productos.
+                  {t("table_order.empty_cart") || "No items. Add products from Products tab."}
                 </div>
               )}
               {items.map((it: any) => {
@@ -296,7 +297,7 @@ export function TableOrderMobile(props: Props) {
                         )}
                         {dispatched && isOpen && (
                           <Button size="sm" variant="ghost" className="h-9 text-xs" onClick={() => onUndispatch(it)}>
-                            <RotateCcw className="h-4 w-4 mr-1" /> Revertir
+                            <RotateCcw className="h-4 w-4 mr-1" /> {t("common.revert") || "Revert"}
                           </Button>
                         )}
                       </div>
@@ -310,15 +311,15 @@ export function TableOrderMobile(props: Props) {
           {/* Footer fijo */}
           <div className="border-t p-3 space-y-2 bg-card">
             <div className="flex items-baseline justify-between text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-muted-foreground">{t("pos.cart.subtotal") || "Subtotal"}</span>
               <span className="tabular-nums">{formatCurrency(Number(order.subtotal))}</span>
             </div>
             <div className="flex items-baseline justify-between text-sm">
-              <span className="text-muted-foreground">Impuestos</span>
+              <span className="text-muted-foreground">{t("pos.cart.taxes") || "Tax"}</span>
               <span className="tabular-nums">{formatCurrency(Number(order.tax_total))}</span>
             </div>
             <div className="flex items-baseline justify-between border-t pt-2">
-              <span className="font-bold">Total</span>
+              <span className="font-bold">{t("common.total") || "Total"}</span>
               <span className="text-2xl font-black text-primary tabular-nums">
                 {formatCurrency(Number(order.total))}
               </span>
@@ -326,14 +327,14 @@ export function TableOrderMobile(props: Props) {
             {isOpen && (
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" className="h-11" onClick={onCancel}>
-                  <Trash2 className="h-4 w-4 mr-1" /> Cancelar
+                  <Trash2 className="h-4 w-4 mr-1" /> {t("common.cancel") || "Cancel"}
                 </Button>
                 <Button
                   className="h-11"
                   onClick={onSendToCashier}
                   disabled={pendingCount === 0 && itemCount === 0}
                 >
-                  <Send className="h-4 w-4 mr-1" /> Enviar a caja
+                  <Send className="h-4 w-4 mr-1" /> {t("table_order.send_to_cashier") || "Send to cashier"}
                 </Button>
               </div>
             )}
@@ -345,7 +346,7 @@ export function TableOrderMobile(props: Props) {
                 disabled={Number(order.total) <= 0}
               >
                 <CreditCard className="h-5 w-5 mr-2" />
-                Cobrar {formatCurrency(Number(order.total))}
+                {t("pos.pay") || "Charge"} {formatCurrency(Number(order.total))}
               </Button>
             )}
           </div>

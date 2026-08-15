@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenantContext } from "@/hooks/useTenantContext";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -17,6 +18,7 @@ const RAPPI_WEBHOOK_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/rap
 
 export default function SalesChannelsSettings() {
   const { tenantId, branchId, branches, hasRole } = useTenantContext();
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const isSuperAdmin = hasRole("super_admin");
 
@@ -60,7 +62,7 @@ export default function SalesChannelsSettings() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Canales de venta actualizados");
+      toast.success(t("channels.settings.updated"));
       qc.invalidateQueries({ queryKey: ["tenant-channels"] });
       qc.invalidateQueries();
     },
@@ -69,7 +71,7 @@ export default function SalesChannelsSettings() {
   });
 
   const toggleChannel = (channel: SalesChannel, enabled: boolean) => {
-    if (!isSuperAdmin) return toast.error("Solo un super administrador puede modificar esto.");
+    if (!isSuperAdmin) return toast.error(t("channels.settings.superadmin_only"));
     setSavingChannels(true);
     let updated = [...activeChannels];
     if (enabled) {
@@ -180,7 +182,7 @@ export default function SalesChannelsSettings() {
     toast.success("URL del webhook copiada");
   };
 
-  if (loadingTenant) return <div className="h-meta">Cargando...</div>;
+  if (loadingTenant) return <div className="h-meta">{t("common.loading") || "Loading..."}</div>;
 
   return (
     <div className="space-y-8">
@@ -189,10 +191,10 @@ export default function SalesChannelsSettings() {
         <div>
           <h2 className="font-bold flex items-center gap-2 text-ink-900">
             <Store className="h-5 w-5 text-brand-600" />
-            Canales de Venta
+            {t("channels.settings.title")}
           </h2>
           <p className="h-meta mt-1">
-            Enciende o apaga los canales disponibles para este negocio. Los canales apagados no se mostrarán en el Punto de Venta ni en el sistema. (Solo Super Administrador)
+            {t("channels.settings.subtitle")}
           </p>
         </div>
 
@@ -201,20 +203,20 @@ export default function SalesChannelsSettings() {
           <div className="glass-thin rounded-xl p-4 flex flex-col gap-3 opacity-70">
             <div className="flex items-center justify-between">
               <div className="font-semibold flex items-center gap-2 text-ink-900">
-                <Store className="h-4 w-4" /> POS Físico
+                <Store className="h-4 w-4" /> {t("channels.settings.pos_title")}
               </div>
               <Switch checked disabled />
             </div>
-            <p className="h-meta">Punto de venta físico por defecto (siempre activo).</p>
+            <p className="h-meta">{t("channels.settings.pos_desc")}</p>
           </div>
 
           {(
             [
-              { key: "tables" as SalesChannel, label: "Mesas", icon: <UtensilsCrossed className="h-4 w-4" />, desc: "Venta y gestión de mesas en sitio." },
-              { key: "delivery" as SalesChannel, label: "Domicilio Propio", icon: <CarFront className="h-4 w-4" />, desc: "Gestión de envíos propios con motorizados. Pagos con transferencia o contra entrega." },
-              { key: "rappi" as SalesChannel, label: "Rappi", icon: <PlugZap className="h-4 w-4 text-orange-500" />, desc: "Integración directa con pedidos de Rappi." },
-              { key: "didi" as SalesChannel, label: "Didi Food", icon: <PlugZap className="h-4 w-4 text-orange-500" />, desc: "Habilita el canal de ventas para Didi Food." },
-              { key: "uber" as SalesChannel, label: "Uber Eats", icon: <PlugZap className="h-4 w-4 text-green-500" />, desc: "Habilita el canal de ventas para Uber Eats." },
+              { key: "tables" as SalesChannel, label: t("channels.settings.tables_title"), icon: <UtensilsCrossed className="h-4 w-4" />, desc: t("channels.settings.tables_desc") },
+              { key: "delivery" as SalesChannel, label: t("channels.settings.delivery_title"), icon: <CarFront className="h-4 w-4" />, desc: t("channels.settings.delivery_desc") },
+              { key: "rappi" as SalesChannel, label: t("channels.settings.rappi_title"), icon: <PlugZap className="h-4 w-4 text-orange-500" />, desc: t("channels.settings.rappi_desc") },
+              { key: "didi" as SalesChannel, label: t("channels.settings.didi_title"), icon: <PlugZap className="h-4 w-4 text-orange-500" />, desc: t("channels.settings.didi_desc") },
+              { key: "uber" as SalesChannel, label: t("channels.settings.uber_title"), icon: <PlugZap className="h-4 w-4 text-green-500" />, desc: t("channels.settings.uber_desc") },
             ] as { key: SalesChannel; label: string; icon: React.ReactNode; desc: string }[]
           ).map(({ key, label, icon, desc }) => {
             const active = activeChannels.includes(key);

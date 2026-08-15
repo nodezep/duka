@@ -12,6 +12,7 @@ import {
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Users, Trash2, UserPlus, KeyRound } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/hooks/useLanguage";
 import type { Database } from "@/integrations/supabase/types";
 import { MANAGEABLE_ROLES, ROLE_LABEL } from "@/lib/roles";
 
@@ -29,6 +30,7 @@ type Membership = {
 export default function UsersSettings() {
   const { tenantId, branches, hasRole } = useTenantContext();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const canManage = hasRole("owner", "admin");
 
@@ -78,14 +80,14 @@ export default function UsersSettings() {
   const changeRole = async (m: Membership, newRoleVal: AppRole) => {
     if (m.role === newRoleVal) return;
     if (m.role === "owner" && newRoleVal !== "owner" && ownersCount <= 1) {
-      return toast.error("Debe haber al menos un dueño en el bar");
+      return toast.error(t("users.error.must_have_owner"));
     }
     const { error } = await supabase
       .from("user_roles")
       .update({ role: newRoleVal })
       .eq("id", m.id);
     if (error) return toast.error(error.message);
-    toast.success("Rol actualizado");
+    toast.success(t("users.success.role_updated"));
     qc.invalidateQueries({ queryKey: ["tenant-members"] });
   };
 
@@ -95,28 +97,28 @@ export default function UsersSettings() {
       .update({ branch_id: branchId })
       .eq("id", m.id);
     if (error) return toast.error(error.message);
-    toast.success("Sucursal actualizada");
+    toast.success(t("users.success.branch_updated"));
     qc.invalidateQueries({ queryKey: ["tenant-members"] });
   };
 
   const removeMember = async (m: Membership) => {
     if (m.user_id === user?.id) {
-      return toast.error("No puedes eliminar tu propio acceso");
+      return toast.error(t("users.error.cannot_remove_self"));
     }
     if (m.role === "owner" && ownersCount <= 1) {
-      return toast.error("Debe haber al menos un dueño en el bar");
+      return toast.error(t("users.error.must_have_owner"));
     }
-    if (!confirm(`¿Quitar acceso a ${m.profile?.email ?? "este usuario"}?`)) return;
+    if (!confirm(t("users.confirm.remove"))) return;
     const { error } = await supabase.from("user_roles").delete().eq("id", m.id);
     if (error) return toast.error(error.message);
-    toast.success("Acceso revocado");
+    toast.success(t("users.success.removed"));
     qc.invalidateQueries({ queryKey: ["tenant-members"] });
   };
 
   const invite = async () => {
     if (!tenantId) return;
     const email = inviteEmail.trim().toLowerCase();
-    if (!email) return toast.error("Ingresa un email");
+    if (!email) return toast.error(t("users.error.email_required"));
     setInviting(true);
     try {
       const { data: profile, error: pErr } = await supabase
@@ -126,7 +128,7 @@ export default function UsersSettings() {
         .maybeSingle();
       if (pErr) throw pErr;
       if (!profile) {
-        toast.error("Ese usuario aún no existe. Usa la pestaña 'Crear nuevo' para registrarlo.");
+        toast.error(t("users.error.not_found"));
         return;
       }
       const { data: existing } = await supabase
@@ -137,7 +139,7 @@ export default function UsersSettings() {
         .eq("role", inviteRole)
         .maybeSingle();
       if (existing) {
-        toast.error("Ese usuario ya tiene este rol asignado");
+        toast.error(t("users.error.already_assigned"));
         return;
       }
       const { error: insErr } = await supabase
@@ -149,7 +151,7 @@ export default function UsersSettings() {
           branch_id: inviteBranch === "__all__" ? null : inviteBranch,
         });
       if (insErr) throw insErr;
-      toast.success("Usuario añadido al bar");
+      toast.success(t("users.success.invited"));
       setInviteEmail("");
       qc.invalidateQueries({ queryKey: ["tenant-members"] });
     } catch (e: any) {
@@ -162,7 +164,7 @@ export default function UsersSettings() {
   const createNew = async () => {
     if (!tenantId) return;
     if (!newEmail.trim() || newPassword.length < 6) {
-      return toast.error("Email y contraseña (mín. 6 caracteres) son requeridos");
+      return toast.error(t("users.error.fields_required"));
     }
     setCreating(true);
     try {
@@ -178,13 +180,13 @@ export default function UsersSettings() {
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
-      toast.success(`Usuario ${newEmail} creado. Comparte la contraseña con él.`);
+      toast.success(t("users.success.created"));
       setNewEmail("");
       setNewPassword("");
       setNewName("");
       qc.invalidateQueries({ queryKey: ["tenant-members"] });
     } catch (e: any) {
-      toast.error(e.message ?? "No se pudo crear el usuario");
+      toast.error(e.message ?? t("users.error.create_failed"));
     } finally {
       setCreating(false);
     }
@@ -198,63 +200,63 @@ export default function UsersSettings() {
             <span className="orb orb-sq w-8 h-8">
               <UserPlus className="h-4 w-4" />
             </span>
-            <h3 className="font-semibold text-ink-900">Añadir usuario al bar</h3>
+            <h3 className="font-semibold text-ink-900">{t("users.settings.title")}</h3>
           </div>
 
           <Tabs defaultValue="create">
             <TabsList>
-              <TabsTrigger value="create">Crear nuevo</TabsTrigger>
-              <TabsTrigger value="invite">Invitar existente</TabsTrigger>
+              <TabsTrigger value="create">{t("users.settings.tab_create")}</TabsTrigger>
+              <TabsTrigger value="invite">{t("users.settings.tab_invite")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="create" className="mt-4 space-y-3">
               <p className="h-meta">
-                Crea la cuenta y asigna el rol en un solo paso. Comparte el email y contraseña con el usuario.
+                {t("users.settings.create_desc")}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label>Nombre</Label>
+                  <Label>{t("users.settings.name")}</Label>
                   <Input
-                    placeholder="Juan Pérez"
+                    placeholder={t("users.settings.name_ph")}
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Email</Label>
+                  <Label>{t("users.settings.email")}</Label>
                   <Input
                     type="email"
-                    placeholder="usuario@correo.com"
+                    placeholder={t("users.settings.email_ph")}
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Contraseña</Label>
+                  <Label>{t("users.settings.password")}</Label>
                   <Input
                     type="text"
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder={t("users.settings.password_ph")}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Rol</Label>
+                  <Label>{t("users.settings.role")}</Label>
                   <Select value={newRole} onValueChange={(v) => setNewRole(v as AppRole)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {ROLES.map((r) => (
-                        <SelectItem key={r} value={r}>{ROLE_LABEL[r]}</SelectItem>
+                        <SelectItem key={r} value={r}>{t(`role.${r}` as any) || ROLE_LABEL[r]}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Sucursal</Label>
+                  <Label>{t("users.settings.branch")}</Label>
                   <Select value={newBranch} onValueChange={setNewBranch}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__all__">Todas las sucursales</SelectItem>
+                      <SelectItem value="__all__">{t("users.settings.all_branches")}</SelectItem>
                       {branches.map((b) => (
                         <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                       ))}
@@ -264,41 +266,41 @@ export default function UsersSettings() {
               </div>
               <button type="button" className="g-btn g-btn-primary" onClick={createNew} disabled={creating}>
                 <KeyRound className="h-4 w-4" />
-                {creating ? "Creando…" : "Crear usuario"}
+                {creating ? `${t("common.saving") || "Saving"}…` : t("users.settings.create_btn")}
               </button>
             </TabsContent>
 
             <TabsContent value="invite" className="mt-4 space-y-3">
               <p className="h-meta">
-                Si el usuario ya tiene cuenta en otro bar del sistema, búscalo por email para asignarle un rol aquí.
+                {t("users.settings.invite_desc")}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-[1fr_180px_180px_auto] gap-3 items-end">
                 <div className="space-y-1.5">
-                  <Label>Email</Label>
+                  <Label>{t("users.settings.email")}</Label>
                   <Input
                     type="email"
-                    placeholder="usuario@correo.com"
+                    placeholder={t("users.settings.email_ph")}
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Rol</Label>
+                  <Label>{t("users.settings.role")}</Label>
                   <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as AppRole)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {ROLES.map((r) => (
-                        <SelectItem key={r} value={r}>{ROLE_LABEL[r]}</SelectItem>
+                        <SelectItem key={r} value={r}>{t(`role.${r}` as any) || ROLE_LABEL[r]}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Sucursal</Label>
+                  <Label>{t("users.settings.branch")}</Label>
                   <Select value={inviteBranch} onValueChange={setInviteBranch}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__all__">Todas</SelectItem>
+                      <SelectItem value="__all__">{t("users.settings.all_branches")}</SelectItem>
                       {branches.map((b) => (
                         <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                       ))}
@@ -306,7 +308,7 @@ export default function UsersSettings() {
                   </Select>
                 </div>
                 <button type="button" className="g-btn g-btn-primary" onClick={invite} disabled={inviting}>
-                  {inviting ? "Añadiendo…" : "Añadir"}
+                  {inviting ? `${t("common.saving") || "Saving"}…` : t("users.settings.invite_btn")}
                 </button>
               </div>
             </TabsContent>
@@ -316,26 +318,26 @@ export default function UsersSettings() {
 
       <div className="glass rounded-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-black/5">
-          <p className="font-semibold text-ink-900">Miembros del bar</p>
+          <p className="font-semibold text-ink-900">{t("users.settings.members_title")}</p>
           <p className="h-meta">
-            {memberships?.length ?? 0} {(memberships?.length ?? 0) === 1 ? "usuario" : "usuarios"} con acceso
+            {memberships?.length ?? 0} {t("users.settings.members_desc")}
           </p>
         </div>
         {isLoading ? (
-          <div className="h-meta py-12 text-center">Cargando…</div>
+          <div className="h-meta py-12 text-center">{t("common.loading") || "Loading…"}</div>
         ) : !memberships || memberships.length === 0 ? (
           <div className="p-6">
-            <EmptyState icon={Users} title="Sin usuarios" description="Aún no hay miembros en este bar" />
+            <EmptyState icon={Users} title={t("users.settings.members_title")} description={t("users.settings.members_desc")} />
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-black/5">
-                  <th className="text-left px-5 py-3 h-label">Usuario</th>
-                  <th className="text-left px-5 py-3 h-label">Rol</th>
-                  <th className="text-left px-5 py-3 h-label">Sucursal</th>
-                  {canManage && <th className="w-12 px-5 py-3 sr-only">Acciones</th>}
+                  <th className="text-left px-5 py-3 h-label">{t("users.settings.col_user")}</th>
+                  <th className="text-left px-5 py-3 h-label">{t("users.settings.col_role")}</th>
+                  <th className="text-left px-5 py-3 h-label">{t("users.settings.col_branch")}</th>
+                  {canManage && <th className="w-12 px-5 py-3 sr-only">{t("users.settings.col_actions")}</th>}
                 </tr>
               </thead>
               <tbody>
@@ -347,7 +349,7 @@ export default function UsersSettings() {
                         <div className="font-medium flex items-center gap-2 text-ink-900">
                           {m.profile?.full_name || m.profile?.email || m.user_id.slice(0, 8)}
                           {isSelf && (
-                            <span className="g-pill g-pill-brand g-pill-h20">Tú</span>
+                            <span className="g-pill g-pill-brand g-pill-h20">{t("users.settings.you")}</span>
                           )}
                         </div>
                         {m.profile?.email && (
@@ -363,13 +365,13 @@ export default function UsersSettings() {
                             <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
                             <SelectContent>
                               {ROLES.map((r) => (
-                                <SelectItem key={r} value={r}>{ROLE_LABEL[r]}</SelectItem>
+                                <SelectItem key={r} value={r}>{t(`role.${r}` as any) || ROLE_LABEL[r]}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         ) : (
                           <span className={`g-pill ${m.role === "super_admin" ? "g-pill-brand" : "g-pill-ghost"} g-pill-h22`}>
-                            {ROLE_LABEL[m.role] || m.role}
+                            {t(`role.${m.role}` as any) || ROLE_LABEL[m.role] || m.role}
                           </span>
                         )}
                       </td>
@@ -381,7 +383,7 @@ export default function UsersSettings() {
                           >
                             <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="all">Todas las sucursales</SelectItem>
+                              <SelectItem value="all">{t("users.settings.all_branches")}</SelectItem>
                               {branches.map((b) => (
                                 <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                               ))}
@@ -389,7 +391,7 @@ export default function UsersSettings() {
                           </Select>
                         ) : (
                           <span className="h-meta">
-                            {branches.find((b) => b.id === m.branch_id)?.name ?? "Todas"}
+                            {branches.find((b) => b.id === m.branch_id)?.name ?? t("users.settings.all_branches")}
                           </span>
                         )}
                       </td>
@@ -402,10 +404,10 @@ export default function UsersSettings() {
                             disabled={isSelf || m.role === "super_admin"}
                             title={
                               isSelf
-                                ? "No puedes eliminarte"
+                                ? t("users.error.cannot_remove_self")
                                 : m.role === "super_admin"
-                                ? "No puedes quitar un super admin"
-                                : "Quitar acceso"
+                                ? "Super Admin"
+                                : t("common.delete")
                             }
                           >
                             <Trash2 className="h-4 w-4" />

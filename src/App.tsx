@@ -53,23 +53,22 @@ const Suppliers = lazy(() => import("./modules/suppliers/Suppliers"));
 const Expenses = lazy(() => import("./modules/expenses/Expenses"));
 const AIAgent  = lazy(() => import("./modules/ai-agent/AIAgent"));
 
+import { useLanguage } from "@/hooks/useLanguage";
+
 const PageFallback = () => (
   <div className="min-h-screen grid place-items-center">
     <Loader2 className="h-6 w-6 animate-spin text-primary" />
   </div>
 );
 
-const App = () => {
-  useSyncEngine();
-  useAutoUpdater();
-
-  // PWA lifecycle feedback
+const PWALifecycleListener = () => {
+  const { t } = useLanguage();
   useEffect(() => {
-    const onReady = () => toast.success("App lista para usar sin conexión ✓", { duration: 4000 });
+    const onReady = () => toast.success(t("pwa.ready"), { duration: 4000 });
     const onUpdate = () =>
-      toast.info("Nueva versión disponible", {
+      toast.info(t("pwa.update"), {
         duration: 0,
-        action: { label: "Actualizar", onClick: () => window.location.reload() },
+        action: { label: t("pwa.update_btn"), onClick: () => window.location.reload() },
       });
     window.addEventListener("pwa:offline-ready", onReady);
     window.addEventListener("pwa:update-available", onUpdate);
@@ -77,11 +76,18 @@ const App = () => {
       window.removeEventListener("pwa:offline-ready", onReady);
       window.removeEventListener("pwa:update-available", onUpdate);
     };
-  }, []);
+  }, [t]);
+  return null;
+};
+
+const App = () => {
+  useSyncEngine();
+  useAutoUpdater();
 
   return (
     <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
       <LanguageProvider>
+        <PWALifecycleListener />
         <TenantProvider>
           <TooltipProvider>
             <ThemeApplier />

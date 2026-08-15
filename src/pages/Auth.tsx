@@ -14,11 +14,14 @@ import {
   ShoppingCart, UtensilsCrossed, BarChart3, Sun, Moon,
 } from "lucide-react";
 import { useThemeStore } from "@/stores/theme";
+import { cn } from "@/lib/utils";
 
 export default function Auth() {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { mode, toggleMode } = useThemeStore();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,10 +46,30 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      toast.success(t("auth.welcome"));
-      navigate("/dashboard", { replace: true });
+      if (isSignUp) {
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim().toLowerCase(),
+          password,
+          options: {
+            data: { full_name: fullName.trim() || email.trim() },
+          },
+        });
+        if (error) throw error;
+        if (data.session) {
+          toast.success(t("auth.signup_success"));
+          navigate("/onboarding", { replace: true });
+        } else {
+          toast.success(t("auth.signup_verify"));
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim().toLowerCase(),
+          password,
+        });
+        if (error) throw error;
+        toast.success(t("auth.welcome"));
+        navigate("/dashboard", { replace: true });
+      }
     } catch (err: any) {
       toast.error(err.message || t("auth.error"));
     } finally {
@@ -168,20 +191,67 @@ export default function Auth() {
 
           {/* Form card */}
           <div className="glass p-7 rounded-3xl">
-            <div className="mb-6">
-              <div className="h-label g-auth-eyebrow mb-2">{t("auth.eyebrow")}</div>
-              <div className="h-display g-auth-title">{t("auth.title")}</div>
-              <div className="h-meta mt-1">{t("auth.subtitle")}</div>
+            <div className="flex bg-muted/60 p-1 rounded-xl mb-6 border border-border/40">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(false)}
+                className={cn(
+                  "flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-center",
+                  !isSignUp
+                    ? "bg-background text-foreground shadow-sm font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {t("auth.tab.signin")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSignUp(true)}
+                className={cn(
+                  "flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-center",
+                  isSignUp
+                    ? "bg-background text-foreground shadow-sm font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {t("auth.tab.signup")}
+              </button>
+            </div>
+
+            <div className="mb-5">
+              <div className="h-label g-auth-eyebrow mb-1">
+                {isSignUp ? t("auth.eyebrow.signup") : t("auth.eyebrow")}
+              </div>
+              <div className="h-display g-auth-title text-xl">
+                {isSignUp ? t("auth.title.signup") : t("auth.title")}
+              </div>
+              <div className="h-meta mt-1 text-xs">
+                {isSignUp ? t("auth.subtitle.signup") : t("auth.subtitle")}
+              </div>
             </div>
 
             <form onSubmit={onSubmit} className="space-y-4">
+              {isSignUp && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="fullname" className="text-sm font-medium">{t("auth.fullname")}</Label>
+                  <Input
+                    id="fullname"
+                    type="text"
+                    required
+                    className="h-11 text-base"
+                    placeholder={t("auth.fullname.ph")}
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label htmlFor="email" className="text-sm font-medium">{t("auth.email")}</Label>
                 <Input
                   id="email" type="email" required
                   inputMode="email" autoComplete="email"
                   className="h-11 text-base"
-                  placeholder="usuario@empresa.com"
+                  placeholder={t("auth.email.ph")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -190,9 +260,9 @@ export default function Auth() {
                 <Label htmlFor="pwd" className="text-sm font-medium">{t("auth.password")}</Label>
                 <Input
                   id="pwd" type="password" required minLength={6}
-                  autoComplete="current-password"
+                  autoComplete={isSignUp ? "new-password" : "current-password"}
                   className="h-11 text-base"
-                  placeholder="••••••••"
+                  placeholder={isSignUp ? t("auth.password.ph.signup") : t("auth.password.ph")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -204,7 +274,7 @@ export default function Auth() {
               >
                 {loading
                   ? <><Loader2 className="h-4 w-4 animate-spin" /> {t("auth.verifying")}</>
-                  : t("auth.submit")
+                  : isSignUp ? t("auth.submit.signup") : t("auth.submit")
                 }
               </button>
             </form>

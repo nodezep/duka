@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenantContext } from "@/hooks/useTenantContext";
+import { useLanguage } from "@/hooks/useLanguage";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ const statusIcon = (s: DiagStep["status"]) => {
 
 export default function WhatsAppSettings() {
   const { tenantId, branchId, branches } = useTenantContext();
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const [selectedBranch, setSelectedBranch] = useState(branchId ?? "");
   const [instance, setInstance] = useState("");
@@ -92,7 +94,7 @@ export default function WhatsAppSettings() {
         ? await supabase.from("ai_channel_configs").update(payload).eq("id", config.id)
         : await supabase.from("ai_channel_configs").insert(payload);
       if (error) throw error;
-      toast.success("Configuración guardada");
+      toast.success(t("whatsapp.settings.save"));
       qc.invalidateQueries({ queryKey: ["ai-channel-config"] });
     } catch (e: any) {
       toast.error(e.message);
@@ -243,10 +245,10 @@ export default function WhatsAppSettings() {
       <div className="glass p-5 space-y-3">
         <div className="flex items-center gap-2 font-semibold">
           <Webhook className="h-4 w-4 text-primary" />
-          URL del Webhook (Evolution API)
+          {t("whatsapp.settings.webhook_title")}
         </div>
         <p className="text-sm text-muted-foreground">
-          Configura esta URL en tu instancia de Evolution API como destino de eventos{" "}
+          {t("whatsapp.settings.webhook_desc")}{" "}
           <code className="bg-muted px-1 py-0.5 rounded text-xs">MESSAGES_UPSERT</code>.
         </p>
         <div className="flex gap-2">
@@ -261,16 +263,16 @@ export default function WhatsAppSettings() {
       <div className="glass p-5 space-y-4">
         <div className="flex items-center gap-2 font-semibold">
           <Bot className="h-4 w-4 text-primary" />
-          Agente IA WhatsApp
+          {t("whatsapp.settings.agent_title")}
           {config && (
             <Badge className={config.is_active ? "bg-success text-success-foreground" : "bg-muted"}>
-              {config.is_active ? "Activo" : "Inactivo"}
+              {config.is_active ? (t("common.active") || "Active") : (t("common.inactive") || "Inactive")}
             </Badge>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <Label>Sucursal</Label>
+          <Label>{t("whatsapp.settings.branch")}</Label>
           <Select value={selectedBranch} onValueChange={setSelectedBranch}>
             <SelectTrigger>
               <SelectValue placeholder="Selecciona sucursal…" />
@@ -285,24 +287,24 @@ export default function WhatsAppSettings() {
 
         {isLoading ? (
           <div className="flex items-center gap-2 text-muted-foreground text-sm py-4">
-            <Loader2 className="h-4 w-4 animate-spin" /> Cargando…
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("common.loading") || "Loading…"}
           </div>
         ) : (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label>Nombre de instancia (Evolution API)</Label>
+              <Label>{t("whatsapp.settings.instance_name")}</Label>
               <Input
-                placeholder="ej. pos-negocio-barra"
+                placeholder={t("whatsapp.settings.instance_ph")}
                 value={instance}
                 onChange={e => setInstance(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Debe coincidir exactamente con el nombre de la instancia en tu Evolution API.
+                {t("whatsapp.settings.instance_hint")}
               </p>
             </div>
 
             <div className="space-y-1.5">
-              <Label>Número WhatsApp asociado (opcional)</Label>
+              <Label>{t("whatsapp.settings.phone")}</Label>
               <Input
                 placeholder="57300XXXXXXX"
                 value={phone}
@@ -312,13 +314,13 @@ export default function WhatsAppSettings() {
 
             <div className="flex items-center gap-3">
               <Switch checked={isActive} onCheckedChange={setIsActive} id="wa-active" />
-              <Label htmlFor="wa-active">Agente activo</Label>
+              <Label htmlFor="wa-active">{t("whatsapp.settings.active")}</Label>
             </div>
 
             <div className="flex gap-2 flex-wrap">
               <Button onClick={save} disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                Guardar configuración
+                {t("whatsapp.settings.save")}
               </Button>
               <Button variant="outline" onClick={runDiagnostics} disabled={testing || !selectedBranch}>
                 {testing
@@ -327,7 +329,7 @@ export default function WhatsAppSettings() {
                     ? <RefreshCw className="h-4 w-4 mr-2" />
                     : <Wifi className="h-4 w-4 mr-2" />
                 }
-                {diagDone ? "Repetir diagnóstico" : "Probar conexión"}
+                {diagDone ? t("whatsapp.settings.repeat_diag") : t("whatsapp.settings.test_connection")}
               </Button>
             </div>
           </div>
@@ -340,11 +342,11 @@ export default function WhatsAppSettings() {
           <div className="flex items-center gap-2 font-semibold">
             {diagDone
               ? diagSteps.every(s => s.status === "ok")
-                ? <><CheckCircle2 className="h-4 w-4 text-green-500" /> Todo en orden</>
+                ? <><CheckCircle2 className="h-4 w-4 text-green-500" /> {t("whatsapp.settings.diag_ok")}</>
                 : diagSteps.some(s => s.status === "fail")
-                  ? <><WifiOff className="h-4 w-4 text-red-500" /> Se encontraron problemas</>
-                  : <><AlertCircle className="h-4 w-4 text-yellow-500" /> Advertencias detectadas</>
-              : <><Loader2 className="h-4 w-4 animate-spin text-primary" /> Ejecutando diagnóstico…</>
+                  ? <><WifiOff className="h-4 w-4 text-red-500" /> {t("whatsapp.settings.diag_issues")}</>
+                  : <><AlertCircle className="h-4 w-4 text-yellow-500" /> {t("whatsapp.settings.diag_warn")}</>
+              : <><Loader2 className="h-4 w-4 animate-spin text-primary" /> {t("whatsapp.settings.diag_running")}</>
             }
           </div>
 
@@ -387,14 +389,14 @@ export default function WhatsAppSettings() {
 
       {/* Instrucciones */}
       <div className="glass p-5 space-y-2 bg-muted/30">
-        <p className="text-sm font-medium">Cómo conectar Evolution API</p>
+        <p className="text-sm font-medium">{t("whatsapp.settings.how_to_title")}</p>
         <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-          <li>Crea una instancia en tu Evolution API con el nombre exacto que pusiste arriba.</li>
-          <li>En la instancia, ve a <strong>Webhooks</strong> y pega la URL de arriba.</li>
-          <li>Activa el evento <strong>MESSAGES_UPSERT</strong>.</li>
-          <li>Conecta la instancia a WhatsApp escaneando el QR.</li>
-          <li>Activa el agente con el toggle de arriba y guarda.</li>
-          <li>En Supabase → Edge Functions → Secrets, agrega <code className="bg-muted px-1 rounded">EVOLUTION_API_URL</code> y <code className="bg-muted px-1 rounded">EVOLUTION_API_KEY</code>.</li>
+          <li>{t("whatsapp.settings.step1")}</li>
+          <li>{t("whatsapp.settings.step2")}</li>
+          <li>{t("whatsapp.settings.step3")}</li>
+          <li>{t("whatsapp.settings.step4")}</li>
+          <li>{t("whatsapp.settings.step5")}</li>
+          <li>{t("whatsapp.settings.step6")}</li>
         </ol>
       </div>
     </div>

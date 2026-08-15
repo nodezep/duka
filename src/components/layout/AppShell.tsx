@@ -17,11 +17,13 @@ import { TweaksPanel } from "@/components/shared/TweaksPanel";
 import { LiveDot } from "@/components/shared/LiveDot";
 import { GearMark } from "@/components/shared/GearMark";
 import { useLanguage } from "@/hooks/useLanguage";
+import { InteractiveOnboardingGuide, GuideLauncherButton } from "@/components/shared/InteractiveOnboardingGuide";
 
 function Shell() {
   const navigate = useNavigate();
   const { language, t } = useLanguage();
   const [tweaksOpen, setTweaksOpen] = useState(false);
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
   const { branchId, setBranch, branches, roles } = useTenantContext();
   const { devMode } = useDevMode();
   const { mode, toggleMode } = useThemeStore();
@@ -70,6 +72,11 @@ function Shell() {
               <Search size={18} />
               <span className="g-topbar-search-text">{t("topbar.search")}</span>
               <span className="g-topbar-kbd">⌘K</span>
+            </div>
+
+            {/* Guide Launcher */}
+            <div className="hidden lg:flex items-center">
+              <GuideLauncherButton />
             </div>
 
             {/* Branch / Date */}
@@ -133,6 +140,9 @@ function Shell() {
             </Popover>
           </div>
         </header>
+
+        {/* Interactive Master Guide Bar */}
+        <InteractiveOnboardingGuide />
 
         {devMode && (
           <div className="g-dev-banner">

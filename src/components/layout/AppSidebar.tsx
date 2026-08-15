@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, ShoppingCart, Package, Boxes, ChefHat, Factory,
   Wallet, Receipt, Users, Calendar, BarChart3, Settings,
-  Bike, UtensilsCrossed, UserRound, Truck,
+  Bike, UtensilsCrossed, UserRound, Truck, Store,
   LogOut, ChevronRight, Sparkles,
 } from "lucide-react";
 import {
@@ -77,6 +77,7 @@ const sections: Section[] = [
     label: "Negocio",
     translationKey: "nav.business",
     items: [
+      { title: "Sucursales",    translationKey: "nav.branches" as any,   url: "/branches",  icon: Store,      roles: ["owner","admin"] },
       { title: "Empleados",     translationKey: "nav.employees",   url: "/employees", icon: Users,      roles: ["owner","admin","manager"] },
       { title: "Horarios",      translationKey: "nav.shifts",      url: "/shifts",    icon: Calendar,   roles: ["owner","admin","manager"] },
       { title: "Reportes",      translationKey: "nav.reports",     url: "/reports",   icon: BarChart3,  roles: ["owner","admin","manager"] },

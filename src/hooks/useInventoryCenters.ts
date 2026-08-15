@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useTenantContext } from "./useTenantContext";
+import { useLanguage } from "./useLanguage";
 
 export interface InventoryCenter {
   id: string;
@@ -15,6 +16,7 @@ export interface InventoryCenter {
 
 export function useInventoryCenters() {
   const { tenantId, branchId } = useTenantContext();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
 
   const { data: centers = [], isLoading } = useQuery({
@@ -50,7 +52,7 @@ export function useInventoryCenters() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventory-centers", branchId] });
-      toast.success("Centro de inventario creado");
+      toast.success(t("inv.center.created"));
     },
     onError: (error) => {
       toast.error(`Error: ${error.message}`);
@@ -71,7 +73,7 @@ export function useInventoryCenters() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventory-centers", branchId] });
-      toast.success("Centro de inventario actualizado");
+      toast.success(t("inv.center.updated"));
     },
     onError: (error) => {
       toast.error(`Error: ${error.message}`);

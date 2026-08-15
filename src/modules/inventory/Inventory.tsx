@@ -25,6 +25,13 @@ import "./inventory.css";
 
 const MOVE_TYPES = ["purchase", "adjustment", "waste", "return"] as const;
 
+const MOVE_TYPE_LABELS: Record<typeof MOVE_TYPES[number], string> = {
+  purchase: "Compra",
+  adjustment: "Ajuste",
+  waste: "Merma",
+  return: "Devolución",
+};
+
 /* ── Stock bar component (inline dynamic styles OK: data-driven widths) ── */
 function StockBar({ qty, minStock }: { qty: number; minStock: number }) {
   const max = Math.max(qty, minStock * 2, 100);
@@ -434,7 +441,7 @@ export default function Inventory() {
             {filteredStocks.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <div className="orb g-orb-52"><Package size={22} /></div>
-                <span className="h-meta">Sin productos{search ? ` para "${search}"` : ""}</span>
+                <span className="h-meta">{search ? `${t("inv.empty.products_search")} "${search}"` : t("inv.empty.products")}</span>
               </div>
             ) : (
               filteredStocks.map((s: any) => {
@@ -584,6 +591,7 @@ export default function Inventory() {
 
 /* ── Forecast tab ── */
 function ForecastTab({ branchId, stocks }: { branchId: string; stocks: any[] }) {
+  const { t } = useLanguage();
   const { data: salesVelocity } = useQuery({
     queryKey: ["sales-velocity", branchId],
     enabled: !!branchId,
@@ -627,7 +635,7 @@ function ForecastTab({ branchId, stocks }: { branchId: string; stocks: any[] }) 
     return (
       <div className="glass flex flex-col items-center justify-center py-16 gap-3">
         <div className="orb g-orb-52"><TrendingUp size={22} /></div>
-        <span className="h-meta">No hay datos de ventas de los últimos 30 días para proyectar.</span>
+        <span className="h-meta">{t("inv.forecast.empty")}</span>
       </div>
     );
   }
@@ -635,11 +643,11 @@ function ForecastTab({ branchId, stocks }: { branchId: string; stocks: any[] }) 
   return (
     <div className="glass overflow-hidden">
       <div className="grid items-center px-5 py-3 inv-forecast-grid inv-table-header">
-        <span className="h-label">Producto</span>
-        <span className="h-label">Stock actual</span>
-        <span className="h-label">Venta/día (30d)</span>
-        <span className="h-label">Días restantes</span>
-        <span className="h-label">Alerta</span>
+        <span className="h-label">{t("inv.forecast.product")}</span>
+        <span className="h-label">{t("inv.forecast.stock")}</span>
+        <span className="h-label">{t("inv.forecast.velocity")}</span>
+        <span className="h-label">{t("inv.forecast.days_left")}</span>
+        <span className="h-label">{t("inv.forecast.alert")}</span>
       </div>
 
       {rows.map((r: any) => {
@@ -661,11 +669,11 @@ function ForecastTab({ branchId, stocks }: { branchId: string; stocks: any[] }) 
             </span>
             <span>
               {urgent ? (
-                <span className="g-pill g-pill-bad inv-text-10">Urgente ≤7d</span>
+                <span className="g-pill g-pill-bad inv-text-10">{t("inv.forecast.urgent")}</span>
               ) : warning ? (
-                <span className="g-pill g-pill-warn inv-text-10">≤14 días</span>
+                <span className="g-pill g-pill-warn inv-text-10">{t("inv.forecast.warning")}</span>
               ) : (
-                <span className="g-pill g-pill-ok inv-text-10">OK</span>
+                <span className="g-pill g-pill-ok inv-text-10">{t("inv.table.status_ok")}</span>
               )}
             </span>
           </div>
@@ -677,6 +685,7 @@ function ForecastTab({ branchId, stocks }: { branchId: string; stocks: any[] }) 
 
 /* ── Movement dialog ── */
 function MovementDialog({ tenantId, branchId, userId, products, centers, defaultCenterId, onClose }: any) {
+  const { t } = useLanguage();
   const [productSearch, setProductSearch] = useState("");
   const [productId, setProductId] = useState<string>("");
   const [centerId, setCenterId] = useState<string>(defaultCenterId || "");
@@ -697,19 +706,19 @@ function MovementDialog({ tenantId, branchId, userId, products, centers, default
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!productId) return toast.error("Selecciona un producto");
-    if (!centerId) return toast.error("Selecciona el centro de inventario");
-    if (!qty || Number(qty) <= 0) return toast.error("Cantidad inválida");
+    if (!productId) return toast.error(t("inv.modal.prov.error_product"));
+    if (!centerId) return toast.error(t("inv.modal.prov.error_center"));
+    if (!qty || Number(qty) <= 0) return toast.error(t("inv.modal.prov.error_qty"));
     setSaving(true);
     try {
       await applyInventoryMovement({
         tenantId, branchId, userId, productId,
         inventoryCenterId: centerId,
         type, quantity: Number(qty),
-        reason: reason.trim() || `Entrada manual — ${MOVE_TYPE_LABELS[type]}`,
+        reason: reason.trim() || `${t("inv.modal.prov.manual_entry")} — ${t(`inv.type.${type}` as any)}`,
         referenceType: "manual",
       });
-      toast.success("Movimiento registrado correctamente");
+      toast.success(t("inv.modal.prov.success"));
       onClose();
     } catch (err: any) { toast.error(err.message); }
     finally { setSaving(false); }
@@ -719,26 +728,26 @@ function MovementDialog({ tenantId, branchId, userId, products, centers, default
     <DialogContent className="max-w-md">
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
-          <PackagePlus className="h-5 w-5" /> Aprovisionar inventario
+          <PackagePlus className="h-5 w-5" /> {t("inv.modal.prov.title")}
         </DialogTitle>
       </DialogHeader>
       <form onSubmit={submit} className="space-y-4">
 
         {/* Tipo de movimiento */}
         <div className="space-y-1.5">
-          <Label>Tipo de movimiento</Label>
+          <Label>{t("inv.modal.prov.type")}</Label>
           <div className="grid grid-cols-2 gap-2">
-            {MOVE_TYPES.map((t) => (
+            {MOVE_TYPES.map((moveType) => (
               <button
-                key={t} type="button"
-                onClick={() => setType(t)}
+                key={moveType} type="button"
+                onClick={() => setType(moveType)}
                 className={`px-3 py-2 rounded-md border text-sm font-medium transition-colors ${
-                  type === t
+                  type === moveType
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-card text-muted-foreground border-border hover:bg-muted"
                 }`}
               >
-                {MOVE_TYPE_LABELS[t]}
+                {t(`inv.type.${moveType}` as any)}
               </button>
             ))}
           </div>
@@ -746,12 +755,12 @@ function MovementDialog({ tenantId, branchId, userId, products, centers, default
 
         {/* Producto con búsqueda */}
         <div className="space-y-1.5">
-          <Label>Producto</Label>
+          <Label>{t("inv.modal.prov.product")}</Label>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               className="pl-9"
-              placeholder="Buscar por nombre o SKU..."
+              placeholder={t("inv.modal.prov.search")}
               value={productSearch}
               onChange={(e) => { setProductSearch(e.target.value); setProductId(""); }}
             />
@@ -760,13 +769,13 @@ function MovementDialog({ tenantId, branchId, userId, products, centers, default
             <div className="flex items-center justify-between px-3 py-2 rounded-md bg-muted text-sm">
               <span className="font-medium">{selectedProduct.name}</span>
               <button type="button" className="text-muted-foreground hover:text-foreground text-xs" onClick={() => { setProductId(""); setProductSearch(""); }}>
-                Cambiar
+                {t("inv.modal.prov.change")}
               </button>
             </div>
           ) : productSearch.length > 0 && (
             <div className="border rounded-md max-h-48 overflow-y-auto">
               {filteredProducts.length === 0 ? (
-                <p className="px-3 py-4 text-sm text-muted-foreground text-center">Sin resultados</p>
+                <p className="px-3 py-4 text-sm text-muted-foreground text-center">{t("inv.modal.prov.no_results")}</p>
               ) : filteredProducts.slice(0, 20).map((p: any) => (
                 <button
                   key={p.id} type="button"
@@ -783,9 +792,9 @@ function MovementDialog({ tenantId, branchId, userId, products, centers, default
 
         {/* Centro */}
         <div className="space-y-1.5">
-          <Label>Centro de inventario</Label>
+          <Label>{t("inv.modal.prov.center")}</Label>
           <Select value={centerId} onValueChange={setCenterId}>
-            <SelectTrigger><SelectValue placeholder="Selecciona el centro..." /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={t("inv.modal.prov.center_ph")} /></SelectTrigger>
             <SelectContent>
               {(centers as any[]).map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
             </SelectContent>
@@ -794,7 +803,7 @@ function MovementDialog({ tenantId, branchId, userId, products, centers, default
 
         {/* Cantidad */}
         <div className="space-y-1.5">
-          <Label>Cantidad {selectedProduct?.unit_code ? `(${selectedProduct.unit_code})` : ""}</Label>
+          <Label>{t("inv.modal.prov.qty")} {selectedProduct?.unit_code ? `(${selectedProduct.unit_code})` : ""}</Label>
           <Input
             type="number" step="0.001" min="0.001" required
             value={qty} onChange={(e) => setQty(e.target.value)}
@@ -805,10 +814,10 @@ function MovementDialog({ tenantId, branchId, userId, products, centers, default
 
         {/* Motivo */}
         <div className="space-y-1.5">
-          <Label>Motivo <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+          <Label>{t("inv.modal.prov.reason")} <span className="text-muted-foreground font-normal">({t("inv.modal.prov.optional")})</span></Label>
           <Textarea
             value={reason} onChange={(e) => setReason(e.target.value)}
-            placeholder="Ej: Compra a proveedor, conteo físico, etc."
+            placeholder={t("inv.modal.prov.reason_ph")}
             rows={2}
           />
         </div>
@@ -818,7 +827,7 @@ function MovementDialog({ tenantId, branchId, userId, products, centers, default
           className="g-btn g-btn-primary w-full"
           disabled={saving || !productId || !qty || !centerId}
         >
-          {saving ? "Registrando…" : "Registrar movimiento"}
+          {saving ? t("inv.modal.prov.submitting") : t("inv.modal.prov.submit")}
         </button>
       </form>
     </DialogContent>

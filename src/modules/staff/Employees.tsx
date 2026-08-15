@@ -77,7 +77,7 @@ export default function Employees() {
               <span className="font-medium text-sm text-ink-900">{e.full_name}</span>
               <span className="text-sm text-ink-700">{e.email ?? "—"}</span>
               <span className="text-sm text-ink-700">{e.phone ?? "—"}</span>
-              <span className="g-pill g-pill-ghost capitalize">{e.role}</span>
+              <span className="g-pill g-pill-ghost capitalize">{t(`role.${e.role}` as any) || e.role}</span>
               <span>
                 {e.status === "active"
                   ? <span className="g-pill g-pill-ok">{t("employees.active")}</span>
@@ -128,7 +128,7 @@ function EmployeeForm({ tenantId, branchId, onClose }: { tenantId: string; branc
             <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {ROLES.map((r) => <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>)}
+                {ROLES.map((r) => <SelectItem key={r} value={r} className="capitalize">{t(`role.${r}` as any) || r}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>

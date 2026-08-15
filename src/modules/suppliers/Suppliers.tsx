@@ -51,7 +51,7 @@ export default function Suppliers() {
     queryKey: ["suppliers", tenantId],
     enabled: !!tenantId,
     queryFn: async () => {
-      const { data } = await supabase.from("suppliers").select("*").eq("tenant_id", tenantId!).order("name");
+      const { data } = await (supabase as any).from("suppliers").select("*").eq("tenant_id", tenantId!).order("name");
       return (data ?? []) as Supplier[];
     },
   });
@@ -60,7 +60,7 @@ export default function Suppliers() {
     queryKey: ["purchase-orders", branchId],
     enabled: !!branchId,
     queryFn: async () => {
-      const { data } = await supabase.from("purchase_orders")
+      const { data } = await (supabase as any).from("purchase_orders")
         .select("*, suppliers(name)")
         .eq("branch_id", branchId!)
         .order("created_at", { ascending: false })
@@ -82,10 +82,10 @@ export default function Suppliers() {
     mutationFn: async (f: SupplierForm) => {
       const payload = { tenant_id: tenantId!, name: f.name.trim(), tax_id: f.tax_id.trim() || null, contact_name: f.contact_name.trim() || null, phone: f.phone.trim() || null, email: f.email.trim() || null, payment_terms: f.payment_terms.trim() || null, notes: f.notes.trim() || null };
       if (editingSupplier) {
-        const { error } = await supabase.from("suppliers").update(payload).eq("id", editingSupplier.id);
+        const { error } = await (supabase as any).from("suppliers").update(payload).eq("id", editingSupplier.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("suppliers").insert(payload);
+        const { error } = await (supabase as any).from("suppliers").insert(payload);
         if (error) throw error;
       }
     },
@@ -99,7 +99,7 @@ export default function Suppliers() {
 
   const removeSupplier = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("suppliers").delete().eq("id", id);
+      const { error } = await (supabase as any).from("suppliers").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => { toast.success(t("suppliers.deleted")); qc.invalidateQueries({ queryKey: ["suppliers"] }); },
@@ -109,7 +109,7 @@ export default function Suppliers() {
   const createOrder = useMutation({
     mutationFn: async () => {
       const total = orderItems.reduce((s, i) => s + i.quantity * i.cost_price, 0);
-      const { data: ord, error: e1 } = await supabase.from("purchase_orders").insert({
+      const { data: ord, error: e1 } = await (supabase as any).from("purchase_orders").insert({
         tenant_id: tenantId!, branch_id: branchId!, supplier_id: orderSupplierId || null, total, notes: orderNotes.trim() || null,
       }).select("id").single();
       if (e1) throw e1;
@@ -118,7 +118,7 @@ export default function Suppliers() {
         const items = orderItems.map((i) => ({
           order_id: ord.id, tenant_id: tenantId!, product_id: i.product_id, product_name: i.product_name, quantity: i.quantity, cost_price: i.cost_price, line_total: i.quantity * i.cost_price,
         }));
-        const { error: e2 } = await supabase.from("purchase_order_items").insert(items);
+        const { error: e2 } = await (supabase as any).from("purchase_order_items").insert(items);
         if (e2) throw e2;
       }
     },
@@ -132,10 +132,10 @@ export default function Suppliers() {
 
   const receiveOrder = useMutation({
     mutationFn: async (order: PurchaseOrder) => {
-      const { data: items } = await supabase.from("purchase_order_items").select("*").eq("order_id", order.id);
-      const { error } = await supabase.from("purchase_orders").update({ status: "received", received_at: new Date().toISOString() }).eq("id", order.id);
+      const { data: items } = await (supabase as any).from("purchase_order_items").select("*").eq("order_id", order.id);
+      const { error } = await (supabase as any).from("purchase_orders").update({ status: "received", received_at: new Date().toISOString() }).eq("id", order.id);
       if (error) throw error;
-      for (const item of items ?? []) {
+      for (const item of (items ?? []) as any[]) {
         if (!item.product_id) continue;
         await supabase.rpc("apply_inventory_movement", {
           _tenant_id: tenantId!, _branch_id: branchId!, _product_id: item.product_id,
@@ -274,9 +274,9 @@ export default function Suppliers() {
                     </button>
                     <button
                       type="button"
-                      aria-label="Eliminar proveedor"
+                      aria-label={t("suppliers.btn.delete")}
                       className="g-btn g-btn-ghost h-8 w-8 p-0 flex items-center justify-center text-g-bad"
-                      onClick={() => { if (confirm("¿Eliminar proveedor?")) removeSupplier.mutate(s.id); }}
+                      onClick={() => { if (confirm(t("suppliers.confirm.delete"))) removeSupplier.mutate(s.id); }}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -295,19 +295,19 @@ export default function Suppliers() {
             <div className="orb mx-auto mb-4">
               <ShoppingBag className="h-7 w-7" />
             </div>
-            <h2 className="h-display font-semibold text-lg">Sin órdenes de compra</h2>
+            <h2 className="h-display font-semibold text-lg">{t("suppliers.ord.empty.title")}</h2>
             <p className="h-meta g-page-subtitle text-ink-500 mt-1">
-              Crea órdenes de compra para registrar tus compras a proveedores.
+              {t("suppliers.ord.empty.desc")}
             </p>
           </div>
         ) : (
           <div className="glass rounded-2xl overflow-hidden">
             <div className="grid grid-cols-[1fr_2fr_100px_2fr_120px_100px] gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-400 border-b border-white/10">
-              <span>Fecha</span>
-              <span>Proveedor</span>
-              <span>Estado</span>
-              <span>Notas</span>
-              <span className="text-right">Total</span>
+              <span>{t("common.date") || "Date"}</span>
+              <span>{t("suppliers.title")}</span>
+              <span>{t("common.status") || "Status"}</span>
+              <span>{t("suppliers.col.notes")}</span>
+              <span className="text-right">{t("common.total") || "Total"}</span>
               <span />
             </div>
             {orders.map((o, idx) => (
@@ -315,12 +315,12 @@ export default function Suppliers() {
                 key={o.id}
                 className={`grid grid-cols-[1fr_2fr_100px_2fr_120px_100px] gap-3 px-4 py-3 items-center hover:bg-white/5 transition-colors${idx < orders.length - 1 ? " border-b border-white/10" : ""}`}
               >
-                <span className="text-sm tabular-nums text-ink-500">{new Date(o.created_at).toLocaleDateString("es-CO")}</span>
-                <span className="font-medium text-sm text-ink-900">{o.suppliers?.name ?? "Sin proveedor"}</span>
+                <span className="text-sm tabular-nums text-ink-500">{new Date(o.created_at).toLocaleDateString()}</span>
+                <span className="font-medium text-sm text-ink-900">{o.suppliers?.name ?? t("suppliers.ord.no_supplier")}</span>
                 <span>
-                  {o.status === "received" && <span className="g-pill g-pill-ok">Recibida</span>}
-                  {o.status === "cancelled" && <span className="g-pill g-pill-bad">Cancelada</span>}
-                  {o.status === "draft" && <span className="g-pill g-pill-ghost">Borrador</span>}
+                  {o.status === "received" && <span className="g-pill g-pill-ok">{t("suppliers.ord.received")}</span>}
+                  {o.status === "cancelled" && <span className="g-pill g-pill-bad">{t("suppliers.ord.cancelled")}</span>}
+                  {o.status === "draft" && <span className="g-pill g-pill-ghost">{t("suppliers.ord.draft")}</span>}
                 </span>
                 <span className="text-sm text-ink-500">{o.notes ?? "—"}</span>
                 <span className="text-right font-semibold tabular-nums text-sm text-ink-900">{formatCurrency(Number(o.total))}</span>
@@ -329,10 +329,10 @@ export default function Suppliers() {
                     <button
                       type="button"
                       className="g-btn g-btn-ghost g-btn-sm flex items-center gap-1"
-                      onClick={() => { if (confirm("¿Marcar como recibida? Esto actualizará el inventario.")) receiveOrder.mutate(o); }}
+                      onClick={() => { if (confirm(t("suppliers.confirm.receive"))) receiveOrder.mutate(o); }}
                     >
                       <CheckCircle2 className="h-4 w-4" />
-                      Recibir
+                      {t("suppliers.btn.receive")}
                     </button>
                   )}
                 </div>
@@ -345,39 +345,39 @@ export default function Suppliers() {
       {/* Supplier form dialog */}
       <Dialog open={supplierOpen} onOpenChange={(v) => { setSupplierOpen(v); if (!v) { setEditingSupplier(null); setSupplierForm(emptySupplier); } }}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>{editingSupplier ? "Editar proveedor" : "Nuevo proveedor"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingSupplier ? t("suppliers.form.edit") : t("suppliers.new")}</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label>Nombre / Razón social *</Label>
-              <Input value={supplierForm.name} onChange={(e) => setSupplierForm((f) => ({ ...f, name: e.target.value }))} placeholder="Distribuidora XYZ" />
+              <Label>{t("suppliers.form.name")}</Label>
+              <Input value={supplierForm.name} onChange={(e) => setSupplierForm((f) => ({ ...f, name: e.target.value }))} placeholder={t("suppliers.form.name_ph")} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>NIT</Label>
+                <Label>{t("suppliers.col.nit")}</Label>
                 <Input value={supplierForm.tax_id} onChange={(e) => setSupplierForm((f) => ({ ...f, tax_id: e.target.value }))} placeholder="900000000-1" />
               </div>
               <div className="space-y-1.5">
-                <Label>Teléfono</Label>
+                <Label>{t("suppliers.col.phone")}</Label>
                 <Input value={supplierForm.phone} onChange={(e) => setSupplierForm((f) => ({ ...f, phone: e.target.value }))} placeholder="310 000 0000" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Contacto</Label>
-                <Input value={supplierForm.contact_name} onChange={(e) => setSupplierForm((f) => ({ ...f, contact_name: e.target.value }))} placeholder="Juan Pérez" />
+                <Label>{t("suppliers.col.contact")}</Label>
+                <Input value={supplierForm.contact_name} onChange={(e) => setSupplierForm((f) => ({ ...f, contact_name: e.target.value }))} placeholder="John Doe" />
               </div>
               <div className="space-y-1.5">
                 <Label>Email</Label>
-                <Input type="email" value={supplierForm.email} onChange={(e) => setSupplierForm((f) => ({ ...f, email: e.target.value }))} placeholder="ventas@proveedor.com" />
+                <Input type="email" value={supplierForm.email} onChange={(e) => setSupplierForm((f) => ({ ...f, email: e.target.value }))} placeholder="vendor@example.com" />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label>Condición de pago</Label>
-              <Input value={supplierForm.payment_terms} onChange={(e) => setSupplierForm((f) => ({ ...f, payment_terms: e.target.value }))} placeholder="Ej: 30 días, contado, crédito 15 días" />
+              <Label>{t("suppliers.col.terms")}</Label>
+              <Input value={supplierForm.payment_terms} onChange={(e) => setSupplierForm((f) => ({ ...f, payment_terms: e.target.value }))} placeholder={t("suppliers.form.terms_ph")} />
             </div>
             <div className="space-y-1.5">
-              <Label>Notas</Label>
-              <Input value={supplierForm.notes} onChange={(e) => setSupplierForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Observaciones adicionales" />
+              <Label>{t("suppliers.col.notes")}</Label>
+              <Input value={supplierForm.notes} onChange={(e) => setSupplierForm((f) => ({ ...f, notes: e.target.value }))} placeholder={t("suppliers.form.notes_ph")} />
             </div>
             <button
               type="button"
@@ -385,7 +385,7 @@ export default function Suppliers() {
               disabled={!supplierForm.name.trim() || saveSupplier.isPending}
               onClick={() => saveSupplier.mutate(supplierForm)}
             >
-              {saveSupplier.isPending ? "Guardando..." : editingSupplier ? "Guardar cambios" : "Crear proveedor"}
+              {saveSupplier.isPending ? `${t("common.saving") || "Saving"}...` : editingSupplier ? t("suppliers.form.save") : t("suppliers.new")}
             </button>
           </div>
         </DialogContent>
@@ -394,45 +394,45 @@ export default function Suppliers() {
       {/* Purchase order dialog */}
       <Dialog open={orderOpen} onOpenChange={(v) => { setOrderOpen(v); if (!v) { setOrderSupplierId(""); setOrderNotes(""); setOrderItems([]); } }}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>Nueva orden de compra</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("suppliers.ord.form.title")}</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Proveedor</Label>
+                <Label>{t("suppliers.title")}</Label>
                 <Select value={orderSupplierId} onValueChange={setOrderSupplierId}>
-                  <SelectTrigger><SelectValue placeholder="Seleccionar proveedor" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t("suppliers.ord.form.sel_sup")} /></SelectTrigger>
                   <SelectContent>
                     {suppliers.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Notas</Label>
-                <Input value={orderNotes} onChange={(e) => setOrderNotes(e.target.value)} placeholder="Observaciones de la orden" />
+                <Label>{t("suppliers.col.notes")}</Label>
+                <Input value={orderNotes} onChange={(e) => setOrderNotes(e.target.value)} placeholder={t("suppliers.ord.form.notes_ph")} />
               </div>
             </div>
 
             <div className="glass-thin rounded-xl p-3 space-y-3">
-              <div className="text-sm font-semibold text-ink-900">Agregar productos</div>
+              <div className="text-sm font-semibold text-ink-900">{t("suppliers.ord.form.add")}</div>
               <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-end">
                 <div className="space-y-1">
-                  <Label className="text-xs">Producto</Label>
+                  <Label className="text-xs">{t("suppliers.ord.form.prod")}</Label>
                   <Select value={itemProductId} onValueChange={(v) => { setItemProductId(v); const p = products.find((x) => x.id === v); if (p) setItemCost(String(p.cost)); }}>
-                    <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("common.select") || "Select"} /></SelectTrigger>
                     <SelectContent>{products.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1 w-24">
-                  <Label className="text-xs">Cantidad</Label>
+                  <Label className="text-xs">{t("suppliers.ord.form.qty")}</Label>
                   <Input type="number" min="0.01" value={itemQty} onChange={(e) => setItemQty(e.target.value)} placeholder="0" />
                 </div>
                 <div className="space-y-1 w-28">
-                  <Label className="text-xs">Costo unit.</Label>
+                  <Label className="text-xs">{t("suppliers.ord.form.cost")}</Label>
                   <Input type="number" min="0" value={itemCost} onChange={(e) => setItemCost(e.target.value)} placeholder="0" />
                 </div>
                 <button
                   type="button"
-                  aria-label="Agregar producto"
+                  aria-label={t("suppliers.ord.form.add_btn")}
                   className="g-btn g-btn-ghost"
                   onClick={addOrderItem}
                   disabled={!itemProductId || !itemQty}
@@ -445,10 +445,10 @@ export default function Suppliers() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Producto</TableHead>
-                      <TableHead>Cant.</TableHead>
-                      <TableHead>Costo</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
+                      <TableHead>{t("suppliers.ord.form.prod")}</TableHead>
+                      <TableHead>{t("suppliers.ord.form.col_qty")}</TableHead>
+                      <TableHead>{t("suppliers.ord.form.col_cost")}</TableHead>
+                      <TableHead className="text-right">{t("common.total") || "Total"}</TableHead>
                       <TableHead />
                     </TableRow>
                   </TableHeader>
@@ -462,7 +462,7 @@ export default function Suppliers() {
                         <TableCell>
                           <button
                             type="button"
-                            aria-label="Quitar producto"
+                            aria-label={t("suppliers.ord.form.rem")}
                             className="g-btn g-btn-ghost h-7 w-7 p-0 flex items-center justify-center text-g-bad"
                             onClick={() => setOrderItems((prev) => prev.filter((_, j) => j !== idx))}
                           >
@@ -478,7 +478,7 @@ export default function Suppliers() {
 
             <div className="flex justify-between items-center pt-2">
               <div className="text-sm text-ink-500">
-                {orderItems.length} producto(s) · Total:{" "}
+                {orderItems.length} {t("suppliers.ord.form.total_p")} · {t("common.total") || "Total"}:{" "}
                 <span className="font-semibold text-ink-900">{formatCurrency(orderTotal)}</span>
               </div>
               <button
@@ -487,7 +487,7 @@ export default function Suppliers() {
                 disabled={orderItems.length === 0 || createOrder.isPending}
                 onClick={() => createOrder.mutate()}
               >
-                {createOrder.isPending ? "Creando..." : "Crear orden de compra"}
+                {createOrder.isPending ? `${t("common.saving") || "Saving"}...` : t("suppliers.new_order")}
               </button>
             </div>
           </div>
