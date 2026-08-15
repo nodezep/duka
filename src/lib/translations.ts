@@ -2,7 +2,6 @@ export type Language = "es" | "en" | "sw";
 
 export const translations = {
   es: {
-    // Common
     "common.loading": "Cargando…",
     "common.saving": "Guardando…",
     "common.save_changes": "Guardar cambios",
@@ -26,7 +25,6 @@ export const translations = {
     "common.settings": "Configuración",
     "common.cancel": "Cancelar",
     "common.total": "Total",
-
     "ai.suggest.sales_by_hour": "Ventas por hora de hoy",
     "ai.suggest.supplies": "¿Qué insumos pedir esta semana?",
     "ai.suggest.top_customers": "Top 10 clientes del trimestre",
@@ -70,7 +68,6 @@ export const translations = {
     "ai.action.stock_alert": "Alerta de stock crítico",
     "ai.action.stock_alert.sub": "2 SKUs · Sucursal Sur",
     "ai.privacy_note": "El agente accede solo a datos de tu tenant. Las consultas se registran en audit_logs y nunca salen de tu instancia.",
-
     "branches.error.name_required": "Nombre requerido",
     "branches.success.updated": "Sucursal actualizada",
     "branches.default_cash": "Caja 1",
@@ -105,7 +102,6 @@ export const translations = {
     "branches.dialog.phone": "Teléfono",
     "branches.dialog.cancel": "Cancelar",
     "branches.dialog.save": "Guardar",
-
     "catalog.eyebrow": "CATÁLOGO · SUCURSAL",
     "catalog.title": "Catálogo por sucursal",
     "catalog.subtitle": "Activa o desactiva productos y define precios locales por sucursal",
@@ -118,7 +114,6 @@ export const translations = {
     "catalog.table.local_price": "Precio local",
     "catalog.table.available": "Disponible",
     "catalog.placeholder.use_base": "Usar base",
-
     "customers.success.updated": "Cliente actualizado",
     "customers.success.created": "Cliente creado",
     "customers.error.save": "Error al guardar",
@@ -147,7 +142,6 @@ export const translations = {
     "customers.form.saving": "Guardando...",
     "customers.form.save_changes": "Guardar cambios",
     "customers.form.create": "Crear cliente",
-
     "courier.status.received": "Recibido",
     "courier.status.preparing": "Preparando",
     "courier.status.ready": "Listo para recoger",
@@ -183,7 +177,6 @@ export const translations = {
     "courier.dialog.total_received": "Total recibido",
     "courier.dialog.pay_method": "Método de pago",
     "courier.dialog.confirm": "Confirmar entrega",
-
     "cash.success.opened": "Caja abierta",
     "cash.success.closed": "Caja cerrada exitosamente",
     "cash.eyebrow": "OPERACIÓN · CAJA",
@@ -243,7 +236,6 @@ export const translations = {
     "cash.movement.form.reason_income_ph": "Ej. Fondo extra",
     "cash.movement.form.reason_expense_ph": "Ej. Pago a proveedor",
     "cash.movement.form.submit": "Registrar",
-
     "pending_tables.success.payment": "Cobro registrado · ",
     "pending_tables.error.payment": "Error al cobrar",
     "pending_tables.title": "Cuentas de mesa pendientes",
@@ -253,12 +245,10 @@ export const translations = {
     "pending_tables.items": "items",
     "pending_tables.action.charge": "Cobrar",
     "pending_tables.action.view": "Ver comanda",
-    // Navigation / Sidebar
     "nav.operations": "Operación",
     "nav.catalog": "Catálogo",
     "nav.stock": "Stock",
     "nav.business": "Negocio",
-    
     "nav.dashboard": "Dashboard",
     "nav.pos": "POS",
     "nav.tables": "Mesas",
@@ -280,28 +270,20 @@ export const translations = {
     "nav.branches": "Sucursales",
     "nav.settings": "Configuración",
     "nav.ai": "Agente IA",
-
-    // Plan & Sidebar footer
     "plan.premium": "Plan Premium",
     "plan.active": "Tu plan está activo",
     "plan.benefits": "Ver beneficios",
     "user.logout": "Cerrar sesión",
     "brand.sub": "POS / ERP Omnicanal",
-
-    // Common UI
     "common.save": "Guardar",
     "common.search": "Buscar...",
     "common.confirm": "Confirmar",
     "common.back": "Atrás",
     "common.next": "Siguiente",
     "common.language": "Idioma",
-
-    // Language selection
     "lang.es": "Español",
     "lang.en": "Inglés",
     "lang.sw": "Kiswahili",
-
-    // System notifications
     "pwa.ready": "App lista para usar sin conexión ✓",
     "pwa.update": "Nueva versión disponible",
     "pwa.update_btn": "Actualizar",
@@ -327,8 +309,6 @@ export const translations = {
     "whatsapp.no_inbound": "No hay mensaje del cliente para analizar",
     "whatsapp.suggestion_ready": "Sugerencia lista — puedes editarla antes de enviar",
     "whatsapp.reply_saved": "Respuesta guardada",
-
-    // Auth / Login Page
     "auth.tab.signin": "Ingresar",
     "auth.tab.signup": "Crear Cuenta",
     "auth.title": "Iniciar sesión",
@@ -358,23 +338,16 @@ export const translations = {
     "auth.system.status": "SISTEMA OPERATIVO · v1.0",
     "auth.welcome": "Bienvenido de vuelta",
     "auth.error": "Error de autenticación",
-    
-    // Auth features
     "auth.feat.1": "Táctil y rápido · Tiles con glow al pulsar",
     "auth.feat.2": "Offline-first · Sync automático al reconectar",
     "auth.feat.3": "Multi-sucursal · Roles y canales granulares",
-
-    // Auth stats
     "auth.stat.sales.lbl": "Ventas procesadas",
     "auth.stat.sales.val": "Sin límite",
     "auth.stat.channels.lbl": "Canales integrados",
     "auth.stat.channels.val": "5+",
     "auth.stat.reports.lbl": "Reportes en tiempo real",
     "auth.stat.reports.val": "Siempre",
-
     "auth.doc.title": "Iniciar sesión | ElyonPOS360T",
-
-    // Tenant Unconfigured Screen
     "tenant.unconfigured": "Instancia no configurada",
     "tenant.no_linked": "No hay un tenant vinculado a",
     "tenant.super_admin_config": "Accede como super admin para configurarla",
@@ -387,8 +360,6 @@ export const translations = {
     "tenant.select_tenant": "Seleccionar tenant...",
     "tenant.btn_link": "Vincular dominio y continuar",
     "tenant.btn_linking": "Vinculando...",
-
-    // Onboarding
     "onboarding.doc.title": "Configuración de Negocio | ElyonPOS360T",
     "onboarding.checking": "Verificando acceso...",
     "onboarding.multi.eyebrow": "ACCESO MÚLTIPLE",
@@ -411,8 +382,6 @@ export const translations = {
     "onboarding.setup.error": "No pudimos crear el negocio",
     "onboarding.setup.branch_default": "Barra principal",
     "user.signout": "Cerrar sesión",
-
-    // Interactive Guide
     "guide.banner.title": "Guía Paso a Paso de Inicio",
     "guide.banner.completed": "Completados",
     "guide.banner.open_manual": "Abrir Manual Completo",
@@ -448,8 +417,6 @@ export const translations = {
     "guide.step7.title": "7. Cierre de Caja y Reportes de Auditoría",
     "guide.step7.desc": "Realiza el arqueo contando el dinero físico, cierra la caja y revisa los reportes de ventas.",
     "guide.step7.hint": "Ve a Caja para cerrar turno y a Reportes para ver la analítica.",
-
-    // Dashboard
     "dash.kpi.sales": "Ventas del día",
     "dash.kpi.orders": "Órdenes activas",
     "dash.kpi.cash": "Caja actual",
@@ -496,8 +463,6 @@ export const translations = {
     "dash.sync.ok": "Todo sincronizado",
     "dash.sync.last": "Última: hace < 1 min",
     "dash.sync.history": "Ver historial",
-
-    // Landing Page
     "landing.features": "Funciones",
     "landing.plans": "Planes",
     "landing.contact": "Contacto",
@@ -512,7 +477,6 @@ export const translations = {
     "landing.hero.proof.no_card": "Sin tarjeta requerida",
     "landing.hero.proof.14_days": "14 días gratis",
     "landing.hero.proof.cancel": "Cancela cuando quieras",
-    
     "landing.stat.channels.unit": "canales",
     "landing.stat.channels.lbl": "de venta integrados",
     "landing.stat.branches.unit": "sucursales",
@@ -521,12 +485,10 @@ export const translations = {
     "landing.stat.offline.lbl": "sin perder un ticket",
     "landing.stat.roles.unit": "roles",
     "landing.stat.roles.lbl": "de acceso granular",
-
     "landing.feat.eyebrow": "FUNCIONALIDADES",
     "landing.feat.title1": "Todo lo que necesita tu negocio,",
     "landing.feat.title2": "en una sola plataforma.",
     "landing.feat.sub": "Desde la caja registradora hasta el inventario y los pedidos digitales.",
-    
     "landing.feat.pos.title": "Terminal POS táctil",
     "landing.feat.pos.desc": "Catálogo visual por categorías, búsqueda por EAN, gestión de tickets y cobro multi-método en una sola pantalla.",
     "landing.feat.tables.title": "Mesas & comandas",
@@ -543,7 +505,6 @@ export const translations = {
     "landing.feat.reports.desc": "Ventas por día, top productos, mix de medios de pago, IVA y exportación CSV.",
     "landing.feat.offline.title": "Offline-first",
     "landing.feat.offline.desc": "Funciona sin internet. Sincronización automática al recuperar la conexión. PWA instalable.",
-
     "landing.high.eyebrow": "BRANDING BRUTAL",
     "landing.high.title1": "Tres dispositivos,",
     "landing.high.title2": "un solo lenguaje.",
@@ -555,13 +516,11 @@ export const translations = {
     "landing.high.l3": "Desktop · Dashboard operativo",
     "landing.high.l3.desc": "KPIs, feed en vivo, KDS y reportes",
     "landing.high.cta": "Ver demo",
-
     "landing.plans.eyebrow": "PLANES Y PRECIOS",
     "landing.plans.title1": "Crece con",
     "landing.plans.title2": "tu negocio.",
     "landing.plans.sub": "Sin contratos anuales. Cancela cuando quieras.",
     "landing.plans.popular": "Más popular",
-    
     "landing.plans.starter.name": "Starter",
     "landing.plans.starter.price": "Gratis",
     "landing.plans.starter.sub": "Para empezar",
@@ -570,7 +529,6 @@ export const translations = {
     "landing.plans.starter.f3": "Caja & ventas",
     "landing.plans.starter.f4": "Reportes básicos",
     "landing.plans.starter.cta": "Comenzar gratis",
-
     "landing.plans.pro.name": "Pro",
     "landing.plans.pro.price": "$149k",
     "landing.plans.pro.sub": "COP / mes",
@@ -582,7 +540,6 @@ export const translations = {
     "landing.plans.pro.f6": "WhatsApp IA",
     "landing.plans.pro.f7": "Inventario avanzado",
     "landing.plans.pro.cta": "Empezar gratis 14 días",
-
     "landing.plans.ent.name": "Enterprise",
     "landing.plans.ent.price": "Custom",
     "landing.plans.ent.sub": "Cotización",
@@ -591,7 +548,6 @@ export const translations = {
     "landing.plans.ent.f3": "Onboarding dedicado",
     "landing.plans.ent.f4": "Integraciones a medida",
     "landing.plans.ent.cta": "Hablar con ventas",
-
     "landing.cta.eyebrow": "¿LISTO PARA EMPEZAR?",
     "landing.cta.title1": "Empieza hoy —",
     "landing.cta.title2": "gratis, sin tarjeta.",
@@ -751,8 +707,6 @@ export const translations = {
     "table.order.total": "Total",
     "table.order.confirm": "Confirmar y Enviar",
     "table.order.cancel": "Cancelar",
-
-    // POS
     "pos.back_dashboard": "Volver al panel principal",
     "pos.dashboard": "Panel",
     "pos.channel": "CANAL",
@@ -1100,8 +1054,6 @@ export const translations = {
     "kds.station.grill": "Parrilla",
     "kds.station.cold": "Frío",
     "kds.station.dessert": "Postres",
-
-    // Payment Dialog
     "pay.cash": "Efectivo",
     "pay.card": "Tarjeta",
     "pay.transfer": "Transfer.",
@@ -1137,8 +1089,6 @@ export const translations = {
     "pay.change": "Cambio",
     "pay.missing": "Faltan ",
     "pay.pay": "PAGAR",
-
-    // Production
     "prod.completed": "Completada",
     "prod.in_progress": "En curso",
     "prod.draft": "Borrador",
@@ -1173,8 +1123,6 @@ export const translations = {
     "prod.planned_lbl": "planeado",
     "prod.complete_and_deduct": "Completar y descontar ingredientes",
     "prod.order_completed": "Orden completada · stock actualizado",
-
-    // Categories
     "cat.days.sun": "Dom",
     "cat.days.mon": "Lun",
     "cat.days.tue": "Mar",
@@ -1201,8 +1149,6 @@ export const translations = {
     "cat.until": "Hasta",
     "cat.active_days": "Días activos",
     "cat.is_active": "Activa",
-
-    // Products
     "prod_list.type.simple": "Simple",
     "prod_list.type.composite": "Compuesto",
     "prod_list.type.production": "Producción",
@@ -1247,8 +1193,6 @@ export const translations = {
     "prod_list.import_warn_2": "Esta acción borrará TODOS los productos actuales y los reemplazará por los del archivo.",
     "prod_list.import_warn_3": "¿Estás completamente seguro de continuar con el borrado y sincronización total?",
     "prod_list.yes_import": "Sí, Borrar e Importar",
-
-    // Sales
     "sales.meta": "OPERACIÓN · VENTAS",
     "sales.title": "Ventas",
     "sales.subtitle": "ventas recientes",
@@ -1259,8 +1203,6 @@ export const translations = {
     "sales.col.products": "prod.",
     "sales.status.completed": "Completada",
     "sales.return": "Devolver",
-
-    // Reports
     "reports.meta": "SISTEMA · ANALYTICS",
     "reports.title": "Reportes Avanzados",
     "reports.subtitle": "Analiza el rendimiento de tu negocio con filtros personalizados",
@@ -1285,8 +1227,6 @@ export const translations = {
     "reports.net_subtotal": "Subtotal neto",
     "reports.tax_vat": "Impuestos IVA",
     "reports.gross_total": "Total Bruto",
-
-    // TopBar / AppShell
     "topbar.search": "Buscar productos, órdenes, clientes…",
     "topbar.branch": "Sucursal",
     "topbar.menu": "Menú",
@@ -1296,8 +1236,6 @@ export const translations = {
     "topbar.dev_banner": "MODO DESARROLLO — Las ventas no respetan el stock del inventario",
     "topbar.session_open": "Caja abierta",
     "topbar.session_closed": "Sin sesión",
-
-    // Tweaks / User Dropdown
     "tweaks.title": "Preferencias Visuales",
     "tweaks.close": "Cerrar",
     "tweaks.mode": "Modo Visual",
@@ -1308,8 +1246,6 @@ export const translations = {
     "tweaks.accent.indigo": "Índigo",
     "tweaks.accent.teal": "Teal",
     "tweaks.account": "Cuenta y Sesión",
-
-    // Roles
     "role.super_admin": "Super admin",
     "role.owner": "Dueño",
     "role.admin": "Administrador",
@@ -1321,14 +1257,10 @@ export const translations = {
     "role.courier": "Domiciliario",
     "role.staff": "Personal",
     "role.user": "Usuario",
-
-    // Network Status
     "network.online": "Online",
     "network.syncing": "Sincronizando",
     "network.offline": "Modo Offline",
     "network.pending": "pendientes",
-
-    // Settings nav
     "settings.title": "Configuración",
     "settings.hint": "Cambios aplicados en tiempo real a esta sucursal.",
     "settings.tab.business": "Mi negocio",
@@ -1400,8 +1332,6 @@ export const translations = {
     "receipt.preview.tax_base": "Base Gravable:",
     "receipt.preview.tax_vat": "IVA (19%):",
     "receipt.save": "Guardar cambios",
-
-    // Tables Settings
     "tables.settings.title": "Mesas",
     "tables.settings.subtitle": "Catálogo de mesas por sucursal",
     "tables.settings.new": "Nueva mesa",
@@ -1423,8 +1353,6 @@ export const translations = {
     "tables.settings.url_copied": "URL copiada",
     "tables.settings.cancel": "Cancelar",
     "tables.settings.save": "Guardar",
-
-    // Users Settings
     "users.settings.title": "Añadir usuario al negocio",
     "users.settings.tab_create": "Crear nuevo",
     "users.settings.tab_invite": "Invitar existente",
@@ -1448,8 +1376,6 @@ export const translations = {
     "users.settings.col_branch": "Sucursal",
     "users.settings.col_actions": "Acciones",
     "users.settings.you": "Tú",
-
-    // Sales Channels Settings
     "channels.settings.title": "Canales de Venta",
     "channels.settings.subtitle": "Enciende o apaga los canales disponibles para este negocio. Los canales apagados no se mostrarán en el Punto de Venta ni en el sistema. (Solo Super Administrador)",
     "channels.settings.pos_title": "POS Físico",
@@ -1466,8 +1392,6 @@ export const translations = {
     "channels.settings.uber_desc": "Habilita el canal de ventas para Uber Eats.",
     "channels.settings.superadmin_only": "Solo un super administrador puede modificar esto.",
     "channels.settings.updated": "Canales de venta actualizados",
-
-    // WhatsApp Settings
     "whatsapp.settings.webhook_title": "URL del Webhook (Evolution API)",
     "whatsapp.settings.webhook_desc": "Configura esta URL en tu instancia de Evolution API como destino de eventos",
     "whatsapp.settings.agent_title": "Agente IA WhatsApp",
@@ -1493,8 +1417,6 @@ export const translations = {
     "whatsapp.settings.step4": "Conecta la instancia a WhatsApp escaneando el QR.",
     "whatsapp.settings.step5": "Activa el agente con el toggle de arriba y guarda.",
     "whatsapp.settings.step6": "En Supabase → Edge Functions → Secrets, agrega EVOLUTION_API_URL y EVOLUTION_API_KEY.",
-
-    // AI Agent Settings
     "ai_agent.settings.prompt_title": "System Prompt",
     "ai_agent.settings.prompt_desc": "Instruye al agente cómo debe comportarse con tus clientes. Si lo dejas vacío, se usará el prompt estándar.",
     "ai_agent.settings.instructions": "Instrucciones del agente",
@@ -1537,8 +1459,6 @@ export const translations = {
     "ai_agent.settings.doc_content_label": "Contenido",
     "ai_agent.settings.doc_content_ph": "Escribe o pega aquí el contenido del documento. El agente lo usará como referencia cuando sea relevante para la conversación.",
     "ai_agent.settings.save_doc": "Guardar documento",
-
-    // Appearance Settings
     "appearance.settings.title": "Apariencia y Tema Visual",
     "appearance.settings.desc": "Personaliza la experiencia visual del punto de venta según las condiciones de iluminación de tu negocio.",
     "appearance.settings.system_theme": "Tema del Sistema",
@@ -1555,8 +1475,6 @@ export const translations = {
     "appearance.settings.spacing_comfortable_desc": "Espaciado holgado e ideal para pantallas táctiles",
     "appearance.settings.spacing_compact": "Compacto",
     "appearance.settings.spacing_compact_desc": "Mayor densidad de información para POS rápido",
-
-    // Data Management Settings
     "data.settings.title": "Gestión de Datos y Copias de Seguridad",
     "data.settings.desc": "Exporta e importa catálogos de productos, inventario y realiza copias de seguridad de tu base de datos.",
     "data.settings.export_products": "Exportar Catálogo de Productos",
@@ -1569,8 +1487,6 @@ export const translations = {
     "data.settings.import_inventory_desc": "Actualiza cantidades de stock mediante archivo CSV.",
     "data.settings.btn_export_csv": "Exportar CSV",
     "data.settings.btn_import_csv": "Importar CSV",
-
-    // KDS
     "kds.station.desserts": "Postres",
     "kds.ready": "Lista",
     "kds.prep": "Prep.",
@@ -1578,7 +1494,6 @@ export const translations = {
     "kds.btn.preparing": "Preparando",
     "kds.btn.rush": "Acelerar",
     "kds.btn.done": "Marcar lista",
-    // Inventory
     "inv.meta": "INVENTARIO · STOCKS",
     "inv.low_stock": "bajo mínimo",
     "inv.out_of_stock": "sin stock",
@@ -1611,8 +1526,6 @@ export const translations = {
     "inv.footer.products_shown": "productos mostrados",
     "inv.footer.total_units": "unidades en total",
     "inv.empty.history": "Sin movimientos registrados",
-
-    // Customers
     "customers.meta": "OPERACIÓN · CLIENTES",
     "customers.subtitle": "clientes registrados",
     "customers.new": "Nuevo cliente",
@@ -1632,8 +1545,6 @@ export const translations = {
     "customers.created": "Cliente creado",
     "customers.updated": "Cliente actualizado",
     "customers.deleted": "Cliente eliminado",
-
-    // Suppliers
     "suppliers.count.single": "proveedor",
     "suppliers.count.plural": "proveedores",
     "suppliers.new_order": "Nueva orden de compra",
@@ -1646,8 +1557,7 @@ export const translations = {
     "suppliers.updated": "Proveedor actualizado",
     "suppliers.deleted": "Proveedor eliminado",
     "suppliers.order_created": "Orden de compra creada",
-    "suppliers.order_received": "Orden recibida · Inventario actualizado"
-  },
+    "suppliers.order_received": "Orden recibida · Inventario actualizado",
     "inv.centers.col.actions": "Acciones",
     "inv.centers.status.active": "Activo",
     "inv.centers.status.inactive": "Inactivo",
@@ -1758,7 +1668,6 @@ export const translations = {
     "whatsapp.new_reply": "Nueva respuesta rápida",
     "whatsapp.new_reply_title_ph": "Título corto (ej. Saludo, Horario)",
     "whatsapp.new_reply_body_ph": "Texto completo del mensaje...",
-
     "catalog.empty.products_desc": "Crea productos primero en el módulo Productos",
     "catalog.col.product": "Producto",
     "catalog.col.base_price": "Precio Base",
@@ -1866,7 +1775,6 @@ export const translations = {
     "inv.centers.save": "Guardar",
     "inv.centers.create": "Crear",
     "inv.centers.col.status": "Estado",
-
     "branches.toast.name_required": "El nombre de la sucursal es obligatorio",
     "branches.toast.updated": "Sucursal actualizada con éxito",
     "branches.toast.created": "Sucursal creada con éxito",
@@ -1885,9 +1793,8 @@ export const translations = {
     "catalog.empty.branch_title": "Selecciona una sucursal",
     "catalog.empty.branch_desc": "Elige la sucursal cuyo catálogo deseas configurar",
     "catalog.empty.products_title": "Sin productos registrados",
-
+  },
   en: {
-    // Common
     "common.loading": "Loading…",
     "common.saving": "Saving…",
     "common.save_changes": "Save changes",
@@ -1911,7 +1818,6 @@ export const translations = {
     "common.settings": "Settings",
     "common.cancel": "Cancel",
     "common.total": "Total",
-
     "ai.suggest.sales_by_hour": "Sales by hour today",
     "ai.suggest.supplies": "What supplies to order this week?",
     "ai.suggest.top_customers": "Top 10 customers this quarter",
@@ -1955,7 +1861,6 @@ export const translations = {
     "ai.action.stock_alert": "Critical stock alert",
     "ai.action.stock_alert.sub": "2 SKUs · South Branch",
     "ai.privacy_note": "The agent only accesses your tenant's data. Queries are logged in audit_logs and never leave your instance.",
-
     "branches.error.name_required": "Name required",
     "branches.success.updated": "Branch updated",
     "branches.default_cash": "Cash Register 1",
@@ -1990,7 +1895,6 @@ export const translations = {
     "branches.dialog.phone": "Phone",
     "branches.dialog.cancel": "Cancel",
     "branches.dialog.save": "Save",
-
     "catalog.eyebrow": "CATALOG · BRANCH",
     "catalog.title": "Catalog per branch",
     "catalog.subtitle": "Enable or disable products and set local prices per branch",
@@ -2003,7 +1907,6 @@ export const translations = {
     "catalog.table.local_price": "Local price",
     "catalog.table.available": "Available",
     "catalog.placeholder.use_base": "Use base",
-
     "customers.success.updated": "Customer updated",
     "customers.success.created": "Customer created",
     "customers.error.save": "Error saving",
@@ -2032,7 +1935,6 @@ export const translations = {
     "customers.form.saving": "Saving...",
     "customers.form.save_changes": "Save changes",
     "customers.form.create": "Create customer",
-
     "courier.status.received": "Received",
     "courier.status.preparing": "Preparing",
     "courier.status.ready": "Ready for pickup",
@@ -2068,7 +1970,6 @@ export const translations = {
     "courier.dialog.total_received": "Total received",
     "courier.dialog.pay_method": "Payment method",
     "courier.dialog.confirm": "Confirm delivery",
-
     "cash.success.opened": "Cash register opened",
     "cash.success.closed": "Cash register closed successfully",
     "cash.eyebrow": "OPERATIONS · CASH",
@@ -2128,7 +2029,6 @@ export const translations = {
     "cash.movement.form.reason_income_ph": "E.g. Extra fund",
     "cash.movement.form.reason_expense_ph": "E.g. Supplier payment",
     "cash.movement.form.submit": "Register",
-
     "pending_tables.success.payment": "Payment registered · ",
     "pending_tables.error.payment": "Error charging",
     "pending_tables.title": "Pending table bills",
@@ -2138,12 +2038,10 @@ export const translations = {
     "pending_tables.items": "items",
     "pending_tables.action.charge": "Charge",
     "pending_tables.action.view": "View order",
-    // Navigation / Sidebar
     "nav.operations": "Operations",
     "nav.catalog": "Catalog",
     "nav.stock": "Stock",
     "nav.business": "Business",
-    
     "nav.dashboard": "Dashboard",
     "nav.pos": "POS",
     "nav.tables": "Tables",
@@ -2165,28 +2063,20 @@ export const translations = {
     "nav.branches": "Branches",
     "nav.settings": "Settings",
     "nav.ai": "AI Agent",
-
-    // Plan & Sidebar footer
     "plan.premium": "Premium Plan",
     "plan.active": "Your plan is active",
     "plan.benefits": "View benefits",
     "user.logout": "Log Out",
     "brand.sub": "Omnichannel POS / ERP",
-
-    // Common UI
     "common.save": "Save",
     "common.search": "Search...",
     "common.confirm": "Confirm",
     "common.back": "Back",
     "common.next": "Next",
     "common.language": "Language",
-
-    // Language selection
     "lang.es": "Spanish",
     "lang.en": "English",
     "lang.sw": "Kiswahili",
-
-    // System notifications
     "pwa.ready": "App ready for offline use ✓",
     "pwa.update": "New version available",
     "pwa.update_btn": "Update",
@@ -2212,8 +2102,6 @@ export const translations = {
     "whatsapp.no_inbound": "No customer message to analyze",
     "whatsapp.suggestion_ready": "Suggestion ready — you can edit before sending",
     "whatsapp.reply_saved": "Reply saved",
-
-    // Auth / Login Page
     "auth.tab.signin": "Sign In",
     "auth.tab.signup": "Create Account",
     "auth.title": "Sign In",
@@ -2243,23 +2131,16 @@ export const translations = {
     "auth.system.status": "OPERATING SYSTEM · v1.0",
     "auth.welcome": "Welcome back",
     "auth.error": "Authentication error",
-
-    // Auth features
     "auth.feat.1": "Tactile and fast · Glowing tiles when pressed",
     "auth.feat.2": "Offline-first · Automatic sync on reconnection",
     "auth.feat.3": "Multi-branch · Granular roles and channels",
-
-    // Auth stats
     "auth.stat.sales.lbl": "Sales processed",
     "auth.stat.sales.val": "No limit",
     "auth.stat.channels.lbl": "Integrated channels",
     "auth.stat.channels.val": "5+",
     "auth.stat.reports.lbl": "Real-time reports",
     "auth.stat.reports.val": "Always",
-
     "auth.doc.title": "Log In | ElyonPOS360T",
-
-    // Tenant Unconfigured Screen
     "tenant.unconfigured": "Instance Not Configured",
     "tenant.no_linked": "There is no tenant linked to",
     "tenant.super_admin_config": "Log in as super admin to configure it",
@@ -2272,8 +2153,6 @@ export const translations = {
     "tenant.select_tenant": "Select tenant...",
     "tenant.btn_link": "Link Domain & Continue",
     "tenant.btn_linking": "Linking...",
-
-    // Onboarding
     "onboarding.doc.title": "Business Setup | ElyonPOS360T",
     "onboarding.checking": "Checking access...",
     "onboarding.multi.eyebrow": "MULTIPLE ACCESS",
@@ -2296,8 +2175,6 @@ export const translations = {
     "onboarding.setup.error": "We could not create the business",
     "onboarding.setup.branch_default": "Main counter",
     "user.signout": "Sign Out",
-
-    // Interactive Guide
     "guide.banner.title": "Step-by-Step Store Setup Guide",
     "guide.banner.completed": "Completed",
     "guide.banner.open_manual": "Open Step Manual",
@@ -2333,8 +2210,6 @@ export const translations = {
     "guide.step7.title": "7. Close Shift & Audit Reports",
     "guide.step7.desc": "Reconcile counted cash with system sales, close the drawer, and analyze reports.",
     "guide.step7.hint": "Go to Cash to close session and Reports to view sales analytics.",
-
-    // Dashboard
     "dash.kpi.sales": "Today's Sales",
     "dash.kpi.orders": "Active Orders",
     "dash.kpi.cash": "Current Cash",
@@ -2381,8 +2256,6 @@ export const translations = {
     "dash.sync.ok": "All synced",
     "dash.sync.last": "Last: < 1 min ago",
     "dash.sync.history": "View history",
-
-    // Landing Page
     "landing.features": "Features",
     "landing.plans": "Plans",
     "landing.contact": "Contact",
@@ -2397,7 +2270,6 @@ export const translations = {
     "landing.hero.proof.no_card": "No card required",
     "landing.hero.proof.14_days": "14 days free",
     "landing.hero.proof.cancel": "Cancel anytime",
-    
     "landing.stat.channels.unit": "channels",
     "landing.stat.channels.lbl": "integrated sales channels",
     "landing.stat.branches.unit": "branches",
@@ -2406,12 +2278,10 @@ export const translations = {
     "landing.stat.offline.lbl": "without losing a single ticket",
     "landing.stat.roles.unit": "roles",
     "landing.stat.roles.lbl": "of granular access roles",
-
     "landing.feat.eyebrow": "FEATURES",
     "landing.feat.title1": "Everything your business needs,",
     "landing.feat.title2": "in a single platform.",
     "landing.feat.sub": "From the cash register to inventory and digital orders.",
-    
     "landing.feat.pos.title": "Tactile POS Terminal",
     "landing.feat.pos.desc": "Visual catalog by categories, EAN search, ticket management, and multi-method checkout on a single screen.",
     "landing.feat.tables.title": "Tables & Orders",
@@ -2428,7 +2298,6 @@ export const translations = {
     "landing.feat.reports.desc": "Sales per day, top products, payment method mix, VAT, and CSV export.",
     "landing.feat.offline.title": "Offline-first",
     "landing.feat.offline.desc": "Works without internet. Automatic synchronization upon reconnection. Installable PWA.",
-
     "landing.high.eyebrow": "AWESOME BRANDING",
     "landing.high.title1": "Three devices,",
     "landing.high.title2": "one language.",
@@ -2440,13 +2309,11 @@ export const translations = {
     "landing.high.l3": "Desktop · Operational Dashboard",
     "landing.high.l3.desc": "KPIs, live feed, KDS, and reports",
     "landing.high.cta": "View Demo",
-
     "landing.plans.eyebrow": "PLANS & PRICING",
     "landing.plans.title1": "Grow with",
     "landing.plans.title2": "your business.",
     "landing.plans.sub": "No annual contracts. Cancel anytime.",
     "landing.plans.popular": "Most Popular",
-    
     "landing.plans.starter.name": "Starter",
     "landing.plans.starter.price": "Free",
     "landing.plans.starter.sub": "To get started",
@@ -2455,7 +2322,6 @@ export const translations = {
     "landing.plans.starter.f3": "Cash & sales",
     "landing.plans.starter.f4": "Basic reports",
     "landing.plans.starter.cta": "Start for Free",
-
     "landing.plans.pro.name": "Pro",
     "landing.plans.pro.price": "$39",
     "landing.plans.pro.sub": "USD / month",
@@ -2467,7 +2333,6 @@ export const translations = {
     "landing.plans.pro.f6": "WhatsApp AI",
     "landing.plans.pro.f7": "Advanced inventory",
     "landing.plans.pro.cta": "Start 14-day free trial",
-
     "landing.plans.ent.name": "Enterprise",
     "landing.plans.ent.price": "Custom",
     "landing.plans.ent.sub": "Get Quote",
@@ -2476,7 +2341,6 @@ export const translations = {
     "landing.plans.ent.f3": "Dedicated onboarding",
     "landing.plans.ent.f4": "Tailored integrations",
     "landing.plans.ent.cta": "Talk to Sales",
-
     "landing.cta.eyebrow": "READY TO START?",
     "landing.cta.title1": "Start today —",
     "landing.cta.title2": "free, no card required.",
@@ -2636,8 +2500,6 @@ export const translations = {
     "table.order.total": "Total",
     "table.order.confirm": "Confirm and Send",
     "table.order.cancel": "Cancel",
-
-    // POS
     "pos.back_dashboard": "Back to main dashboard",
     "pos.dashboard": "Dashboard",
     "pos.channel": "CHANNEL",
@@ -2985,8 +2847,6 @@ export const translations = {
     "kds.station.grill": "Grill",
     "kds.station.cold": "Cold",
     "kds.station.dessert": "Dessert",
-
-    // Payment Dialog
     "pay.cash": "Cash",
     "pay.card": "Card",
     "pay.transfer": "Bank Transfer",
@@ -3022,8 +2882,6 @@ export const translations = {
     "pay.change": "Change",
     "pay.missing": "Missing ",
     "pay.pay": "PAY",
-
-    // Production
     "prod.completed": "Completed",
     "prod.in_progress": "In progress",
     "prod.draft": "Draft",
@@ -3058,8 +2916,6 @@ export const translations = {
     "prod.planned_lbl": "planned",
     "prod.complete_and_deduct": "Complete & deduct ingredients",
     "prod.order_completed": "Order completed · stock updated",
-
-    // Categories
     "cat.days.sun": "Sun",
     "cat.days.mon": "Mon",
     "cat.days.tue": "Tue",
@@ -3086,8 +2942,6 @@ export const translations = {
     "cat.until": "Until",
     "cat.active_days": "Active days",
     "cat.is_active": "Active",
-
-    // Products
     "prod_list.type.simple": "Simple",
     "prod_list.type.composite": "Composite",
     "prod_list.type.production": "Production",
@@ -3132,8 +2986,6 @@ export const translations = {
     "prod_list.import_warn_2": "This action will delete ALL current products and replace them with the file's contents.",
     "prod_list.import_warn_3": "Are you absolutely sure you want to proceed with full deletion and sync?",
     "prod_list.yes_import": "Yes, Delete & Import",
-
-    // Sales
     "sales.meta": "OPERATIONS · SALES",
     "sales.title": "Sales",
     "sales.subtitle": "recent sales",
@@ -3144,8 +2996,6 @@ export const translations = {
     "sales.col.products": "prod.",
     "sales.status.completed": "Completed",
     "sales.return": "Return",
-
-    // Reports
     "reports.meta": "SYSTEM · ANALYTICS",
     "reports.title": "Advanced Reports",
     "reports.subtitle": "Analyze your business performance with custom filters",
@@ -3170,8 +3020,6 @@ export const translations = {
     "reports.net_subtotal": "Net subtotal",
     "reports.tax_vat": "VAT taxes",
     "reports.gross_total": "Gross Total",
-
-    // TopBar / AppShell
     "topbar.search": "Search products, orders, customers…",
     "topbar.branch": "Branch",
     "topbar.menu": "Menu",
@@ -3181,8 +3029,6 @@ export const translations = {
     "topbar.dev_banner": "DEVELOPMENT MODE — Sales do not affect inventory stock",
     "topbar.session_open": "Cash open",
     "topbar.session_closed": "No session",
-
-    // Tweaks / User Dropdown
     "tweaks.title": "Visual Preferences",
     "tweaks.close": "Close",
     "tweaks.mode": "Visual Mode",
@@ -3193,8 +3039,6 @@ export const translations = {
     "tweaks.accent.indigo": "Indigo",
     "tweaks.accent.teal": "Teal",
     "tweaks.account": "Account & Session",
-
-    // Roles
     "role.super_admin": "Super admin",
     "role.owner": "Owner",
     "role.admin": "Administrator",
@@ -3206,14 +3050,10 @@ export const translations = {
     "role.courier": "Courier",
     "role.staff": "Staff",
     "role.user": "User",
-
-    // Network Status
     "network.online": "Online",
     "network.syncing": "Syncing",
     "network.offline": "Offline Mode",
     "network.pending": "pending",
-
-    // Settings nav
     "settings.title": "Settings",
     "settings.hint": "Changes applied in real time to this branch.",
     "settings.tab.business": "My Business",
@@ -3285,8 +3125,6 @@ export const translations = {
     "receipt.preview.tax_base": "Tax Base:",
     "receipt.preview.tax_vat": "VAT (19%):",
     "receipt.save": "Save changes",
-
-    // Tables Settings
     "tables.settings.title": "Tables",
     "tables.settings.subtitle": "Table catalogue by branch",
     "tables.settings.new": "New table",
@@ -3308,8 +3146,6 @@ export const translations = {
     "tables.settings.url_copied": "URL copied",
     "tables.settings.cancel": "Cancel",
     "tables.settings.save": "Save",
-
-    // Users Settings
     "users.settings.title": "Add user to business",
     "users.settings.tab_create": "Create new",
     "users.settings.tab_invite": "Invite existing",
@@ -3333,8 +3169,6 @@ export const translations = {
     "users.settings.col_branch": "Branch",
     "users.settings.col_actions": "Actions",
     "users.settings.you": "You",
-
-    // Sales Channels Settings
     "channels.settings.title": "Sales Channels",
     "channels.settings.subtitle": "Enable or disable available channels for this business. Disabled channels will not be shown in the Point of Sale or system. (Super Admin only)",
     "channels.settings.pos_title": "Physical POS",
@@ -3351,8 +3185,6 @@ export const translations = {
     "channels.settings.uber_desc": "Enable sales channel for Uber Eats.",
     "channels.settings.superadmin_only": "Only a super administrator can modify this.",
     "channels.settings.updated": "Sales channels updated",
-
-    // WhatsApp Settings
     "whatsapp.settings.webhook_title": "Webhook URL (Evolution API)",
     "whatsapp.settings.webhook_desc": "Set this URL in your Evolution API instance as the event destination",
     "whatsapp.settings.agent_title": "WhatsApp AI Agent",
@@ -3378,8 +3210,6 @@ export const translations = {
     "whatsapp.settings.step4": "Connect the instance to WhatsApp by scanning the QR code.",
     "whatsapp.settings.step5": "Enable the agent with the toggle above and save.",
     "whatsapp.settings.step6": "In Supabase → Edge Functions → Secrets, add EVOLUTION_API_URL and EVOLUTION_API_KEY.",
-
-    // AI Agent Settings
     "ai_agent.settings.prompt_title": "System Prompt",
     "ai_agent.settings.prompt_desc": "Instruct the agent on how to interact with your customers. If left empty, standard prompt will be used.",
     "ai_agent.settings.instructions": "Agent Instructions",
@@ -3422,8 +3252,6 @@ export const translations = {
     "ai_agent.settings.doc_content_label": "Content",
     "ai_agent.settings.doc_content_ph": "Write or paste the document content here. The agent will reference it when relevant to conversations.",
     "ai_agent.settings.save_doc": "Save document",
-
-    // Appearance Settings
     "appearance.settings.title": "Appearance & Visual Theme",
     "appearance.settings.desc": "Customize the point of sale visual experience based on your business lighting conditions.",
     "appearance.settings.system_theme": "System Theme",
@@ -3440,8 +3268,6 @@ export const translations = {
     "appearance.settings.spacing_comfortable_desc": "Spacious layout ideal for touchscreens",
     "appearance.settings.spacing_compact": "Compact",
     "appearance.settings.spacing_compact_desc": "Higher information density for fast POS",
-
-    // Data Management Settings
     "data.settings.title": "Data Management & Backups",
     "data.settings.desc": "Export and import product catalogs, inventory, and manage database backups.",
     "data.settings.export_products": "Export Product Catalog",
@@ -3454,8 +3280,6 @@ export const translations = {
     "data.settings.import_inventory_desc": "Update stock counts via CSV file.",
     "data.settings.btn_export_csv": "Export CSV",
     "data.settings.btn_import_csv": "Import CSV",
-
-    // KDS
     "kds.station.desserts": "Desserts",
     "kds.ready": "Ready",
     "kds.prep": "Prep.",
@@ -3463,10 +3287,6 @@ export const translations = {
     "kds.btn.preparing": "Preparing",
     "kds.btn.rush": "Rush",
     "kds.btn.done": "Mark ready",
-
-    // Shifts
-
-    // Inventory
     "inv.meta": "INVENTORY · STOCKS",
     "inv.low_stock": "below minimum",
     "inv.out_of_stock": "out of stock",
@@ -3499,8 +3319,6 @@ export const translations = {
     "inv.footer.products_shown": "products shown",
     "inv.footer.total_units": "units total",
     "inv.empty.history": "No movements recorded",
-
-    // Customers
     "customers.meta": "OPERATIONS · CUSTOMERS",
     "customers.subtitle": "registered customers",
     "customers.new": "New customer",
@@ -3520,8 +3338,6 @@ export const translations = {
     "customers.created": "Customer created",
     "customers.updated": "Customer updated",
     "customers.deleted": "Customer deleted",
-
-    // Suppliers
     "suppliers.count.single": "supplier",
     "suppliers.count.plural": "suppliers",
     "suppliers.new_order": "New purchase order",
@@ -3534,8 +3350,7 @@ export const translations = {
     "suppliers.updated": "Supplier updated",
     "suppliers.deleted": "Supplier deleted",
     "suppliers.order_created": "Purchase order created",
-    "suppliers.order_received": "Order received · Inventory updated"
-  },
+    "suppliers.order_received": "Order received · Inventory updated",
     "inv.centers.col.actions": "Actions",
     "inv.centers.status.active": "Active",
     "inv.centers.status.inactive": "Inactive",
@@ -3646,7 +3461,6 @@ export const translations = {
     "whatsapp.new_reply": "New quick reply",
     "whatsapp.new_reply_title_ph": "Short title (e.g. Greeting, Hours)",
     "whatsapp.new_reply_body_ph": "Full message text...",
-
     "catalog.empty.products_desc": "Create products first in the Products module",
     "catalog.col.product": "Product",
     "catalog.col.base_price": "Base Price",
@@ -3754,7 +3568,6 @@ export const translations = {
     "inv.centers.save": "Save",
     "inv.centers.create": "Create",
     "inv.centers.col.status": "Status",
-
     "branches.toast.name_required": "Branch name is required",
     "branches.toast.updated": "Branch updated successfully",
     "branches.toast.created": "Branch created successfully",
@@ -3773,9 +3586,8 @@ export const translations = {
     "catalog.empty.branch_title": "Select a branch",
     "catalog.empty.branch_desc": "Choose the branch whose catalog you want to configure",
     "catalog.empty.products_title": "No products registered",
-
+  },
   sw: {
-    // Common
     "common.loading": "Inapakia…",
     "common.saving": "Inahifadhi…",
     "common.save_changes": "Hifadhi mabadiliko",
@@ -3799,7 +3611,6 @@ export const translations = {
     "common.settings": "Mipangilio",
     "common.cancel": "Ghairi",
     "common.total": "Jumla",
-
     "ai.suggest.sales_by_hour": "Mauzo kwa saa leo",
     "ai.suggest.supplies": "Ni vifaa gani vya kuagiza wiki hii?",
     "ai.suggest.top_customers": "Wateja 10 bora robo hii",
@@ -3843,7 +3654,6 @@ export const translations = {
     "ai.action.stock_alert": "Tahadhari ya stoki muhimu",
     "ai.action.stock_alert.sub": "2 SKUs · Tawi la Kusini",
     "ai.privacy_note": "Wakala hupata data ya mpangaji wako pekee. Maswali yanahifadhiwa kwenye audit_logs na hayatoki nje ya mfano wako.",
-
     "branches.error.name_required": "Jina linahitajika",
     "branches.success.updated": "Tawi limesasishwa",
     "branches.default_cash": "Keshia 1",
@@ -3878,7 +3688,6 @@ export const translations = {
     "branches.dialog.phone": "Simu",
     "branches.dialog.cancel": "Ghairi",
     "branches.dialog.save": "Hifadhi",
-
     "catalog.eyebrow": "KATALOGI · TAWI",
     "catalog.title": "Katalogi kwa kila tawi",
     "catalog.subtitle": "Wezesha au zima bidhaa na uweke bei za ndani kwa kila tawi",
@@ -3891,7 +3700,6 @@ export const translations = {
     "catalog.table.local_price": "Bei ya ndani",
     "catalog.table.available": "Inapatikana",
     "catalog.placeholder.use_base": "Tumia msingi",
-
     "customers.success.updated": "Mteja amesasishwa",
     "customers.success.created": "Mteja ameundwa",
     "customers.error.save": "Hitilafu wakati wa kuhifadhi",
@@ -3920,7 +3728,6 @@ export const translations = {
     "customers.form.saving": "Inahifadhi...",
     "customers.form.save_changes": "Hifadhi mabadiliko",
     "customers.form.create": "Unda mteja",
-
     "courier.status.received": "Imepokelewa",
     "courier.status.preparing": "Inaandaliwa",
     "courier.status.ready": "Tayari kuchukuliwa",
@@ -3956,7 +3763,6 @@ export const translations = {
     "courier.dialog.total_received": "Jumla iliyopokelewa",
     "courier.dialog.pay_method": "Njia ya malipo",
     "courier.dialog.confirm": "Thibitisha uwasilishaji",
-
     "cash.success.opened": "Keshia imefunguliwa",
     "cash.success.closed": "Keshia imefungwa kikamilifu",
     "cash.eyebrow": "UENDESHAJI · KESHIA",
@@ -4016,7 +3822,6 @@ export const translations = {
     "cash.movement.form.reason_income_ph": "Mf. Fedha ya ziada",
     "cash.movement.form.reason_expense_ph": "Mf. Malipo ya muuzaji",
     "cash.movement.form.submit": "Sajili",
-
     "pending_tables.success.payment": "Malipo yamesajiliwa · ",
     "pending_tables.error.payment": "Hitilafu ya kutoza",
     "pending_tables.title": "Ankara za meza zinazosubiri",
@@ -4026,12 +3831,10 @@ export const translations = {
     "pending_tables.items": "vipande",
     "pending_tables.action.charge": "Toza",
     "pending_tables.action.view": "Angalia agizo",
-    // Navigation / Sidebar
     "nav.operations": "Uendeshaji",
     "nav.catalog": "Katalogi",
     "nav.stock": "Stoki",
     "nav.business": "Biashara",
-    
     "nav.dashboard": "Dashibodi",
     "nav.pos": "POS",
     "nav.tables": "Meza",
@@ -4053,28 +3856,20 @@ export const translations = {
     "nav.branches": "Matawi",
     "nav.settings": "Mipangilio",
     "nav.ai": "Wakala wa IA",
-
-    // Plan & Sidebar footer
     "plan.premium": "Mpango wa Kulipia",
     "plan.active": "Mpango wako unafanya kazi",
     "plan.benefits": "Angalia faida",
     "user.logout": "Ondoka",
     "brand.sub": "POS / ERP ya Njia Zote",
-
-    // Common UI
     "common.save": "Hifadhi",
     "common.search": "Tafuta...",
     "common.confirm": "Thibitisha",
     "common.back": "Nyuma",
     "common.next": "Mbele",
     "common.language": "Lugha",
-
-    // Language selection
     "lang.es": "Kihispania",
     "lang.en": "Kiingereza",
     "lang.sw": "Kiswahili",
-
-    // System notifications
     "pwa.ready": "Programu iko tayari kutumika bila mtandao ✓",
     "pwa.update": "Toleo jipya linapatikana",
     "pwa.update_btn": "Sasisha",
@@ -4100,8 +3895,6 @@ export const translations = {
     "whatsapp.no_inbound": "Hakuna ujumbe wa mteja wa kuchanganua",
     "whatsapp.suggestion_ready": "Pendekezo liko tayari — unaweza kuhariri kabla ya kutuma",
     "whatsapp.reply_saved": "Jibu limehifadhiwa",
-
-    // Auth / Login Page
     "auth.tab.signin": "Ingia",
     "auth.tab.signup": "Fungua Akaunti",
     "auth.title": "Ingia kwenye Mfumo",
@@ -4131,23 +3924,16 @@ export const translations = {
     "auth.system.status": "MFUMO WA UENDESHAJI · v1.0",
     "auth.welcome": "Karibu tena",
     "auth.error": "Hitilafu ya uthibitishaji",
-
-    // Auth features
     "auth.feat.1": "Gusa na haraka · Vibao vyenye mwanga wakati wa kubonyeza",
     "auth.feat.2": "Offline-first · Usawazishaji otomatiki unapounganisha tena",
     "auth.feat.3": "Matawi mengi · Majukumu na njia maalum",
-
-    // Auth stats
     "auth.stat.sales.lbl": "Mauzo yaliyochakatwa",
     "auth.stat.sales.val": "Bila kikomo",
     "auth.stat.channels.lbl": "Njia zilizounganishwa",
     "auth.stat.channels.val": "5+",
     "auth.stat.reports.lbl": "Ripoti za wakati halisi",
     "auth.stat.reports.val": "Kila wakati",
-
     "auth.doc.title": "Ingia | ElyonPOS360T",
-
-    // Tenant Unconfigured Screen
     "tenant.unconfigured": "Mfano Haujasanidiwa",
     "tenant.no_linked": "Hakuna mpangaji aliyeunganishwa na",
     "tenant.super_admin_config": "Ingia kama msimamizi mkuu ili kuisanidi",
@@ -4160,8 +3946,6 @@ export const translations = {
     "tenant.select_tenant": "Chagua mpangaji...",
     "tenant.btn_link": "Unganisha Jina & Endelea",
     "tenant.btn_linking": "Inaunganisha...",
-
-    // Onboarding
     "onboarding.doc.title": "Usanidi wa Biashara | ElyonPOS360T",
     "onboarding.checking": "Kuthibitisha ufikiaji...",
     "onboarding.multi.eyebrow": "UFIKIAJI MWINGI",
@@ -4184,8 +3968,6 @@ export const translations = {
     "onboarding.setup.error": "Hatukuweza kuunda biashara",
     "onboarding.setup.branch_default": "Kaunta kuu",
     "user.signout": "Ondoka",
-
-    // Interactive Guide
     "guide.banner.title": "Mwongozo wa Hatua kwa Hatua",
     "guide.banner.completed": "Zimekamilika",
     "guide.banner.open_manual": "Fungua Mwongozo Kamili",
@@ -4221,8 +4003,6 @@ export const translations = {
     "guide.step7.title": "7. Funga Zamu & Ripoti za Ukaguzi",
     "guide.step7.desc": "Hesabu fedha taslimu, linganisha na mauzo ya mfumo, funga keshia na kagua ripoti za mauzo.",
     "guide.step7.hint": "Nenda kwenye Keshia kufunga zamu na Ripoti kuona takwimu za mauzo.",
-
-    // Dashboard
     "dash.kpi.sales": "Mauzo ya Leo",
     "dash.kpi.orders": "Maagizo Yanayoendelea",
     "dash.kpi.cash": "Salio la Sasa",
@@ -4269,8 +4049,6 @@ export const translations = {
     "dash.sync.ok": "Yote imesawazishwa",
     "dash.sync.last": "Mwisho: < dakika 1 iliyopita",
     "dash.sync.history": "Angalia historia",
-
-    // Landing Page
     "landing.features": "Vipengele",
     "landing.plans": "Mipango",
     "landing.contact": "Mawasiliano",
@@ -4285,7 +4063,6 @@ export const translations = {
     "landing.hero.proof.no_card": "Bila kadi ya benki",
     "landing.hero.proof.14_days": "Siku 14 bure",
     "landing.hero.proof.cancel": "Ghairi wakati wowote",
-    
     "landing.stat.channels.unit": "njia",
     "landing.stat.channels.lbl": "za mauzo zilizounganishwa",
     "landing.stat.branches.unit": "matawi",
@@ -4294,12 +4071,10 @@ export const translations = {
     "landing.stat.offline.lbl": "bila kupoteza tiketi",
     "landing.stat.roles.unit": "majukumu",
     "landing.stat.roles.lbl": "ya ufikiaji maalum",
-
     "landing.feat.eyebrow": "VIPENGELE VYA KAZI",
     "landing.feat.title1": "Kila kitu ambacho biashara yako inahitaji,",
     "landing.feat.title2": "kwenye mfumo mmoja.",
     "landing.feat.sub": "Kuanzia mashine ya keshia hadi stoki na mauzo ya kidijitali.",
-    
     "landing.feat.pos.title": "Mashine ya POS ya Gusa",
     "landing.feat.pos.desc": "Katalogi ya kuona kwa makundi, utafutaji wa EAN, usimamizi wa tiketi, na malipo ya njia nyingi kwenye skrini moja.",
     "landing.feat.tables.title": "Meza & Maagizo",
@@ -4316,7 +4091,6 @@ export const translations = {
     "landing.feat.reports.desc": "Mauzo kwa siku, bidhaa bora, mchanganyiko wa njia za malipo, kodi na usafirishaji wa CSV.",
     "landing.feat.offline.title": "Offline-first",
     "landing.feat.offline.desc": "Inafanya kazi bila mtandao. Usawazishaji otomatiki unapounganisha tena. PWA inayoweza kusakinishwa.",
-
     "landing.high.eyebrow": "CHAPA NZURI",
     "landing.high.title1": "Vifaa vitatu,",
     "landing.high.title2": "lugha moja.",
@@ -4328,13 +4102,11 @@ export const translations = {
     "landing.high.l3": "Kompyuta · Dashibodi ya Kazi",
     "landing.high.l3.desc": "KPIs, maelezo ya moja kwa moja, KDS, na ripoti",
     "landing.high.cta": "Angalia Demo",
-
     "landing.plans.eyebrow": "MPANGO & BEI",
     "landing.plans.title1": "Kua pamoja na",
     "landing.plans.title2": "biashara yako.",
     "landing.plans.sub": "Hakuna mikataba ya mwaka. Ghairi wakati wowote.",
     "landing.plans.popular": "Inayopendwa Zaidi",
-    
     "landing.plans.starter.name": "Starter",
     "landing.plans.starter.price": "Bure",
     "landing.plans.starter.sub": "Kuanza",
@@ -4343,7 +4115,6 @@ export const translations = {
     "landing.plans.starter.f3": "Keshia & mauzo",
     "landing.plans.starter.f4": "Ripoti za kimsingi",
     "landing.plans.starter.cta": "Anza Bure",
-
     "landing.plans.pro.name": "Pro",
     "landing.plans.pro.price": "Tsh 30,000/=",
     "landing.plans.pro.sub": "Tsh / mwezi",
@@ -4355,7 +4126,6 @@ export const translations = {
     "landing.plans.pro.f6": "WhatsApp AI",
     "landing.plans.pro.f7": "Stoki ya hali ya juu",
     "landing.plans.pro.cta": "Anza majaribio ya siku 14 bure",
-
     "landing.plans.ent.name": "Enterprise",
     "landing.plans.ent.price": "Custom",
     "landing.plans.ent.sub": "Pata Bei",
@@ -4364,15 +4134,12 @@ export const translations = {
     "landing.plans.ent.f3": "Onboarding maalum",
     "landing.plans.ent.f4": "Uunganishaji maalum",
     "landing.plans.ent.cta": "Ongea na Mauzo",
-
     "landing.cta.eyebrow": "JE, UMEJIANDAA KUANZA?",
     "landing.cta.title1": "Anza leo —",
     "landing.cta.title2": "bure, bila kadi.",
     "landing.cta.sub": "Sanidi biashara yako ya kwanza chini ya dakika 5.",
     "landing.cta.cta": "Fungua Akaunti Bure",
     "landing.footer.sub": "· Open Source",
-
-    // POS
     "pos.back_dashboard": "Rudi kwenye dashibodi kuu",
     "pos.dashboard": "Dashibodi",
     "pos.channel": "NJIA",
@@ -4720,8 +4487,6 @@ export const translations = {
     "kds.station.grill": "Choma",
     "kds.station.cold": "Baridi",
     "kds.station.dessert": "Kitindamlo",
-
-    // Payment Dialog
     "pay.cash": "Pesa Taslimu",
     "pay.card": "Kadi",
     "pay.transfer": "Uhamisho",
@@ -4746,8 +4511,6 @@ export const translations = {
     "pay.change": "Chenji",
     "pay.missing": "Inakosekana ",
     "pay.pay": "LIPA",
-
-    // Production
     "prod.completed": "Imekamilika",
     "prod.in_progress": "Inaendelea",
     "prod.draft": "Rasimu",
@@ -4782,8 +4545,6 @@ export const translations = {
     "prod.planned_lbl": "imepangwa",
     "prod.complete_and_deduct": "Kamilisha na ukate viungo",
     "prod.order_completed": "Agizo limekamilika · stoki imesasishwa",
-
-    // Categories
     "cat.days.sun": "Jpi",
     "cat.days.mon": "Jta",
     "cat.days.tue": "Jne",
@@ -4810,8 +4571,6 @@ export const translations = {
     "cat.until": "Mpaka",
     "cat.active_days": "Siku za kazi",
     "cat.is_active": "Inafanya kazi",
-
-    // Products
     "prod_list.type.simple": "Rahisi",
     "prod_list.type.composite": "Mchanganyiko",
     "prod_list.type.production": "Uzalishaji",
@@ -4856,8 +4615,6 @@ export const translations = {
     "prod_list.import_warn_2": "Kitendo hiki kitafuta bidhaa ZOTE za sasa.",
     "prod_list.import_warn_3": "Je, una uhakika unataka kuendelea?",
     "prod_list.yes_import": "Ndiyo, Futa & Ingiza",
-
-    // Sales
     "sales.meta": "UENDESHAJI · MAUZO",
     "sales.title": "Mauzo",
     "sales.subtitle": "mauzo ya hivi karibuni",
@@ -4868,8 +4625,6 @@ export const translations = {
     "sales.col.products": "bidhaa",
     "sales.status.completed": "Imekamilika",
     "sales.return": "Rejesha",
-
-    // Reports
     "reports.meta": "MFUMO · UCHAMBUZI",
     "reports.title": "Ripoti za Kina",
     "reports.subtitle": "Changanua utendaji wa biashara yako na vichujio maalum",
@@ -4894,8 +4649,6 @@ export const translations = {
     "reports.net_subtotal": "Jumla ndogo ya wavu",
     "reports.tax_vat": "Kodi ya VAT",
     "reports.gross_total": "Jumla Kubwa",
-
-    // TopBar / AppShell
     "topbar.search": "Tafuta bidhaa, maagizo, wateja…",
     "topbar.branch": "Tawi",
     "topbar.menu": "Menyu",
@@ -4905,8 +4658,6 @@ export const translations = {
     "topbar.dev_banner": "HALI YA UTENGENEZAJI — Mauzo hayaathiri hisa ya hesabu",
     "topbar.session_open": "Hazina wazi",
     "topbar.session_closed": "Hakuna kipindi",
-
-    // Tweaks / User Dropdown
     "tweaks.title": "Mapendeleo ya Muonekano",
     "tweaks.close": "Funga",
     "tweaks.mode": "Hali ya Muonekano",
@@ -4917,8 +4668,6 @@ export const translations = {
     "tweaks.accent.indigo": "Urujuani",
     "tweaks.accent.teal": "Kijani-Buluu",
     "tweaks.account": "Akaunti na Kipindi",
-
-    // Roles
     "role.super_admin": "Msimamizi Mkuu",
     "role.owner": "Mmiliki",
     "role.admin": "Msimamizi",
@@ -4930,14 +4679,10 @@ export const translations = {
     "role.courier": "Msafirishaji",
     "role.staff": "Mfanyakazi",
     "role.user": "Mtumiaji",
-
-    // Network Status
     "network.online": "Mtandaoni",
     "network.syncing": "Inalandanisha",
     "network.offline": "Hali ya Nje ya Mtandao",
     "network.pending": "zinasubiri",
-
-    // Settings nav
     "settings.title": "Mipangilio",
     "settings.hint": "Mabadiliko yanatekelezwa wakati halisi kwenye tawi hili.",
     "settings.tab.business": "Biashara Yangu",
@@ -5009,8 +4754,6 @@ export const translations = {
     "receipt.preview.tax_base": "Kiasi cha Msingi:",
     "receipt.preview.tax_vat": "VAT (19%):",
     "receipt.save": "Hifadhi mabadiliko",
-
-    // Tables Settings
     "tables.settings.title": "Meza",
     "tables.settings.subtitle": "Orodha ya meza kulingana na tawi",
     "tables.settings.new": "Meza mpya",
@@ -5032,8 +4775,6 @@ export const translations = {
     "tables.settings.url_copied": "URL imenakiliwa",
     "tables.settings.cancel": "Ghairi",
     "tables.settings.save": "Hifadhi",
-
-    // Users Settings
     "users.settings.title": "Ongeza mtumiaji kwenye biashara",
     "users.settings.tab_create": "Unda mpya",
     "users.settings.tab_invite": "Alika aliyepo",
@@ -5057,8 +4798,6 @@ export const translations = {
     "users.settings.col_branch": "Tawi",
     "users.settings.col_actions": "Vitendo",
     "users.settings.you": "Wewe",
-
-    // Sales Channels Settings
     "channels.settings.title": "Njia za Mauzo",
     "channels.settings.subtitle": "Washa au zima njia zinazopatikana kwa biashara hii. Njia zilizozimwa hazitaonyeshwa kwenye POS wala mfumo. (Msimamizi Mkuu pekee)",
     "channels.settings.pos_title": "POS ya Dukani",
@@ -5075,8 +4814,6 @@ export const translations = {
     "channels.settings.uber_desc": "Washa njia ya mauzo ya Uber Eats.",
     "channels.settings.superadmin_only": "Msimamizi mkuu pekee anaweza kurekebisha hii.",
     "channels.settings.updated": "Njia za mauzo zimesasishwa",
-
-    // WhatsApp Settings
     "whatsapp.settings.webhook_title": "URL ya Webhook (Evolution API)",
     "whatsapp.settings.webhook_desc": "Weka URL hii kwenye Evolution API yako kama mahali pa matukio",
     "whatsapp.settings.agent_title": "Wakala wa AI WhatsApp",
@@ -5102,8 +4839,6 @@ export const translations = {
     "whatsapp.settings.step4": "Unganisha mfano na WhatsApp kwa kuchanganua msimbo wa QR.",
     "whatsapp.settings.step5": "Wezesha wakala kwa swichi ya hapo juu na uhifadhi.",
     "whatsapp.settings.step6": "Katika Supabase → Edge Functions → Secrets, ongeza EVOLUTION_API_URL na EVOLUTION_API_KEY.",
-
-    // AI Agent Settings
     "ai_agent.settings.prompt_title": "Maagizo ya Mfumo (System Prompt)",
     "ai_agent.settings.prompt_desc": "Elekeza wakala jinsi ya kuwasiliana na wateja wako. Ukiiacha wazi, maagizo ya kawaida yatatumika.",
     "ai_agent.settings.instructions": "Maagizo ya Wakala",
@@ -5141,8 +4876,6 @@ export const translations = {
     "ai_agent.settings.doc_content_label": "Maudhui",
     "ai_agent.settings.doc_content_ph": "Andika au bandika maudhui ya hati hapa. Wakala atayatumia kama marejeleo inapofaa kwa mazungumzo.",
     "ai_agent.settings.save_doc": "Hifadhi hati",
-
-    // Appearance Settings
     "appearance.settings.title": "Muonekano & Mandhari",
     "appearance.settings.desc": "Boresha muonekano wa mfumo wa mauzo kulingana na mwangaza wa eneo lako la biashara.",
     "appearance.settings.system_theme": "Mandhari ya Mfumo",
@@ -5159,8 +4892,6 @@ export const translations = {
     "appearance.settings.spacing_comfortable_desc": "Inafaa zaidi kwa skrini za kugusa",
     "appearance.settings.spacing_compact": "Nafasi Finyu",
     "appearance.settings.spacing_compact_desc": "Inaonyesha taarifa nyingi kwa kasi",
-
-    // Data Management Settings
     "data.settings.title": "Usimamizi wa Data & Nakala",
     "data.settings.desc": "Pakua na pakia orodha za bidhaa, stoki na nakala za hifadhidata.",
     "data.settings.export_products": "Pakua Orodha ya Bidhaa",
@@ -5173,8 +4904,6 @@ export const translations = {
     "data.settings.import_inventory_desc": "Sasisha stoki kupitia faili ya CSV.",
     "data.settings.btn_export_csv": "Pakua CSV",
     "data.settings.btn_import_csv": "Pakia CSV",
-
-    // KDS
     "kds.station.desserts": "Vitafunio",
     "kds.ready": "Tayari",
     "kds.prep": "Inaandaliwa",
@@ -5182,8 +4911,6 @@ export const translations = {
     "kds.btn.preparing": "Inaandaliwa",
     "kds.btn.rush": "Harisha",
     "kds.btn.done": "Weka tayari",
-
-    // Shifts
     "shifts.meta": "BIASHARA · ZAMU",
     "shifts.title": "Ratiba ya Zamu",
     "shifts.loading": "Inapakia zamu…",
@@ -5226,8 +4953,6 @@ export const translations = {
     "shifts.msg.created": "Zamu imeundwa",
     "shifts.msg.checkin": "Kufika kumerekodiwa",
     "shifts.msg.checkout": "Kuondoka kumerekodiwa",
-
-    // Suppliers
     "suppliers.meta": "HIFADHI · WASAMBAZAJI",
     "suppliers.title": "Wasambazaji",
     "suppliers.count.single": "msambazaji",
@@ -5358,7 +5083,6 @@ export const translations = {
     "whatsapp.new_reply": "Jibu jipya la haraka",
     "whatsapp.new_reply_title_ph": "Kichwa kifupi (mf. Salamu, Saa za Kazi)",
     "whatsapp.new_reply_body_ph": "Ujumbe kamili...",
-
     "catalog.empty.products_desc": "Unda bidhaa kwanza katika sehemu ya Bidhaa",
     "catalog.col.product": "Bidhaa",
     "catalog.col.base_price": "Bei ya Msingi",
@@ -5466,7 +5190,6 @@ export const translations = {
     "inv.centers.save": "Hifadhi",
     "inv.centers.create": "Unda",
     "inv.centers.col.status": "Hali",
-
     "branches.toast.name_required": "Jina la tawi linahitajika",
     "branches.toast.updated": "Tawi limesasishwa kikamilifu",
     "branches.toast.created": "Tawi limeundwa kikamilifu",
@@ -5484,9 +5207,179 @@ export const translations = {
     "catalog.desc": "Wezesha au zima bidhaa na uweke bei za ndani kwa kila tawi",
     "catalog.empty.branch_title": "Chagua tawi",
     "catalog.empty.branch_desc": "Chagua tawi unalotaka kusanidi katalogi yake",
-    "catalog.empty.products_title": "Hakuna bidhaa zilizosajiliwa"
+    "catalog.empty.products_title": "Hakuna bidhaa zilizosajiliwa",
+    "forbidden.title": "Acceso Restringido (403) | ElyonPOS360T",
+    "forbidden.error": "ERROR 403",
+    "forbidden.heading": "Acceso restringido",
+    "forbidden.desc": "Tu rol actual no tiene permisos para abrir esta sección. Contacta al administrador si crees que es un error.",
+    "forbidden.back": "Volver al inicio",
+    "notfound.title": "Página No Encontrada (404) | ElyonPOS360T",
+    "notfound.desc": "¡Uy! Página no encontrada",
+    "notfound.home": "Volver al inicio",
+    "stub.heading": "Módulo en preparación",
+    "stub.desc": "Las tablas y reglas de seguridad ya están listas en el backend. Esta pantalla se completará en la siguiente iteración.",
+    "employees.meta": "NEGOCIO · PERSONAL",
+    "employees.title": "Empleados",
+    "employees.subtitle.single": "miembro del equipo",
+    "employees.subtitle.plural": "miembros del equipo",
+    "employees.new": "Nuevo empleado",
+    "employees.empty.title": "Sin empleados",
+    "employees.empty.desc": "Agrega los miembros de tu equipo para gestionar turnos y accesos.",
+    "employees.col.name": "Nombre",
+    "employees.col.phone": "Teléfono",
+    "employees.col.role": "Rol",
+    "employees.active": "Activo",
+    "employees.form.title.new": "Nuevo empleado",
+    "employees.form.fullname": "Nombre completo",
+    "employees.form.pin": "PIN (4-6 dígitos)",
+    "employees.form.submit": "Crear empleado",
+    "employees.msg.created": "Empleado creado",
+    "suppliers.msg.updated": "Proveedor actualizado",
+    "suppliers.msg.created": "Proveedor creado",
+    "suppliers.msg.deleted": "Proveedor eliminado",
+    "suppliers.msg.ord_created": "Orden de compra creada",
+    "suppliers.msg.ord_received": "Orden recibida · Inventario actualizado",
+    "suppliers.msg.ord_error": "Error al recibir",
+    "suppliers.subtitle.single": "proveedor",
+    "suppliers.subtitle.plural": "proveedores",
+    "suppliers.new_ord": "Nueva orden de compra",
+    "suppliers.tab.suppliers": "Proveedores",
+    "suppliers.search": "Buscar proveedor...",
+    "suppliers.col.nit": "NIT",
+    "suppliers.col.terms": "Condición de pago",
+    "suppliers.btn.edit": "Editar proveedor",
+    "suppliers.btn.delete": "Eliminar proveedor",
+    "suppliers.confirm.delete": "¿Eliminar proveedor?",
+    "suppliers.ord.empty.title": "Sin órdenes de compra",
+    "suppliers.ord.empty.desc": "Crea órdenes de compra para registrar tus compras a proveedores.",
+    "suppliers.col.notes": "Notas",
+    "suppliers.ord.no_supplier": "Sin proveedor",
+    "suppliers.ord.received": "Recibida",
+    "suppliers.ord.cancelled": "Cancelada",
+    "suppliers.ord.draft": "Borrador",
+    "suppliers.btn.receive": "Recibir",
+    "suppliers.confirm.receive": "¿Marcar como recibida? Esto actualizará el inventario.",
+    "suppliers.form.edit": "Editar proveedor",
+    "suppliers.form.name": "Nombre / Razón social *",
+    "suppliers.form.name_ph": "Distribuidora XYZ",
+    "suppliers.form.terms_ph": "Ej: 30 días, contado, crédito 15 días",
+    "suppliers.form.notes_ph": "Observaciones adicionales",
+    "suppliers.form.save": "Guardar cambios",
+    "suppliers.ord.form.title": "Nueva orden de compra",
+    "suppliers.ord.form.sel_sup": "Seleccionar proveedor",
+    "suppliers.ord.form.notes_ph": "Observaciones de la orden",
+    "suppliers.ord.form.add": "Agregar productos",
+    "suppliers.ord.form.prod": "Producto",
+    "suppliers.ord.form.qty": "Cantidad",
+    "suppliers.ord.form.cost": "Costo unit.",
+    "suppliers.ord.form.add_btn": "Agregar producto",
+    "suppliers.ord.form.col_qty": "Cant.",
+    "suppliers.ord.form.col_cost": "Costo",
+    "suppliers.ord.form.rem": "Quitar producto",
+    "suppliers.ord.form.total_p": "producto(s)",
+    "suppliers.ord.form.creating": "Creando...",
+    "suppliers.ord.form.create": "Crear orden de compra",
+    "whatsapp.meta": "VENTA DIGITAL",
+    "whatsapp.title": "WhatsApp Inbox",
+    "whatsapp.subtitle.single": "chat activo",
+    "whatsapp.subtitle.plural": "chats activos",
+    "whatsapp.search": "Buscar cliente o teléfono...",
+    "whatsapp.new_order": "Nueva comanda",
+    "whatsapp.chat.empty": "Selecciona un chat",
+    "whatsapp.chat.empty_desc": "Elige una conversación para continuar la venta.",
+    "whatsapp.msg.placeholder": "Escribe un mensaje...",
+    "tables.meta": "SALÓN · MESAS",
+    "tables.title": "Mesas",
+    "tables.subtitle.single": "mesa libre",
+    "tables.subtitle.plural": "mesas libres",
+    "tables.status.available": "Libre",
+    "tables.status.occupied": "Ocupada",
+    "tables.status.reserved": "Reservada",
+    "tables.area.all": "Todas las áreas",
+    "waiter.loading": "Cargando áreas...",
+    "waiter.meta": "OPERACIÓN · MESERO",
+    "waiter.title": "Gestión de Mesas",
+    "waiter.subtitle.single": "área activa",
+    "waiter.subtitle.plural": "áreas activas",
+    "waiter.empty.title": "Sin áreas configuradas",
+    "waiter.empty.desc": "Configura al menos un área de mesas para comenzar.",
+    "table.order.new": "Nueva comanda",
+    "table.order.saving": "Guardando...",
+    "table.order.msg.success": "Comanda enviada",
+    "table.order.msg.error": "Error al enviar la comanda",
+    "table.order.add_notes": "Añadir notas (opcional)",
+    "table.order.summary": "Resumen de la Orden",
+    "table.order.total": "Total",
+    "table.order.confirm": "Confirmar y Enviar",
+    "table.order.cancel": "Cancelar",
+    "pay.mpesa": "M-Pesa (Vodacom)",
+    "pay.tigopesa": "Tigo Pesa",
+    "pay.airtelmoney": "Airtel Money",
+    "pay.halopesa": "HaloPesa",
+    "pay.bank": "Banco (NMB/CRDB)",
+    "pay.phone_number": "Número de teléfono",
+    "pay.reference_code": "Código de transacción / Referencia",
+    "pay.send_prompt": "Enviar solicitud USSD (Push)",
+    "pay.prompt_sent": "Solicitud enviada al móvil del cliente para ingresar PIN",
+    "pay.manual_ref": "O ingresa el código de recibo del SMS",
+    "pay.carrier_detected": "Operador detectado",
+    "ai_agent.settings.daily_recom": "Recomendación del día (opcional)",
+    "ai_agent.settings.daily_recom_ph": "ej. Hoy tenemos 2x1 en postres de chocolate",
+    "ai_agent.settings.daily_recom_hint": "El agente mencionará esto activamente cuando los clientes pidan sugerencias.",
+    "ai_agent.settings.delivery_time": "Tiempo estimado de entrega (minutos)",
+    "ai_agent.settings.delivery_time_hint": "El agente usará este tiempo al confirmar pedidos para entrega.",
+    "inv.meta": "INVENTARIO · STOCKS",
+    "inv.low_stock": "bajo mínimo",
+    "inv.out_of_stock": "sin stock",
+    "inv.btn.invoice": "Cargar Factura (AI)",
+    "inv.btn.transfer_now": "Transferir ahora",
+    "inv.btn.see_centers": "Ver centros",
+    "inv.kpi.total_sku": "Total SKUs",
+    "inv.kpi.active_products": "productos activos",
+    "inv.kpi.need_restock": "requieren reposición",
+    "inv.kpi.no_stock": "Sin stock",
+    "inv.kpi.depleted": "productos agotados",
+    "inv.kpi.all_centers": "en todos los centros",
+    "inv.quick_transfer": "Transferencia rápida",
+    "inv.move_stock": "Mover stock entre centros",
+    "inv.center": "Centro",
+    "inv.all_centers": "Todos los centros",
+    "inv.search_placeholder": "Buscar producto...",
+    "inv.status.low": "Bajo",
+    "inv.no_sku": "Sin SKU",
+    "inv.main_center": "Principal",
+    "inv.col.product": "Producto",
+    "inv.col.stock": "Stock actual",
+    "inv.col.location": "Ubicación",
+    "inv.col.movement": "Movimiento",
+    "inv.col.unit": "Unidad",
+    "inv.col.type": "Tipo",
+    "inv.col.qty": "Cantidad",
+    "inv.col.reason": "Motivo",
+    "inv.col.origin": "Origen",
+    "inv.footer.products_shown": "productos mostrados",
+    "inv.footer.total_units": "unidades en total",
+    "inv.empty.history": "Sin movimientos registrados",
+    "customers.meta": "OPERACIÓN · CLIENTES",
+    "customers.subtitle": "clientes registrados",
+    "customers.new": "Nuevo cliente",
+    "customers.search_ph": "Buscar por nombre, teléfono, NIT...",
+    "customers.col.name": "Nombre",
+    "customers.col.doc": "Documento",
+    "customers.col.contact": "Contacto",
+    "customers.col.address": "Dirección",
+    "customers.col.points": "Puntos",
+    "customers.dialog.edit": "Editar cliente",
+    "customers.dialog.new": "Nuevo cliente",
+    "customers.form.name_ph": "Nombre completo o razón social",
+    "customers.form.doc": "NIT / CC",
+    "customers.form.address": "Dirección",
+    "customers.form.address_ph": "Calle 123 # 45-67",
+    "customers.confirm_delete": "¿Eliminar cliente?",
+    "customers.created": "Cliente creado",
+    "customers.updated": "Cliente actualizado",
+    "customers.deleted": "Cliente eliminado",
   }
 } as const;
 
 export type TranslationKeys = keyof typeof translations.es;
-
