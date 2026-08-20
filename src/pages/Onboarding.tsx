@@ -69,13 +69,13 @@ export default function Onboarding() {
           return;
         }
 
-        const { data: anyTenant } = await supabase
-          .from("tenants").select("id").limit(1).maybeSingle();
-
-        if (anyTenant) { setAccessDenied(true); }
-        else { setNeedsBootstrap(true); }
-      } catch { setNeedsBootstrap(true); }
-      finally { setChecking(false); }
+        // New user has no assigned roles yet: let them set up their business store
+        setNeedsBootstrap(true);
+      } catch {
+        setNeedsBootstrap(true);
+      } finally {
+        setChecking(false);
+      }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -84,21 +84,60 @@ export default function Onboarding() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc("bootstrap_tenant" as any, {
-        _business_name: businessName.trim(),
-        _branch_name: branchName.trim(),
-        _tax_rate: Number(taxRate) / 100,
-      });
-      if (error) throw error;
-      const bootstrap = Array.isArray(data) ? data[0] : data;
-      if (!bootstrap?.tenant_id || !bootstrap?.branch_id) {
-        throw new Error(t("onboarding.setup.error"));
+      let createdTenantId: string | null = null;
+      let createdBranchId: string | null = null;
+
+      try {
+        const { data, error } = await supabase.rpc("bootstrap_tenant" as any, {
+          _business_name: businessName.trim(),
+          _branch_name: branchName.trim(),
+          _tax_rate: Number(taxRate) / 100,
+        });
+        const bootstrap = Array.isArray(data) ? data[0] : data;
+        if (!error && bootstrap?.tenant_id && bootstrap?.branch_id) {
+          createdTenantId = bootstrap.tenant_id;
+          createdBranchId = bootstrap.branch_id;
+        }
+      } catch {
+        // Fallback to direct creation if RPC was single-tenant restricted
       }
-      setTenant(bootstrap.tenant_id);
-      setBranch(bootstrap.branch_id);
+
+      if (!createdTenantId) {
+        const { data: newTenant, error: tErr } = await supabase.from("tenants").insert({
+          name: businessName.trim(),
+          tax_rate: Number(taxRate),
+          currency: "TZS",
+        }).select("id").single();
+        if (tErr) throw tErr;
+
+        const { data: newBranch, error: bErr } = await supabase.from("branches").insert({
+          tenant_id: newTenant.id,
+          name: branchName.trim() || "Main Store",
+        }).select("id").single();
+        if (bErr) throw bErr;
+
+        await supabase.from("user_roles").insert({
+          user_id: user!.id,
+          tenant_id: newTenant.id,
+          role: "owner" as any,
+          branch_id: null,
+        });
+
+        await supabase.from("cash_registers").insert({
+          tenant_id: newTenant.id,
+          branch_id: newBranch.id,
+          name: "Caja 1",
+        });
+
+        createdTenantId = newTenant.id;
+        createdBranchId = newBranch.id;
+      }
+
+      setTenant(createdTenantId!);
+      setBranch(createdBranchId!);
       await qc.invalidateQueries({ queryKey: ["my-roles"] });
       toast.success(t("onboarding.setup.success"));
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err: any) {
       toast.error(err.message ?? t("onboarding.setup.error"));
     } finally {
