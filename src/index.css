@@ -1994,7 +1994,7 @@
 .g-shell-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
 .g-topbar {
-  padding: 14px 22px 0;
+  padding: 10px 16px 0;
   position: sticky;
   top: 0;
   z-index: 20;
@@ -2003,35 +2003,42 @@
 .g-topbar-row {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
+  min-width: 0;
 }
 .g-topbar-toggle {
-  width: 42px; height: 42px;
+  width: 40px; height: 40px;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 14px;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
   color: var(--ink-700);
   flex-shrink: 0;
 }
 .g-topbar-search {
-  flex: 1;
-  height: 50px;
+  flex: 1 1 auto;
+  max-width: 240px;
+  min-width: 40px;
+  height: 42px;
   display: flex; align-items: center;
-  padding: 0 16px;
-  gap: 10px;
-  border-radius: 16px;
+  padding: 0 12px;
+  gap: 8px;
+  border-radius: 14px;
   color: var(--ink-400);
-  min-width: 0;
+  overflow: hidden;
+  flex-shrink: 1;
 }
 .g-topbar-search-text {
   color: var(--ink-400);
-  font-size: 14px;
+  font-size: 13px;
   flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .g-topbar-kbd {
-  font-size: 11px;
-  padding: 2px 8px;
+  font-size: 10px;
+  padding: 2px 6px;
   background: rgba(255,255,255,0.7);
   border: 1px solid var(--g-hairline);
   border-radius: 6px;
@@ -2039,49 +2046,51 @@
   white-space: nowrap;
   font-family: var(--g-font-mono);
   font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 .g-topbar-date {
-  height: 50px;
+  height: 42px;
   display: flex; align-items: center;
-  gap: 10px;
-  padding: 0 14px;
-  border-radius: 16px;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 14px;
+  flex-shrink: 0;
 }
 .g-topbar-date-text {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--ink-700);
   white-space: nowrap;
 }
 .g-topbar-bell {
-  width: 50px; height: 50px;
+  width: 42px; height: 42px;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 16px;
+  border-radius: 14px;
   color: var(--ink-700);
   position: relative;
   flex-shrink: 0;
 }
 .g-topbar-bell-dot {
   position: absolute;
-  top: 8px; right: 9px;
-  width: 16px; height: 16px;
-  border-radius: 8px;
+  top: 6px; right: 7px;
+  width: 14px; height: 14px;
+  border-radius: 7px;
   background: var(--brand-500);
   color: white;
-  font-size: 9px; font-weight: 700;
+  font-size: 8px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
 }
 .g-topbar-user {
-  height: 50px;
+  height: 42px;
   display: flex; align-items: center;
-  gap: 10px;
-  padding: 6px 14px 6px 6px;
-  border-radius: 16px;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 14px;
   cursor: pointer;
   flex-shrink: 0;
 }
 .g-topbar-avatar {
-  width: 36px; height: 36px;
+  width: 32px; height: 32px;
   border-radius: 50%;
   background: linear-gradient(135deg, #7FA8FF, #1E63E6);
   color: white;

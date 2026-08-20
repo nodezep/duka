@@ -70,78 +70,83 @@ function Shell() {
 
             {/* Search */}
             <div className="glass g-topbar-search">
-              <Search size={18} />
-              <span className="g-topbar-search-text">{t("topbar.search")}</span>
-              <span className="g-topbar-kbd">⌘K</span>
+              <Search size={16} className="shrink-0" />
+              <span className="g-topbar-search-text truncate">{t("topbar.search")}</span>
+              <span className="g-topbar-kbd hidden md:inline-block">⌘K</span>
             </div>
 
             {/* Guide Launcher */}
-            <div className="hidden lg:flex items-center">
+            <div className="hidden lg:flex items-center shrink-0">
               <GuideLauncherButton />
             </div>
 
-            {/* Branch / Date */}
-            <div className={cn("glass g-topbar-date", "hidden sm:flex")}>
-              <Calendar size={16} className="text-[--ink-700] shrink-0" />
-              <Select value={branchId ?? undefined} onValueChange={setBranch}>
-                <SelectTrigger className="h-auto border-0 bg-transparent p-0 focus:ring-0 shadow-none text-sm font-semibold min-w-[90px]">
-                  <SelectValue placeholder={t("topbar.branch")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {branches.map((b) => (
-                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <span className="g-topbar-date-text">· {today}</span>
-            </div>
+            {/* Right side controls */}
+            <div className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0">
+              {/* Branch / Date */}
+              <div className={cn("glass g-topbar-date", "hidden md:flex")}>
+                <Calendar size={15} className="text-[--ink-700] shrink-0" />
+                <Select value={branchId ?? undefined} onValueChange={setBranch}>
+                  <SelectTrigger className="h-auto border-0 bg-transparent p-0 focus:ring-0 shadow-none text-xs sm:text-sm font-semibold max-w-[110px] truncate">
+                    <SelectValue placeholder={t("topbar.branch")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {branches.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="g-topbar-date-text hidden xl:inline">· {today}</span>
+              </div>
 
-            {/* Language Selector */}
-            <LanguageSelector className="w-28 sm:w-32" />
+              {/* Language Selector */}
+              <LanguageSelector className="w-24 sm:w-28 shrink-0" />
 
-            {/* Theme Toggle */}
-            <button
-              type="button"
-              onClick={toggleMode}
-              className="glass g-topbar-bell cursor-pointer hover:bg-white/10 active:scale-95 transition-all duration-200"
-              title={mode === "dark" ? t("topbar.theme_light") : t("topbar.theme_dark")}
-              aria-label={t("topbar.toggle_theme")}
-            >
-              {mode === "dark" ? (
-                <Sun size={18} className="text-amber-400 animate-in fade-in zoom-in duration-300" />
-              ) : (
-                <Moon size={18} className="text-slate-600 dark:text-slate-300 animate-in fade-in zoom-in duration-300" />
-              )}
-            </button>
+              {/* Theme Toggle */}
+              <button
+                type="button"
+                onClick={toggleMode}
+                className="glass g-topbar-bell cursor-pointer hover:bg-white/10 active:scale-95 transition-all duration-200 shrink-0"
+                title={mode === "dark" ? t("topbar.theme_light") : t("topbar.theme_dark")}
+                aria-label={t("topbar.toggle_theme")}
+              >
+                {mode === "dark" ? (
+                  <Sun size={17} className="text-amber-400 animate-in fade-in zoom-in duration-300" />
+                ) : (
+                  <Moon size={17} className="text-slate-600 dark:text-slate-300 animate-in fade-in zoom-in duration-300" />
+                )}
+              </button>
 
-            {/* Notifications */}
-            <div className="glass g-topbar-bell">
-              <Bell size={18} />
-              <span className="g-topbar-bell-dot">!</span>
-            </div>
+              {/* Notifications */}
+              <div className="glass g-topbar-bell shrink-0">
+                <Bell size={17} />
+                <span className="g-topbar-bell-dot">!</span>
+              </div>
 
-            {/* Network */}
-            <NetworkStatusBadge />
+              {/* Network */}
+              <div className="hidden sm:block shrink-0">
+                <NetworkStatusBadge />
+              </div>
 
-            {/* User / Tweaks */}
-            <Popover open={tweaksOpen} onOpenChange={setTweaksOpen}>
-              <PopoverTrigger asChild>
-                <div className="glass g-topbar-user cursor-pointer">
-                  <div className="g-topbar-avatar">{roleInitials}</div>
-                  <div className="g-topbar-user-info hidden md:block">
-                    <div className="g-topbar-user-name">{branchName}</div>
-                    <div className={cn("g-topbar-user-role", openSession ? "g-topbar-user-role-ok" : "g-topbar-user-role-off")}>
-                      <span className={cn("g-dot", openSession ? "g-dot-ok" : "")} />
-                      {roleTranslated}
+              {/* User / Tweaks */}
+              <Popover open={tweaksOpen} onOpenChange={setTweaksOpen}>
+                <PopoverTrigger asChild>
+                  <div className="glass g-topbar-user cursor-pointer shrink-0">
+                    <div className="g-topbar-avatar">{roleInitials}</div>
+                    <div className="g-topbar-user-info hidden xl:block">
+                      <div className="g-topbar-user-name truncate max-w-[100px]">{branchName}</div>
+                      <div className={cn("g-topbar-user-role", openSession ? "g-topbar-user-role-ok" : "g-topbar-user-role-off")}>
+                        <span className={cn("g-dot", openSession ? "g-dot-ok" : "")} />
+                        {roleTranslated}
+                      </div>
                     </div>
+                    <ChevronDown size={14} className="hidden xl:block shrink-0 text-[--ink-500]" />
                   </div>
-                  <ChevronDown size={14} className="hidden md:block shrink-0 text-[--ink-500]" />
-                </div>
-              </PopoverTrigger>
-              <PopoverContent align="end" sideOffset={8} className="p-0 border-0 bg-transparent shadow-none w-auto">
-                <TweaksPanel onClose={() => setTweaksOpen(false)} />
-              </PopoverContent>
-            </Popover>
+                </PopoverTrigger>
+                <PopoverContent align="end" sideOffset={8} className="p-0 border-0 bg-transparent shadow-none w-auto">
+                  <TweaksPanel onClose={() => setTweaksOpen(false)} />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </header>
 

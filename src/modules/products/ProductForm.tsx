@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -473,11 +474,23 @@ export function ProductForm({ tenantId, categories, editing, onClose }: Props) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>{t("prod.category")}</Label>
+                <div className="flex items-center justify-between">
+                  <Label>{t("prod.category")}</Label>
+                  {categories.length === 0 && (
+                    <Link to="/categories" onClick={onClose} className="text-xs text-primary hover:underline font-medium">
+                      + {t("prod.category.create_first") || "Add Categories First"}
+                    </Link>
+                  )}
+                </div>
                 <Select value={form.category_id ?? ""} onValueChange={(v) => setForm({ ...form, category_id: v || null })}>
-                  <SelectTrigger><SelectValue placeholder={t("prod.category.select")} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={categories.length === 0 ? (t("prod.category.none_available") || "No categories yet (Add in Categories)") : t("prod.category.select")} /></SelectTrigger>
                   <SelectContent>{categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
                 </Select>
+                {categories.length === 0 && (
+                  <p className="text-[11px] text-amber-500 font-medium">
+                    ⚠️ {t("prod.category.empty_notice") || "Create categories first under Catalog > Categories"}
+                  </p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label>{t("prod.type")}</Label>
@@ -506,13 +519,16 @@ export function ProductForm({ tenantId, categories, editing, onClose }: Props) {
                 <Input type="number" value={form.min_stock} onChange={(e) => setForm({ ...form, min_stock: e.target.value })} />
               </div>
             </div>
-            {/* Estación KDS */}
+            {/* Estación KDS / Cocina (Opcional para Retail / Ferreterías / Papelerías) */}
             <div className="space-y-1.5">
-              <Label>{t("prod.station")}</Label>
+              <div className="flex items-center justify-between">
+                <Label>{t("prod.station")}</Label>
+                <span className="text-[11px] text-muted-foreground">({t("prod.station.optional_retail") || "Optional — leave None for retail, hardware, stationery"})</span>
+              </div>
               <Select value={form.station ?? "none"} onValueChange={(v) => setForm({ ...form, station: v === "none" ? null : v })}>
                 <SelectTrigger><SelectValue placeholder={t("prod.station.unassigned")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">{t("prod.station.unassigned")}</SelectItem>
+                  <SelectItem value="none">{t("prod.station.none_retail") || "None / Standard Retail (Hardware, Stationery, Electronics, etc.)"}</SelectItem>
                   {KDS_STATIONS.map(s => <SelectItem key={s.value} value={s.value}>{t(s.labelKey as any) || s.value}</SelectItem>)}
                 </SelectContent>
               </Select>
