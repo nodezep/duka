@@ -4,7 +4,7 @@ import {
   LayoutDashboard, ShoppingCart, Package, Boxes, ChefHat, Factory,
   Wallet, Receipt, Users, Calendar, BarChart3, Settings,
   Bike, UtensilsCrossed, UserRound, Truck, Store,
-  LogOut, ChevronRight, Sparkles,
+  LogOut, ChevronRight, Sparkles, Tags,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, useSidebar,
@@ -59,6 +59,7 @@ const sections: Section[] = [
     label: "Catálogo",
     translationKey: "nav.catalog",
     items: [
+      { title: "Categorías",  translationKey: "nav.categories", url: "/categories", icon: Tags,      roles: ["owner","admin","manager"] },
       { title: "Productos",   translationKey: "nav.products",   url: "/products",   icon: Package,   roles: ["owner","admin","manager"] },
       { title: "Recetas",     translationKey: "nav.recipes",    url: "/recipes",    icon: ChefHat,   roles: ["owner","admin","manager","kitchen"] },
     ],
