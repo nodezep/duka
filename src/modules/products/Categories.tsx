@@ -192,7 +192,14 @@ function CategoryDialog({ tenantId, editing, onClose }: { tenantId: string; edit
           </div>
           <div className="space-y-1.5">
             <Label>{t("cat.order")}</Label>
-            <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} />
+            <Input
+              type="number"
+              min="0"
+              placeholder="0"
+              value={form.sort_order}
+              onChange={(e) => setForm({ ...form, sort_order: e.target.value })}
+            />
+            <p className="text-[10px] text-muted-foreground">{t("cat.order.hint") || "1 to show first on POS"}</p>
           </div>
         </div>
 
