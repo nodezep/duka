@@ -27,6 +27,7 @@ import { useProducts } from "@/hooks/useProducts";
 import { BrandBar } from "@/components/shared/BrandBar";
 import { TickRail } from "@/components/shared/TickRail";
 import { LiveDot } from "@/components/shared/LiveDot";
+import { LanguageSelector } from "@/components/shared/LanguageSelector";
 import { useDevMode } from "@/hooks/useDevMode";
 
 export default function POS() {
@@ -527,6 +528,7 @@ export default function POS() {
             showSync={!!openSession}
           />
         </div>
+        <LanguageSelector className="w-28 sm:w-32 border-l" />
         <Link
           to="/dashboard"
           className="flex items-center gap-1.5 shrink-0 px-4 border-l text-[12px] text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"

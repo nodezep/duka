@@ -555,9 +555,9 @@ export default function DigitalOrders() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Agregar productos</Label>
+              <Label>{t("digital_orders.add_products") || "Add products"}</Label>
               <Input
-                placeholder="Buscar producto..."
+                placeholder={t("common.search")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />

@@ -1,12 +1,19 @@
 import React from "react";
 import { useThemeStore, type ThemeMode, type ThemeAccent, type ThemeSpacing } from "@/stores/theme";
 import { useLanguage } from "@/hooks/useLanguage";
-import { Sun, Moon, Palette, LayoutGrid, Check, Sparkles } from "lucide-react";
+import { type Language } from "@/lib/translations";
+import { Sun, Moon, Palette, LayoutGrid, Check, Sparkles, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function AppearanceSettings() {
   const { mode, setMode, accent, setAccent, spacing, setSpacing } = useThemeStore();
-  const { t } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
+
+  const languages: { id: Language; label: string; flag: string; desc: string }[] = [
+    { id: "en", label: "English", flag: "🇬🇧", desc: "System forms, receipts, and POS in English" },
+    { id: "es", label: "Español", flag: "🇪🇸", desc: "Formularios, comprobantes y POS en español" },
+    { id: "sw", label: "Kiswahili", flag: "🇹🇿", desc: "Fomu zote, risiti na POS kwa Kiswahili" },
+  ];
 
   const modes: { id: ThemeMode; label: string; icon: React.ReactNode; desc: string }[] = [
     { id: "light", label: t("appearance.settings.light_mode"), icon: <Sun className="h-5 w-5 text-amber-500" />, desc: t("appearance.settings.light_desc") },
@@ -31,6 +38,46 @@ export default function AppearanceSettings() {
         <p className="text-sm text-ink-500 mt-1">
           {t("appearance.settings.desc")}
         </p>
+      </div>
+
+      {/* Language Selection */}
+      <div className="glass p-5 rounded-2xl space-y-4 border-l-4 border-brand-500">
+        <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
+          <Globe className="h-4 w-4 text-brand-500" /> {t("appearance.settings.language")}
+        </div>
+        <p className="text-xs text-ink-500">{t("appearance.settings.language_desc")}</p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          {languages.map((l) => {
+            const active = language === l.id;
+            return (
+              <button
+                key={l.id}
+                type="button"
+                onClick={() => setLanguage(l.id)}
+                className={cn(
+                  "glass-thin p-4 rounded-xl text-left transition-all duration-200 border flex flex-col justify-between gap-2.5 relative overflow-hidden group cursor-pointer",
+                  active
+                    ? "border-brand-500 bg-brand-500/10 shadow-lg shadow-brand-500/10"
+                    : "border-border hover:border-brand-500/40"
+                )}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl">{l.flag}</span>
+                    <span className="font-bold text-sm text-ink-900">{l.label}</span>
+                  </div>
+                  {active && (
+                    <div className="h-5 w-5 rounded-full bg-brand-500 text-white flex items-center justify-center shrink-0">
+                      <Check className="h-3 w-3 stroke-[3]" />
+                    </div>
+                  )}
+                </div>
+                <p className="h-meta text-[11px] leading-relaxed text-ink-500">{l.desc}</p>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Mode selection */}

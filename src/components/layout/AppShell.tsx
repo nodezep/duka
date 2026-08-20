@@ -16,8 +16,9 @@ import { NetworkStatusBadge } from "./NetworkStatusBadge";
 import { TweaksPanel } from "@/components/shared/TweaksPanel";
 import { LiveDot } from "@/components/shared/LiveDot";
 import { GearMark } from "@/components/shared/GearMark";
-import { useLanguage } from "@/hooks/useLanguage";
+import { LanguageSelector } from "@/components/shared/LanguageSelector";
 import { InteractiveOnboardingGuide, GuideLauncherButton } from "@/components/shared/InteractiveOnboardingGuide";
+import { useLanguage } from "@/hooks/useLanguage";
 
 function Shell() {
   const navigate = useNavigate();
@@ -94,6 +95,9 @@ function Shell() {
               </Select>
               <span className="g-topbar-date-text">· {today}</span>
             </div>
+
+            {/* Language Selector */}
+            <LanguageSelector className="w-28 sm:w-32" />
 
             {/* Theme Toggle */}
             <button

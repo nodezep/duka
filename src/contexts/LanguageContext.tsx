@@ -12,7 +12,11 @@ export const LanguageContext = createContext<LanguageContextType | undefined>(un
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem("app_language");
-    return (saved === "es" || saved === "en" || saved === "sw") ? saved : "sw";
+    if (saved === "es" || saved === "en" || saved === "sw") return saved;
+    const browserLang = typeof navigator !== "undefined" ? navigator.language?.slice(0, 2) : "en";
+    if (browserLang === "es") return "es";
+    if (browserLang === "sw") return "sw";
+    return "en";
   });
 
   const setLanguage = (lang: Language) => {
@@ -26,9 +30,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     document.documentElement.setAttribute("lang", language);
   }, [language]);
 
-  const t = (key: TranslationKeys): string => {
-    const dict = translations[language] || translations.es;
-    return (dict as any)[key] || (translations.es as any)[key] || key;
+  const t = (key: TranslationKeys | (string & {})): string => {
+    const dict = translations[language] || translations.en || translations.es;
+    return (dict as any)[key] || (translations.en as any)?.[key] || (translations.es as any)?.[key] || key;
   };
 
   return (

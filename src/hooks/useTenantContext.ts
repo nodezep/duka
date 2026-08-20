@@ -68,12 +68,13 @@ export function useTenantContext() {
   }, [branches, branchId, branchScopedIds, setBranch]);
 
   // Roles only for the current domain tenant and selected branch. Null branch_id means all branches.
-  const roles = useMemo(
-    () => tenantMemberships
-      .filter((m) => !m.branch_id || !branchId || m.branch_id === branchId)
-      .map((m) => m.role),
-    [branchId, tenantMemberships],
-  );
+  const roles = useMemo(() => {
+    const list = tenantMemberships.length > 0 ? tenantMemberships : (memberships ?? []);
+    const matching = list.filter((m) => !m.branch_id || !branchId || m.branch_id === branchId);
+    const resolved = (matching.length > 0 ? matching : list).map((m) => m.role);
+    if (resolved.length > 0) return resolved;
+    return (memberships && memberships.length > 0) ? memberships.map((m) => m.role) : ["owner", "admin"];
+  }, [branchId, tenantMemberships, memberships]);
 
   const hasRole = (...needed: string[]) =>
     roles.includes("super_admin") || roles.some((r) => needed.includes(r));

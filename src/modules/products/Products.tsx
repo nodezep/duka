@@ -79,14 +79,33 @@ export default function Products() {
     }
   };
 
+  const { language } = useLanguage();
+
   const handleDownloadTemplate = () => {
-    const template = [
-      { name: "Coca Cola 600ml", category_name: "Bebidas", sku: "BEB-001", barcode: "123456789012", price: "2.50", cost: "1.00", product_type: "simple", status: "active" },
-      { name: "Carne de Hamburguesa (Caja 10kg)", category_name: "Insumos", sku: "INS-001", barcode: "", price: "0", cost: "50.00", product_type: "ingredient", status: "active" },
-      { name: "Hamburguesa Sencilla", category_name: "Platos Principales", sku: "PLA-001", barcode: "", price: "8.50", cost: "3.20", product_type: "composite", status: "active" },
-      { name: "Combo Hamburguesa + Gaseosa", category_name: "Combos", sku: "CMB-001", barcode: "", price: "10.00", cost: "4.20", product_type: "combo", status: "active" }
-    ];
-    exportToCsv(`guia_plantilla_productos_${tenantId}.csv`, template);
+    let template: any[];
+    if (language === "sw") {
+      template = [
+        { name: "Coca Cola 600ml", category_name: "Vinywaji", sku: "VIN-001", barcode: "123456789012", price: "2500", cost: "1000", product_type: "simple", status: "active" },
+        { name: "Nyama ya Burger (Kilo 10)", category_name: "Malighafi", sku: "MAL-001", barcode: "", price: "0", cost: "50000", product_type: "ingredient", status: "active" },
+        { name: "Burger ya Kawaida", category_name: "Vyakula", sku: "VYA-001", barcode: "", price: "8500", cost: "3200", product_type: "composite", status: "active" },
+        { name: "Kifurushi cha Burger + Soda", category_name: "Vifurushi", sku: "VIF-001", barcode: "", price: "10000", cost: "4200", product_type: "combo", status: "active" }
+      ];
+    } else if (language === "en") {
+      template = [
+        { name: "Coca Cola 600ml", category_name: "Beverages", sku: "BEV-001", barcode: "123456789012", price: "2.50", cost: "1.00", product_type: "simple", status: "active" },
+        { name: "Burger Beef (10kg Box)", category_name: "Raw Materials", sku: "RAW-001", barcode: "", price: "0", cost: "50.00", product_type: "ingredient", status: "active" },
+        { name: "Classic Burger", category_name: "Main Dishes", sku: "DIS-001", barcode: "", price: "8.50", cost: "3.20", product_type: "composite", status: "active" },
+        { name: "Combo Burger + Soda", category_name: "Combos", sku: "CMB-001", barcode: "", price: "10.00", cost: "4.20", product_type: "combo", status: "active" }
+      ];
+    } else {
+      template = [
+        { name: "Coca Cola 600ml", category_name: "Bebidas", sku: "BEB-001", barcode: "123456789012", price: "2.50", cost: "1.00", product_type: "simple", status: "active" },
+        { name: "Carne de Hamburguesa (Caja 10kg)", category_name: "Insumos", sku: "INS-001", barcode: "", price: "0", cost: "50.00", product_type: "ingredient", status: "active" },
+        { name: "Hamburguesa Sencilla", category_name: "Platos Principales", sku: "PLA-001", barcode: "", price: "8.50", cost: "3.20", product_type: "composite", status: "active" },
+        { name: "Combo Hamburguesa + Gaseosa", category_name: "Combos", sku: "CMB-001", barcode: "", price: "10.00", cost: "4.20", product_type: "combo", status: "active" }
+      ];
+    }
+    exportToCsv(`products_template_${tenantId}.csv`, template);
   };
 
   const [importFile, setImportFile] = useState<File | null>(null);
@@ -109,52 +128,61 @@ export default function Products() {
           toast({ title: t("common.error"), description: t("prod_list.empty_file"), variant: "destructive" });
           return;
         }
-        const isValid = parsed.every(row => row.name && row.name.trim() !== "");
+
+        const normalizeKey = (obj: any, keys: string[]) => {
+          for (const k of keys) {
+            const foundKey = Object.keys(obj).find(origKey => origKey.trim().toLowerCase() === k.toLowerCase());
+            if (foundKey && obj[foundKey] !== undefined && String(obj[foundKey]).trim() !== "") return String(obj[foundKey]).trim();
+          }
+          return undefined;
+        };
+
+        const parseDecimal = (val: any) => {
+          if (val === undefined || val === null || val === "") return 0;
+          const cleaned = String(val).replace(/[^0-9.,-]/g, '').replace(',', '.');
+          return parseFloat(cleaned) || 0;
+        };
+
+        const mapProductType = (type: string | undefined): string => {
+          if (!type) return "simple";
+          const n = type.trim().toLowerCase();
+          if (["simple", "standard", "estandar", "estándar", "kawaida", "regular"].includes(n)) return "simple";
+          if (["ingredient", "ingrediente", "raw_material", "insumo", "materia_prima", "kiungo"].includes(n)) return "ingredient";
+          if (["composite", "compuesto", "manufactured", "receta", "recipe", "mchanganyiko"].includes(n)) return "composite";
+          if (["production", "produccion", "producción", "uzalishaji"].includes(n)) return "production";
+          if (["combo", "paquete", "package", "kifurushi"].includes(n)) return "combo";
+          if (["modifier", "modificador", "extra", "kiongezi", "kibadala"].includes(n)) return "modifier";
+          return "simple";
+        };
+
+        const normalizedRows = parsed.map(row => {
+          const name = normalizeKey(row, ["name", "nombre", "product_name", "producto", "title", "jina", "item"]) ?? "";
+          const catName = normalizeKey(row, ["category_name", "category", "categoria", "categoría", "kategoria", "cat"]);
+          let category_id = null;
+          if (catName && categories) {
+            const matched = categories.find(c => c.name.toLowerCase() === catName.toLowerCase());
+            if (matched) category_id = matched.id;
+          }
+          const rawStatus = normalizeKey(row, ["status", "estado", "hali"]) ?? "active";
+          return {
+            tenant_id: tenantId,
+            name,
+            category_id,
+            sku: normalizeKey(row, ["sku", "codigo", "código", "code", "msimbo"]) || null,
+            barcode: normalizeKey(row, ["barcode", "codigo_barras", "código_barras", "upc", "ean", "msimbopau"]) || null,
+            price: parseDecimal(normalizeKey(row, ["price", "precio", "bei", "pvp"])),
+            cost: parseDecimal(normalizeKey(row, ["cost", "costo", "gharama"])),
+            product_type: mapProductType(normalizeKey(row, ["product_type", "type", "tipo", "tipo_producto", "aina"])),
+            status: (rawStatus.toLowerCase() === "inactive" || rawStatus.toLowerCase() === "inactivo" || rawStatus.toLowerCase() === "si hai") ? "inactive" : "active",
+          };
+        });
+
+        const isValid = normalizedRows.every(row => row.name && row.name.trim() !== "");
         if (!isValid) {
           toast({ title: t("prod_list.invalid_format"), description: t("prod_list.missing_name"), variant: "destructive" });
           return;
         }
-        const mapProductType = (type: string | undefined): string => {
-          if (!type) return "simple";
-          const normalized = type.trim().toLowerCase();
-          switch (normalized) {
-            case "standard":
-            case "simple":
-              return "simple";
-            case "raw_material":
-            case "ingredient":
-              return "ingredient";
-            case "manufactured":
-            case "composite":
-              return "composite";
-            case "production":
-              return "production";
-            case "combo":
-              return "combo";
-            case "modifier":
-              return "modifier";
-            default:
-              return "simple";
-          }
-        };
-        const dataToInsert = parsed.map(row => {
-          let category_id = null;
-          if (row.category_name && categories) {
-            const matched = categories.find(c => c.name.toLowerCase() === row.category_name.trim().toLowerCase());
-            if (matched) category_id = matched.id;
-          }
-          return {
-            tenant_id: tenantId,
-            name: row.name,
-            category_id,
-            sku: row.sku || null,
-            barcode: row.barcode || null,
-            price: parseFloat(row.price) || 0,
-            cost: parseFloat(row.cost) || 0,
-            product_type: mapProductType(row.product_type),
-            status: row.status || "active",
-          };
-        });
+
         const { error: deleteError } = await supabase.from("products").delete().eq("tenant_id", tenantId);
         if (deleteError) {
           console.error("Error al borrar productos:", deleteError);
@@ -163,12 +191,12 @@ export default function Products() {
           }
           throw new Error(t("prod_list.clear_err"));
         }
-        const { error: insertError } = await supabase.from("products").insert(dataToInsert);
+        const { error: insertError } = await supabase.from("products").insert(normalizedRows);
         if (insertError) {
           console.error("Error al insertar:", insertError);
           throw new Error(t("prod_list.insert_err"));
         }
-        toast({ title: t("prod_list.sync_success"), description: t("prod_list.sync_desc").replace("{count}", dataToInsert.length.toString()) });
+        toast({ title: t("prod_list.sync_success"), description: t("prod_list.sync_desc").replace("{count}", normalizedRows.length.toString()) });
         qc.invalidateQueries({ queryKey: ["products"] });
       } catch (err: any) {
         toast({ title: t("prod_list.sync_err"), description: err.message, variant: "destructive" });
@@ -191,7 +219,7 @@ export default function Products() {
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-400" />
-          <Input className="pl-9 w-48 lg:w-64" placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input className="pl-9 w-48 lg:w-64" placeholder={t("common.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
 
         <Select value={categoryId} onValueChange={setCategoryId}>
@@ -222,7 +250,7 @@ export default function Products() {
         {/* Product type guide dialog */}
         <Dialog>
           <DialogTrigger asChild>
-            <button type="button" className="g-btn g-btn-ghost g-btn-icon" title="Explicación de tipos de producto" aria-label="Guía de tipos de producto">
+            <button type="button" className="g-btn g-btn-ghost g-btn-icon" title={t("prod_list.guide_desc")} aria-label={t("prod_list.guide_btn")}>
               <HelpCircle className="h-5 w-5 text-ink-400" />
             </button>
           </DialogTrigger>
@@ -250,7 +278,7 @@ export default function Products() {
           </DialogContent>
         </Dialog>
 
-        <input type="file" accept=".csv" className="hidden" ref={fileInputRef} onChange={handleFileSelect} title="Importar archivo CSV" aria-label="Importar archivo CSV" />
+        <input type="file" accept=".csv" className="hidden" ref={fileInputRef} onChange={handleFileSelect} title={t("prod_list.import_tooltip")} aria-label={t("prod_list.import_tooltip")} />
 
         <button type="button" className="g-btn g-btn-ghost" onClick={() => fileInputRef.current?.click()}>
           <Upload className="h-4 w-4" /> {t("prod_list.import")}
@@ -333,8 +361,8 @@ export default function Products() {
                     <button
                       type="button"
                       className="g-btn g-btn-ghost g-btn-icon"
-                      title="Editar producto"
-                      aria-label="Editar producto"
+                      title={t("prod_list.edit")}
+                      aria-label={t("prod_list.edit")}
                       onClick={() => { setEditing(p); setOpen(true); }}
                     >
                       <Pencil className="h-4 w-4" />
@@ -342,8 +370,8 @@ export default function Products() {
                     <button
                       type="button"
                       className="g-btn g-btn-ghost g-btn-icon g-btn-danger"
-                      title="Eliminar producto"
-                      aria-label="Eliminar producto"
+                      title={t("prod_list.delete")}
+                      aria-label={t("prod_list.delete")}
                       onClick={() => setDeletingId(p.id)}
                     >
                       <Trash2 className="h-4 w-4" />
