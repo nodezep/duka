@@ -87,19 +87,39 @@ export default function Onboarding() {
       let createdTenantId: string | null = null;
       let createdBranchId: string | null = null;
 
+      // 1. Try create_new_tenant RPC
       try {
-        const { data, error } = await supabase.rpc("bootstrap_tenant" as any, {
-          _business_name: businessName.trim(),
-          _branch_name: branchName.trim(),
-          _tax_rate: Number(taxRate) / 100,
+        const { data, error } = await supabase.rpc("create_new_tenant" as any, {
+          _name: businessName.trim(),
+          _branch_name: branchName.trim() || "Main Store",
+          _tax_rate: Number(taxRate),
+          _currency: "TZS",
         });
-        const bootstrap = Array.isArray(data) ? data[0] : data;
-        if (!error && bootstrap?.tenant_id && bootstrap?.branch_id) {
-          createdTenantId = bootstrap.tenant_id;
-          createdBranchId = bootstrap.branch_id;
+        const res = Array.isArray(data) ? data[0] : data;
+        if (!error && res?.tenant_id && res?.branch_id) {
+          createdTenantId = res.tenant_id;
+          createdBranchId = res.branch_id;
         }
       } catch {
-        // Fallback to direct creation if RPC was single-tenant restricted
+        // Continue
+      }
+
+      // 2. Try legacy RPCs
+      if (!createdTenantId) {
+        try {
+          const { data, error } = await supabase.rpc("bootstrap_tenant" as any, {
+            _business_name: businessName.trim(),
+            _branch_name: branchName.trim(),
+            _tax_rate: Number(taxRate) / 100,
+          });
+          const bootstrap = Array.isArray(data) ? data[0] : data;
+          if (!error && bootstrap?.tenant_id && bootstrap?.branch_id) {
+            createdTenantId = bootstrap.tenant_id;
+            createdBranchId = bootstrap.branch_id;
+          }
+        } catch {
+          // Continue
+        }
       }
 
       if (!createdTenantId) {
