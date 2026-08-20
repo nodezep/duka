@@ -3,13 +3,17 @@ import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
 
-type Product = Database["public"]["Tables"]["products"]["Row"];
+export type Product = Partial<Database["public"]["Tables"]["products"]["Row"]> & {
+  id: string;
+  name: string;
+  price: number | string;
+};
 
 const ROW_HEIGHT = 200;
 const ROW_GAP    = 12;
 const ROW_SIZE   = ROW_HEIGHT + ROW_GAP;
 
-function colorToHue(color: string | null): string {
+function colorToHue(color: string | null | undefined): string {
   if (!color) return "hue-default";
   const c = color.toLowerCase();
   if (/f59e|f97|fb9|amber|orange/.test(c)) return "hue-amber";
@@ -26,7 +30,7 @@ interface ProductGridProps {
   products:     Product[];
   stockMap?:    Record<string, number>;
   devMode?:     boolean;
-  onSelect:     (p: Product) => void;
+  onSelect:     (p: any) => void;
   thumbHeight?: number;
   columns?:     number;
 }
