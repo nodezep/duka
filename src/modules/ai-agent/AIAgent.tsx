@@ -37,14 +37,40 @@ function UserOrb({ initials }: { initials: string }) {
   );
 }
 
-function MarginBarChart({ title, source }: { title: string; source: string }) {
-  const data = [
-    { name: "Capuchino Clásico",     margin: 71 },
-    { name: "Cheesecake de Fresa",   margin: 68 },
-    { name: "Frappé Mocha",          margin: 64 },
-    { name: "Croissant Mantequilla", margin: 58 },
-    { name: "Latte Vainilla",        margin: 55 },
-  ];
+function MarginBarChart({ title, source, tenantId }: { title: string; source: string; tenantId: string | null }) {
+  const [data, setData] = useState<Array<{ name: string; margin: number }>>([]);
+
+  useEffect(() => {
+    if (!tenantId) return;
+    supabase
+      .from("products")
+      .select("name, price, cost")
+      .eq("tenant_id", tenantId)
+      .eq("status", "active")
+      .limit(6)
+      .then(({ data: products }) => {
+        if (products && products.length > 0) {
+          const list = products.map((p) => {
+            const price = Number(p.price || 0);
+            const cost = Number(p.cost || 0);
+            const margin = price > 0 ? Math.round(((price - cost) / price) * 100) : 0;
+            return { name: p.name, margin: Math.max(0, Math.min(100, margin)) };
+          });
+          setData(list);
+        } else {
+          setData([]);
+        }
+      });
+  }, [tenantId]);
+
+  if (data.length === 0) {
+    return (
+      <div className="glass-thin g-ai-chart-wrap p-4 text-center">
+        <span className="h-meta">Hakuna bidhaa zilizosajiliwa zenye data ya bei/gharama.</span>
+      </div>
+    );
+  }
+
   return (
     <div className="glass-thin g-ai-chart-wrap">
       <div className="flex justify-between items-center mb-3">
@@ -56,7 +82,7 @@ function MarginBarChart({ title, source }: { title: string; source: string }) {
           <div key={i} className="g-ai-margin-row">
             <span className="g-ai-margin-label">{d.name}</span>
             <div className="g-ai-margin-bar-track">
-              <div className="g-ai-margin-bar-fill" {...{ style: { width: `${d.margin}%` } }} />
+              <div className="g-ai-margin-bar-fill" style={{ width: `${Math.max(d.margin, 5)}%` }} />
               <span className="g-ai-margin-pct">{d.margin}%</span>
             </div>
           </div>
@@ -67,7 +93,7 @@ function MarginBarChart({ title, source }: { title: string; source: string }) {
 }
 
 export default function AIAgent() {
-  const { roles } = useTenantContext();
+  const { tenantId, roles } = useTenantContext();
   const { t } = useLanguage();
   const initials = (roles[0] ?? "U").slice(0, 2).toUpperCase();
 
@@ -149,27 +175,28 @@ export default function AIAgent() {
       {/* Chat column */}
       <div className="g-ai-chat-col">
         {/* Header */}
-        <div className="glass g-ai-header">
-          <AiOrb size={50} />
-          <div className="g-ai-header-info">
-            <div className="g-ai-header-title h-display">
-              {t("ai.title")}
-              <span className="pill pill-brand g-kds-pill-micro">{t("ai.beta")}</span>
+        <div className="glass g-ai-chat-header">
+          <AiOrb size={38} />
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-[15px] text-ink-900">{t("ai.title")}</span>
+              <span className="g-pill g-pill-brand g-val-10">{t("ai.beta")}</span>
             </div>
-            <div className="h-meta">{t("ai.subtitle")}</div>
+            <span className="h-meta">{t("ai.subtitle")}</span>
           </div>
-          <div className="pill pill-ok">
-            <span className="dot dot-ok" />
-            {t("ai.status.online")}
-          </div>
+          <span className="g-ai-status-pill ml-auto">
+            <span className="g-ai-status-dot" /> {t("ai.status.online")}
+          </span>
         </div>
 
-        {/* Messages */}
-        <div className="g-ai-msgs">
+        {/* Message list */}
+        <div className="g-ai-msg-list">
           {messages.map((m) =>
             m.role === "user" ? (
-              <div key={m.id} className="flex justify-end gap-2 items-end">
-                <div className="g-ai-bubble-user">{m.text}</div>
+              <div key={m.id} className="g-ai-bubble-user">
+                <div className="g-ai-bubble-user-body">
+                  {m.text}
+                </div>
                 <UserOrb initials={initials} />
               </div>
             ) : (
@@ -177,7 +204,7 @@ export default function AIAgent() {
                 <AiOrb size={34} />
                 <div className="glass-strong g-ai-bubble-ai-body">
                   <div className="g-ai-bubble-ai-text">{m.text}</div>
-                  {m.chart && <MarginBarChart title={t("ai.chart.margin.title")} source={t("ai.chart.margin.source")} />}
+                  {m.chart && <MarginBarChart title={t("ai.chart.margin.title")} source={t("ai.chart.margin.source")} tenantId={tenantId} />}
                   {m.insights && (
                     <div className="flex flex-col gap-2">
                       {m.insights.map((s, i) => (

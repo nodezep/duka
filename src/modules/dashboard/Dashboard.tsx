@@ -10,21 +10,25 @@ import {
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
 
-/* ── Sparkline data ── */
-const SPARK = [55,62,58,71,68,78,82,76,89,94,88,102,110,105,118,124,121,132,128,140,138,145,152,148,155,150,158];
-const YMAX = 200;
+/* ── Dynamic Area chart based on real sales ── */
+interface AreaChartProps {
+  points: number[];
+  totalMonthSales: number;
+}
 
-/* ── Area chart ── */
-function AreaChart() {
+function AreaChart({ points, totalMonthSales }: AreaChartProps) {
   const W = 480, H = 180;
   const pl = 36, pr = 16, pt = 18, pb = 24;
   const iW = W - pl - pr, iH = H - pt - pb;
-  const n = SPARK.length;
+  const safePoints = points.length >= 2 ? points : points.length === 1 ? [points[0], points[0]] : [0, 0];
+  const maxVal = Math.max(...safePoints, 10);
+  const n = safePoints.length;
   const toX = (i: number) => pl + (i / (n - 1)) * iW;
-  const toY = (v: number) => pt + (1 - v / YMAX) * iH;
-  const linePath = SPARK.map((p, i) => `${i === 0 ? "M" : "L"} ${toX(i).toFixed(1)} ${toY(p).toFixed(1)}`).join(" ");
-  const areaPath = `${linePath} L ${toX(n-1).toFixed(1)} ${pt+iH} L ${toX(0).toFixed(1)} ${pt+iH} Z`;
-  const lX = toX(n-1), lY = toY(SPARK[n-1]);
+  const toY = (v: number) => pt + (1 - v / maxVal) * iH;
+  const linePath = safePoints.map((p, i) => `${i === 0 ? "M" : "L"} ${toX(i).toFixed(1)} ${toY(p).toFixed(1)}`).join(" ");
+  const areaPath = `${linePath} L ${toX(n - 1).toFixed(1)} ${pt + iH} L ${toX(0).toFixed(1)} ${pt + iH} Z`;
+  const lX = toX(n - 1), lY = toY(safePoints[n - 1]);
+
   return (
     <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="g-chart-glow w-full">
       <defs>
@@ -39,13 +43,13 @@ function AreaChart() {
       </defs>
       <path d={areaPath} fill="url(#aFill)" />
       <path d={linePath} fill="none" className="line" stroke="url(#aLine)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      {SPARK.map((p, i) => (
-        <circle key={i} cx={toX(i)} cy={toY(p)} r={i === n-1 ? 4 : 2.3} fill="#fff" stroke="#2B7CFF" strokeWidth={i === n-1 ? 2.5 : 1.5} />
+      {safePoints.map((p, i) => (
+        <circle key={i} cx={toX(i)} cy={toY(p)} r={i === n - 1 ? 4 : 2.3} fill="#fff" stroke="#2B7CFF" strokeWidth={i === n - 1 ? 2.5 : 1.5} />
       ))}
-      <g transform={`translate(${lX}, ${lY - 24})`}>
-        <rect x="-32" y="-13" width="64" height="20" rx="10" fill="#2B7CFF" />
-        <text x="0" y="2" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff" fontFamily="var(--g-font-display)">
-          ${(SPARK[n-1] * 1000).toLocaleString()}
+      <g transform={`translate(${Math.min(Math.max(lX, 45), W - 55)}, ${Math.max(lY - 20, 16)})`}>
+        <rect x="-40" y="-12" width="80" height="20" rx="10" fill="#2B7CFF" />
+        <text x="0" y="2" textAnchor="middle" fontSize="10" fontWeight="700" fill="#fff" fontFamily="var(--g-font-display)">
+          {formatCurrency(totalMonthSales)}
         </text>
       </g>
     </svg>
@@ -62,16 +66,20 @@ function Donut({ size = 160, segments, total }: { size?: number; segments: Donut
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
       <circle cx={cx} cy={cy} r={R} stroke="rgba(43,124,255,0.08)" strokeWidth="18" fill="none" />
-      {segments.map((s, i) => {
-        const dash = (s.value / sum) * C;
-        const el = <circle key={i} cx={cx} cy={cy} r={R} stroke={s.color} strokeWidth="18" fill="none"
-          strokeDasharray={`${dash} ${C - dash}`} strokeDashoffset={-offset} strokeLinecap="butt"
-          transform={`rotate(-90 ${cx} ${cy})`} />;
-        offset += dash;
-        return el;
-      })}
+      {sum > 0 ? (
+        segments.map((s, i) => {
+          const dash = (s.value / sum) * C;
+          const el = <circle key={i} cx={cx} cy={cy} r={R} stroke={s.color} strokeWidth="18" fill="none"
+            strokeDasharray={`${dash} ${C - dash}`} strokeDashoffset={-offset} strokeLinecap="butt"
+            transform={`rotate(-90 ${cx} ${cy})`} />;
+          offset += dash;
+          return el;
+        })
+      ) : (
+        <circle cx={cx} cy={cy} r={R} stroke="rgba(43,124,255,0.12)" strokeWidth="18" fill="none" />
+      )}
       <text x={cx} y={cy - 4} textAnchor="middle" fontSize="12" fill="#7986A8" fontFamily="var(--g-font-body)">Total</text>
-      <text x={cx} y={cy + 16} textAnchor="middle" fontSize="18" fontWeight="800" fill="#0E1F3D" fontFamily="var(--g-font-display)">{total}</text>
+      <text x={cx} y={cy + 16} textAnchor="middle" fontSize="16" fontWeight="800" fill="#0E1F3D" className="dark:fill-slate-100" fontFamily="var(--g-font-display)">{total}</text>
     </svg>
   );
 }
@@ -81,10 +89,10 @@ function BarRow({ label, sub, pct, value }: { label: string; sub: string; pct: n
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex justify-between items-baseline">
-        <span className="text-[13px] font-semibold text-ink-900">{label}</span>
-        <span className="g-num-14">{value}</span>
+        <span className="text-[13px] font-semibold text-ink-900 truncate max-w-[200px]">{label}</span>
+        <span className="g-num-14 shrink-0">{value}</span>
       </div>
-      <div className="g-bar"><i ref={(el) => { if (el) el.style.width = `${pct}%`; }} /></div>
+      <div className="g-bar"><i style={{ width: `${Math.max(pct, 4)}%` }} /></div>
       <span className="h-meta">{sub}</span>
     </div>
   );
@@ -125,31 +133,189 @@ export default function Dashboard() {
     enabled: !!tenantId && !!branchId,
     refetchInterval: 30_000,
     queryFn: async () => {
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const iso = today.toISOString();
-      const [salesRes, paymentsRes, sessionRes, lowStockRes, prodRes] = await Promise.all([
-        supabase.from("sales").select("id,total").eq("branch_id", branchId!).eq("status", "completed").gte("created_at", iso),
-        supabase.from("payments").select("method, amount, sales!inner(branch_id, created_at, status)").eq("sales.branch_id", branchId!).eq("sales.status", "completed").gte("sales.created_at", iso),
+      const now = new Date();
+      const today = new Date(now); today.setHours(0, 0, 0, 0);
+      const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      const [
+        salesRes,
+        yesterdaySalesRes,
+        monthSalesRes,
+        paymentsRes,
+        sessionRes,
+        lowStockRes,
+        prodRes,
+        saleItemsRes,
+        catalogProductsRes,
+      ] = await Promise.all([
+        supabase.from("sales").select("id, total, channel").eq("branch_id", branchId!).eq("status", "completed").gte("created_at", today.toISOString()),
+        supabase.from("sales").select("id, total").eq("branch_id", branchId!).eq("status", "completed").gte("created_at", yesterday.toISOString()).lt("created_at", today.toISOString()),
+        supabase.from("sales").select("id, total, created_at, channel").eq("branch_id", branchId!).eq("status", "completed").gte("created_at", firstDayOfMonth.toISOString()),
+        supabase.from("payments").select("method, amount, sales!inner(branch_id, created_at, status)").eq("sales.branch_id", branchId!).eq("sales.status", "completed").gte("sales.created_at", today.toISOString()),
         supabase.from("cash_sessions").select("id, opening_amount, total_cash, total_in, total_out").eq("branch_id", branchId!).eq("status", "open").maybeSingle(),
         supabase.from("inventory_stocks").select("quantity, products!inner(id, name, min_stock, status, color)").eq("branch_id", branchId!).eq("products.status", "active"),
-        supabase.from("production_orders").select("id, produced_quantity").eq("branch_id", branchId!).gte("created_at", iso),
+        supabase.from("production_orders").select("id, produced_quantity").eq("branch_id", branchId!).gte("created_at", today.toISOString()),
+        supabase.from("sale_items").select("product_id, product_name, quantity, line_total, products(categories(name)), sales!inner(branch_id, status, created_at)").eq("sales.branch_id", branchId!).eq("sales.status", "completed").gte("sales.created_at", firstDayOfMonth.toISOString()),
+        supabase.from("products").select("id, name, min_stock, categories(name)").eq("tenant_id", tenantId!).eq("status", "active").limit(5),
       ]);
-      const salesCount  = salesRes.data?.length ?? 0;
-      const totalSales  = salesRes.data?.reduce((s, r) => s + Number(r.total), 0) ?? 0;
-      const avgTicket   = salesCount ? totalSales / salesCount : 0;
+
+      // Today's sales
+      const salesCount = salesRes.data?.length ?? 0;
+      const totalSales = salesRes.data?.reduce((s, r) => s + Number(r.total || 0), 0) ?? 0;
+      const avgTicket = salesCount ? totalSales / salesCount : 0;
+
+      // Yesterday comparison
+      const yesterdaySalesCount = yesterdaySalesRes.data?.length ?? 0;
+      const yesterdayTotalSales = yesterdaySalesRes.data?.reduce((s, r) => s + Number(r.total || 0), 0) ?? 0;
+
+      let salesDelta: string | undefined = undefined;
+      let salesDeltaUp = true;
+      if (yesterdayTotalSales > 0) {
+        const pct = Math.round(((totalSales - yesterdayTotalSales) / yesterdayTotalSales) * 100);
+        salesDelta = `${Math.abs(pct)}%`;
+        salesDeltaUp = pct >= 0;
+      } else if (totalSales > 0) {
+        salesDelta = "+100%";
+        salesDeltaUp = true;
+      }
+
+      let ordersDelta: string | undefined = undefined;
+      let ordersDeltaUp = true;
+      if (yesterdaySalesCount > 0) {
+        const pct = Math.round(((salesCount - yesterdaySalesCount) / yesterdaySalesCount) * 100);
+        ordersDelta = `${Math.abs(pct)}%`;
+        ordersDeltaUp = pct >= 0;
+      } else if (salesCount > 0) {
+        ordersDelta = "+100%";
+        ordersDeltaUp = true;
+      }
+
+      // Month timeline for Area chart
+      const monthSales = monthSalesRes.data ?? [];
+      const totalMonthSales = monthSales.reduce((s, r) => s + Number(r.total || 0), 0);
+      const daysSoFar = now.getDate();
+      const dailyMap: Record<number, number> = {};
+      monthSales.forEach((s) => {
+        const day = new Date(s.created_at).getDate();
+        dailyMap[day] = (dailyMap[day] ?? 0) + Number(s.total || 0);
+      });
+      const points = Array.from({ length: Math.max(daysSoFar, 7) }, (_, i) => dailyMap[i + 1] ?? 0);
+
+      // Top products (real data)
+      const saleItems = saleItemsRes.data ?? [];
+      let topProducts: Array<{ name: string; cat: string; qty: number; pct: number }> = [];
+
+      if (saleItems.length > 0) {
+        const agg: Record<string, { name: string; cat: string; qty: number }> = {};
+        saleItems.forEach((it: any) => {
+          const key = it.product_id || it.product_name;
+          if (!agg[key]) {
+            agg[key] = {
+              name: it.product_name || "Bidhaa",
+              cat: it.products?.categories?.name || t("dash.products.uncategorized"),
+              qty: 0,
+            };
+          }
+          agg[key].qty += Number(it.quantity || 0);
+        });
+        const list = Object.values(agg).sort((a, b) => b.qty - a.qty).slice(0, 5);
+        const maxQ = Math.max(...list.map(p => p.qty), 1);
+        topProducts = list.map(p => ({
+          name: p.name,
+          cat: p.cat,
+          qty: p.qty,
+          pct: Math.round((p.qty / maxQ) * 100),
+        }));
+      } else if ((catalogProductsRes.data ?? []).length > 0) {
+        topProducts = (catalogProductsRes.data ?? []).map((p: any) => ({
+          name: p.name,
+          cat: p.categories?.name || t("dash.products.uncategorized"),
+          qty: 0,
+          pct: 0,
+        }));
+      }
+
+      // Channels breakdown (real data)
+      const channelCounts: Record<string, number> = {
+        store: 0,
+        web: 0,
+        app: 0,
+        delivery: 0,
+      };
+      monthSales.forEach((s: any) => {
+        const ch = (s.channel && channelCounts[s.channel] !== undefined) ? s.channel : "store";
+        channelCounts[ch] += Number(s.total || 0);
+      });
+      const totalChannelSales = Object.values(channelCounts).reduce((a, b) => a + b, 0);
+
+      const channelSegs: DonutSeg[] = [
+        {
+          value: totalChannelSales > 0 ? Math.round((channelCounts.store / totalChannelSales) * 100) : 0,
+          color: "#1E63E6",
+          label: t("dash.channels.store"),
+          amount: formatCurrency(channelCounts.store),
+        },
+        {
+          value: totalChannelSales > 0 ? Math.round((channelCounts.web / totalChannelSales) * 100) : 0,
+          color: "#5B95FF",
+          label: t("dash.channels.web"),
+          amount: formatCurrency(channelCounts.web),
+        },
+        {
+          value: totalChannelSales > 0 ? Math.round((channelCounts.app / totalChannelSales) * 100) : 0,
+          color: "#9CC0FF",
+          label: t("dash.channels.app"),
+          amount: formatCurrency(channelCounts.app),
+        },
+        {
+          value: totalChannelSales > 0 ? Math.round((channelCounts.delivery / totalChannelSales) * 100) : 0,
+          color: "#FFB54A",
+          label: t("dash.channels.delivery"),
+          amount: formatCurrency(channelCounts.delivery),
+        },
+      ];
+
+      // Payment methods mix
       const byMethod: Record<string, number> = {};
       paymentsRes.data?.forEach((p: any) => { byMethod[p.method] = (byMethod[p.method] ?? 0) + Number(p.amount); });
       const methodTotal = Object.values(byMethod).reduce((a, b) => a + b, 0);
-      const methodsMix  = Object.entries(byMethod).sort((a, b) => b[1] - a[1]).map(([method, amount]) => ({ method, amount, pct: methodTotal ? Math.round((amount / methodTotal) * 100) : 0 }));
-      const stockItems  = lowStockRes.data ?? [];
-      const lowStock    = stockItems.filter((r: any) => Number(r.quantity) <= Number(r.products.min_stock || 0));
-      const totalSKUs   = stockItems.length;
+      const methodsMix = Object.entries(byMethod).sort((a, b) => b[1] - a[1]).map(([method, amount]) => ({ method, amount, pct: methodTotal ? Math.round((amount / methodTotal) * 100) : 0 }));
+
+      // Stock
+      const stockItems = lowStockRes.data ?? [];
+      const lowStock = stockItems.filter((r: any) => Number(r.quantity) <= Number(r.products.min_stock || 0));
+      const totalSKUs = stockItems.length;
       const stockHealth = totalSKUs ? Math.round(((totalSKUs - lowStock.length) / totalSKUs) * 100) : 100;
+
+      // Cash & Production
       const expectedCash = sessionRes.data
         ? Number(sessionRes.data.opening_amount) + Number(sessionRes.data.total_cash) + Number(sessionRes.data.total_in) - Number(sessionRes.data.total_out)
         : 0;
       const productionToday = prodRes.data?.reduce((s, r) => s + Number(r.produced_quantity ?? 0), 0) ?? 0;
-      return { salesCount, totalSales, avgTicket, methodsMix, lowStock, lowStockCount: lowStock.length, totalSKUs, stockHealth, expectedCash, cashOpen: !!sessionRes.data, productionToday };
+
+      return {
+        salesCount,
+        totalSales,
+        totalMonthSales,
+        salesDelta,
+        salesDeltaUp,
+        ordersDelta,
+        ordersDeltaUp,
+        avgTicket,
+        methodsMix,
+        lowStock,
+        lowStockCount: lowStock.length,
+        totalSKUs,
+        stockHealth,
+        expectedCash,
+        cashOpen: !!sessionRes.data,
+        productionToday,
+        points,
+        topProducts,
+        channelSegs,
+        totalChannelSales,
+      };
     },
   });
 
@@ -166,19 +332,12 @@ export default function Dashboard() {
     },
   });
 
-  const totalSales = metrics?.totalSales ?? 0;
-  const CHANNEL_SEGS: DonutSeg[] = [
-    { value: 52, color: "#1E63E6", label: t("dash.channels.store"), amount: formatCurrency(totalSales * 0.52) },
-    { value: 24, color: "#5B95FF", label: t("dash.channels.web"),   amount: formatCurrency(totalSales * 0.24) },
-    { value: 16, color: "#9CC0FF", label: t("dash.channels.app"),   amount: formatCurrency(totalSales * 0.16) },
-    { value:  8, color: "#FFB54A", label: t("dash.channels.delivery"), amount: formatCurrency(totalSales * 0.08) },
-  ];
-  const TOP_PRODUCTS = [
-    { name: "Capuchino Clásico",     cat: "Bebidas",   qty: 1245, pct: 96 },
-    { name: "Croissant Mantequilla", cat: "Panadería", qty: 978,  pct: 78 },
-    { name: "Latte Vainilla",        cat: "Bebidas",   qty: 854,  pct: 68 },
-    { name: "Cheesecake de Fresa",   cat: "Postres",   qty: 642,  pct: 51 },
-    { name: "Pan de Masa Madre",     cat: "Panadería", qty: 523,  pct: 41 },
+  const topProducts = metrics?.topProducts ?? [];
+  const channelSegs = metrics?.channelSegs ?? [
+    { value: 0, color: "#1E63E6", label: t("dash.channels.store"), amount: formatCurrency(0) },
+    { value: 0, color: "#5B95FF", label: t("dash.channels.web"), amount: formatCurrency(0) },
+    { value: 0, color: "#9CC0FF", label: t("dash.channels.app"), amount: formatCurrency(0) },
+    { value: 0, color: "#FFB54A", label: t("dash.channels.delivery"), amount: formatCurrency(0) },
   ];
 
   return (
@@ -186,12 +345,46 @@ export default function Dashboard() {
 
       {/* KPI row */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
-        <KPICard label={t("dash.kpi.sales")}      value={formatCurrency(metrics?.totalSales ?? 0)} delta="18.5%" sub={t("dash.kpi.vs_yesterday")} icon={<TrendingUp size={16} />} />
-        <KPICard label={t("dash.kpi.orders")}     value={String(metrics?.salesCount ?? 0)}          delta="12%"   sub={t("dash.kpi.vs_yesterday")} icon={<ShoppingCart size={16} />} />
-        <KPICard label={t("dash.kpi.cash")}       value={formatCurrency(metrics?.expectedCash ?? 0)} sub={metrics?.cashOpen ? t("dash.kpi.cash_open") : t("dash.kpi.no_session")} icon={<Wallet size={16} />} />
-        <KPICard label={t("dash.kpi.stock")}      value={`${metrics?.stockHealth ?? 100}%`}          sub={t("dash.kpi.inventory")}     icon={<Package size={16} />} />
-        <KPICard label={t("dash.kpi.production")} value={String(metrics?.productionToday ?? 0)}      sub={t("dash.kpi.units_today")}   icon={<Factory size={16} />} />
-        <KPICard label={t("dash.kpi.channels")}   value="4 / 5"                                       sub={t("dash.kpi.online")}         icon={<Globe size={16} />} />
+        <KPICard
+          label={t("dash.kpi.sales")}
+          value={formatCurrency(metrics?.totalSales ?? 0)}
+          delta={metrics?.salesDelta}
+          deltaUp={metrics?.salesDeltaUp}
+          sub={t("dash.kpi.vs_yesterday")}
+          icon={<TrendingUp size={16} />}
+        />
+        <KPICard
+          label={t("dash.kpi.orders")}
+          value={String(metrics?.salesCount ?? 0)}
+          delta={metrics?.ordersDelta}
+          deltaUp={metrics?.ordersDeltaUp}
+          sub={t("dash.kpi.vs_yesterday")}
+          icon={<ShoppingCart size={16} />}
+        />
+        <KPICard
+          label={t("dash.kpi.cash")}
+          value={formatCurrency(metrics?.expectedCash ?? 0)}
+          sub={metrics?.cashOpen ? t("dash.kpi.cash_open") : t("dash.kpi.no_session")}
+          icon={<Wallet size={16} />}
+        />
+        <KPICard
+          label={t("dash.kpi.stock")}
+          value={`${metrics?.stockHealth ?? 100}%`}
+          sub={t("dash.kpi.inventory")}
+          icon={<Package size={16} />}
+        />
+        <KPICard
+          label={t("dash.kpi.production")}
+          value={String(metrics?.productionToday ?? 0)}
+          sub={t("dash.kpi.units_today")}
+          icon={<Factory size={16} />}
+        />
+        <KPICard
+          label={t("dash.kpi.channels")}
+          value={`${branches.length} / ${branches.length}`}
+          sub={t("dash.branches.online")}
+          icon={<Globe size={16} />}
+        />
       </div>
 
       {/* Middle row */}
@@ -207,7 +400,7 @@ export default function Dashboard() {
             <span className="g-pill g-pill-ghost g-pill-h28">{t("dash.chart.this_month")} <TrendingUp size={12} /></span>
           </div>
           <div className="flex-1 flex items-center justify-center min-w-0 overflow-hidden">
-            <AreaChart />
+            <AreaChart points={metrics?.points ?? [0, 0]} totalMonthSales={metrics?.totalMonthSales ?? 0} />
           </div>
           <div className="flex items-end justify-between gap-2.5">
             <div>
@@ -215,10 +408,14 @@ export default function Dashboard() {
               <div className="h-meta">{t("dash.chart.total_day")}</div>
             </div>
             <div className="text-right">
-              <span className="inline-flex items-center gap-1 font-bold text-[14px] text-g-ok">
-                <ArrowUpRight size={12} /> 18.5%
-              </span>
-              <div className="h-meta">{t("dash.chart.vs_prev")}</div>
+              {metrics?.salesDelta ? (
+                <span className={cn("inline-flex items-center gap-1 font-bold text-[14px]", metrics.salesDeltaUp ? "text-g-ok" : "text-g-bad")}>
+                  {metrics.salesDeltaUp ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />} {metrics.salesDelta}
+                </span>
+              ) : (
+                <span className="font-semibold text-[13px] text-ink-500">—</span>
+              )}
+              <div className="h-meta">{t("dash.kpi.vs_yesterday")}</div>
             </div>
           </div>
         </div>
@@ -230,9 +427,16 @@ export default function Dashboard() {
             <span className="g-pill g-pill-ghost g-pill-h28">{t("dash.chart.this_month")}</span>
           </div>
           <div className="flex flex-col gap-3 flex-1">
-            {TOP_PRODUCTS.map((r, i) => (
-              <BarRow key={i} label={r.name} sub={r.cat} pct={r.pct} value={r.qty.toLocaleString()} />
-            ))}
+            {topProducts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 gap-2">
+                <Package size={28} className="text-ink-300" />
+                <span className="h-meta text-center">{t("catalog.empty.products_title")}</span>
+              </div>
+            ) : (
+              topProducts.map((r, i) => (
+                <BarRow key={i} label={r.name} sub={r.cat} pct={r.pct} value={r.qty.toLocaleString()} />
+              ))
+            )}
           </div>
           <Link to="/products" className="g-link justify-between">
             {t("dash.products.link")} <ArrowUpRight size={12} />
@@ -246,12 +450,12 @@ export default function Dashboard() {
             <span className="g-pill g-pill-ghost g-pill-h28">{t("dash.chart.this_month")}</span>
           </div>
           <div className="flex items-center gap-4 flex-1">
-            <Donut size={160} segments={CHANNEL_SEGS} total={formatCurrency(totalSales)} />
+            <Donut size={160} segments={channelSegs} total={formatCurrency(metrics?.totalMonthSales ?? 0)} />
             <div className="flex flex-col gap-2.5 flex-1 min-w-0">
-              {CHANNEL_SEGS.map((s, i) => (
+              {channelSegs.map((s, i) => (
                 <div key={i} className="flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="g-dot-color" ref={(el) => { if (el) el.style.background = s.color; }} />
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="g-dot-color shrink-0" style={{ background: s.color }} />
                     <span className="text-[13px] font-semibold text-ink-900 truncate">{s.label}</span>
                   </div>
                   <div className="text-right shrink-0">

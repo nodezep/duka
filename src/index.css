@@ -1663,12 +1663,19 @@
   --g-border-soft: rgba(43, 124, 255, 0.25);
   --g-hairline: rgba(255, 255, 255, 0.06);
 
-  --ink-900: #F1F5F9;
-  --ink-700: #CBD5E1;
-  --ink-500: #94A3B8;
-  --ink-400: #64748B;
-  --ink-300: #475569;
-  --ink-200: #334155;
+  --brand-500: #3B82F6;
+  --brand-600: #60A5FA;
+  --brand-700: #93C5FD;
+  --brand-300: #2563EB;
+  --brand-100: rgba(59, 130, 246, 0.25);
+  --brand-50:  rgba(59, 130, 246, 0.15);
+
+  --ink-900: #F8FAFC;
+  --ink-700: #E2E8F0;
+  --ink-500: #CBD5E1;
+  --ink-400: #94A3B8;
+  --ink-300: #64748B;
+  --ink-200: #475569;
 
   --g-ok:     #22C55E;
   --g-ok-bg:  rgba(34, 197, 94, 0.15);
@@ -1746,10 +1753,12 @@
 }
 
 /* ── Pill/badge background fixes ── */
-.dark .g-pill-ok   { background: var(--g-ok-bg);   color: #4ADE80; }
-.dark .g-pill-warn { background: var(--g-warn-bg);  color: #FCD34D; }
-.dark .g-pill-bad  { background: var(--g-bad-bg);   color: #FCA5A5; }
-.dark .g-pill-sky  { background: rgba(14,165,233,0.15); color: #38BDF8; }
+.dark .g-pill-brand { background: rgba(59, 130, 246, 0.20); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.35); }
+.dark .g-pill-ghost { background: rgba(255, 255, 255, 0.08); color: #CBD5E1; border: 1px solid rgba(255, 255, 255, 0.14); }
+.dark .g-pill-ok   { background: var(--g-ok-bg);   color: #4ADE80; border: 1px solid rgba(74, 222, 128, 0.25); }
+.dark .g-pill-warn { background: var(--g-warn-bg);  color: #FCD34D; border: 1px solid rgba(252, 211, 77, 0.25); }
+.dark .g-pill-bad  { background: var(--g-bad-bg);   color: #FCA5A5; border: 1px solid rgba(248, 113, 113, 0.25); }
+.dark .g-pill-sky  { background: rgba(14,165,233,0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.25); }
 
 /* ── KDS card borders in dark ── */
 .dark .g-kds-card-normal  { border: 1px solid rgba(255,255,255,0.10) !important; }

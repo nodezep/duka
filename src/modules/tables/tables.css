@@ -272,3 +272,42 @@
   aspect-ratio: 9/16;
 }
 
+/* ── Dark Mode Overrides ── */
+.dark .tbl-tile-badge {
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--ink-700);
+}
+.dark .tbl-panel-state-pill {
+  background: rgba(255, 255, 255, 0.08);
+}
+.dark .tbl-toggle-btn-active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #93C5FD;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.dark .tbl-theme-null {
+  --t-bg: rgba(255, 255, 255, 0.05);
+  --t-border: rgba(255, 255, 255, 0.12);
+  --t-color: var(--ink-400);
+}
+.dark .tbl-theme-in-cashier {
+  --t-bg: linear-gradient(180deg, rgba(245, 158, 11, 0.22), rgba(245, 158, 11, 0.08));
+  --t-border: rgba(245, 158, 11, 0.40);
+  --t-color: #FCD34D;
+}
+.dark .tbl-theme-ready {
+  --t-bg: linear-gradient(180deg, rgba(34, 197, 94, 0.22), rgba(34, 197, 94, 0.08));
+  --t-border: rgba(34, 197, 94, 0.40);
+  --t-color: #4ADE80;
+}
+.dark .tbl-theme-closed {
+  --t-bg: linear-gradient(180deg, rgba(148, 163, 184, 0.20), rgba(148, 163, 184, 0.06));
+  --t-border: rgba(148, 163, 184, 0.30);
+  --t-color: #94A3B8;
+}
+.dark .tbl-theme-default {
+  --t-bg: linear-gradient(180deg, rgba(59, 130, 246, 0.22), rgba(59, 130, 246, 0.08));
+  --t-border: rgba(59, 130, 246, 0.40);
+  --t-color: #93C5FD;
+}
+

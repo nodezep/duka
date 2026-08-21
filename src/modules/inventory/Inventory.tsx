@@ -180,12 +180,12 @@ export default function Inventory() {
       {/* ── Page header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="h-label mb-1 inv-eyebrow">{t("inv.meta")}</div>
+          <div className="h-label mb-1 inv-eyebrow">{t("inv.eyebrow")}</div>
           <h1 className="h-display inv-page-title">{t("inv.title")}</h1>
           <div className="h-meta mt-1">
             {activeStocks.length} {t("inv.active_products")}
-            {lowStock.length > 0 && <> · <span className="inv-warn-text">{lowStock.length} {t("inv.low_stock")}</span></>}
-            {outOfStock.length > 0 && <> · <span className="inv-bad-text">{outOfStock.length} {t("inv.out_of_stock")}</span></>}
+            {lowStock.length > 0 && <> · <span className="inv-warn-text">{lowStock.length} {t("inv.kpi.low_stock")}</span></>}
+            {outOfStock.length > 0 && <> · <span className="inv-bad-text">{outOfStock.length} {t("inv.kpi.out_stock")}</span></>}
           </div>
         </div>
 
@@ -213,7 +213,7 @@ export default function Inventory() {
           {/* OCR Invoice */}
           <Dialog open={openOCR} onOpenChange={setOpenOCR}>
             <button type="button" className="g-btn g-btn-ghost" onClick={() => setOpenOCR(true)}>
-              <FileText size={15} /> {t("inv.btn.invoice")}
+              <FileText size={15} /> {t("inv.btn.ocr")}
             </button>
             <InvoiceOCRDialog
               tenantId={tenantId!} branchId={branchId!} userId={user!.id}
@@ -269,11 +269,11 @@ export default function Inventory() {
         {/* Total SKUs */}
         <div className="glass g-kpi">
           <div className="flex items-center justify-between">
-            <span className="h-label">{t("inv.kpi.total_sku")}</span>
+            <span className="h-label">{t("inv.kpi.total_skus")}</span>
             <div className="orb g-orb-38 orb-sq"><Package size={16} /></div>
           </div>
           <div className="g-num-28">{activeStocks.length}</div>
-          <span className="h-meta">{t("inv.kpi.active_products")}</span>
+          <span className="h-meta">{t("inv.active_products")}</span>
         </div>
 
         {/* Bajo stock */}
@@ -287,13 +287,13 @@ export default function Inventory() {
           <div className={"g-num-28 " + (lowStock.length > 0 ? "inv-warn-text" : "inv-ink-900")}>
             {lowStock.length}
           </div>
-          <span className="h-meta">{t("inv.kpi.need_restock")}</span>
+          <span className="h-meta">{t("inv.kpi.low_stock_desc")}</span>
         </div>
 
         {/* Sin stock */}
         <div className="glass g-kpi">
           <div className="flex items-center justify-between">
-            <span className="h-label">{t("inv.kpi.no_stock")}</span>
+            <span className="h-label">{t("inv.kpi.out_stock")}</span>
             <div className="orb g-orb-38 orb-sq inv-orb-bad">
               <Package size={15} />
             </div>
@@ -301,7 +301,7 @@ export default function Inventory() {
           <div className={"g-num-28 " + (outOfStock.length > 0 ? "inv-bad-text" : "inv-ink-900")}>
             {outOfStock.length}
           </div>
-          <span className="h-meta">{t("inv.kpi.depleted")}</span>
+          <span className="h-meta">{t("inv.kpi.out_stock_desc")}</span>
         </div>
 
         {/* Valor inventario */}
@@ -311,22 +311,22 @@ export default function Inventory() {
             <div className="orb g-orb-38 orb-sq"><TrendingUp size={15} /></div>
           </div>
           <div className="g-num-28">{totalValue.toLocaleString("es-CO", { maximumFractionDigits: 0 })}</div>
-          <span className="h-meta">{t("inv.kpi.all_centers")}</span>
+          <span className="h-meta">{t("inv.kpi.total_units_desc")}</span>
         </div>
 
         {/* Transfer card — wide */}
         <div className="glass g-kpi inv-card-transfer">
           <div className="flex items-center justify-between">
-            <span className="h-label">{t("inv.quick_transfer")}</span>
+            <span className="h-label">{t("inv.kpi.transfer")}</span>
             <div className="orb g-orb-38 orb-sq"><ArrowRightLeft size={15} /></div>
           </div>
-          <div className="g-num-20 text-ink-700">{t("inv.move_stock")}</div>
+          <div className="g-num-20 text-ink-700">{t("inv.kpi.transfer_desc")}</div>
           <div className="flex gap-2 mt-1">
             <button type="button" className="g-btn g-btn-primary inv-btn-sm" onClick={() => setOpenTransfer(true)}>
-              <ArrowRightLeft size={13} /> {t("inv.btn.transfer_now")}
+              <ArrowRightLeft size={13} /> {t("inv.kpi.transfer_now")}
             </button>
             <button type="button" className="g-btn g-btn-ghost inv-btn-sm" onClick={() => setActiveTab("centers")}>
-              <Settings2 size={13} /> {t("inv.btn.see_centers")}
+              <Settings2 size={13} /> {t("inv.kpi.view_centers")}
             </button>
           </div>
         </div>
@@ -336,7 +336,7 @@ export default function Inventory() {
       {lowStock.length > 0 && (
         <div className="glass-thin flex items-center gap-3 px-4 py-3 inv-alert-banner">
           <AlertTriangle size={15} className="inv-warn-text flex-shrink-0" />
-          <span className="h-label inv-warn-text">Stock bajo ({lowStock.length}):</span>
+          <span className="h-label inv-warn-text">{t("inv.alert.low_stock")} ({lowStock.length}):</span>
           <span className="h-meta truncate">
             {lowStock.slice(0, 8).map((s: any) => s.products?.name).join(", ")}
             {lowStock.length > 8 && " …"}
@@ -362,13 +362,13 @@ export default function Inventory() {
 
         {/* Center filter */}
         <div className="flex items-center gap-2">
-          <span className="h-label hidden md:block">{t("inv.center")}:</span>
+          <span className="h-label hidden md:block">{t("inv.filter.center")}</span>
           <Select value={selectedCenterId} onValueChange={setSelectedCenterId}>
-            <SelectTrigger className="h-8 text-xs bg-white/60 border-white/70 inv-select-trigger">
-              <SelectValue placeholder={t("inv.all_centers")} />
+            <SelectTrigger className="h-8 text-xs inv-select-trigger">
+              <SelectValue placeholder={t("inv.filter.all_centers")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t("inv.all_centers")}</SelectItem>
+              <SelectItem value="all">{t("inv.filter.all_centers")}</SelectItem>
               {centers.map((c) => (
                 <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
               ))}
@@ -388,7 +388,7 @@ export default function Inventory() {
               <Search size={14} className="inv-ink-400 flex-shrink-0" />
               <input
                 className="bg-transparent border-none outline-none text-sm flex-1 inv-search-input"
-              placeholder={t("inv.search_placeholder")}
+                placeholder={t("inv.search.placeholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -397,7 +397,7 @@ export default function Inventory() {
             {/* Filter pills */}
             <div className="flex items-center gap-1.5">
               {[
-                { id: "all",  label: t("common.all"), count: activeStocks.length },
+                { id: "all",  label: t("inv.filter.all"), count: activeStocks.length },
                 { id: "low",  label: t("inv.filter.low"), count: lowStock.length },
                 { id: "out",  label: t("inv.filter.out"), count: outOfStock.length },
               ].map((f) => (
@@ -428,13 +428,13 @@ export default function Inventory() {
           <div className="glass overflow-hidden">
             {/* Table header */}
             <div className="grid items-center px-5 py-3 inv-table-grid inv-table-header">
-              <span className="h-label">{t("inv.col.product")}</span>
-              <span className="h-label">SKU</span>
-              <span className="h-label">{t("inv.col.stock")}</span>
-              <span className="h-label">{t("inv.col.location")}</span>
-              <span className="h-label">{t("inv.col.movement")}</span>
-              <span className="h-label">{t("inv.col.unit")}</span>
-              <span className="h-label">{t("common.status")}</span>
+              <span className="h-label">{t("inv.table.product")}</span>
+              <span className="h-label">{t("inv.table.sku")}</span>
+              <span className="h-label">{t("inv.table.current_stock")}</span>
+              <span className="h-label">{t("inv.table.location")}</span>
+              <span className="h-label">{t("inv.table.movement")}</span>
+              <span className="h-label">{t("inv.table.unit")}</span>
+              <span className="h-label">{t("inv.table.status")}</span>
             </div>
 
             {/* Table rows */}
@@ -465,7 +465,7 @@ export default function Inventory() {
                           {s.products?.name}
                         </div>
                         <div className="h-meta truncate">
-                        {s.products?.sku ?? t("inv.no_sku")}
+                          {s.products?.sku ?? t("inv.table.no_sku")}
                         </div>
                       </div>
                     </div>
@@ -492,7 +492,7 @@ export default function Inventory() {
                     <div>
                       <span className="g-pill g-pill-ghost inv-text-11">
                         <Warehouse size={10} />
-                        {s.inventory_centers?.name || t("inv.main_center")}
+                        {s.inventory_centers?.name || t("inv.table.main_center")}
                       </span>
                     </div>
 
@@ -507,11 +507,11 @@ export default function Inventory() {
                     {/* Status badge */}
                     <div>
                       {isOut ? (
-                        <span className="g-pill g-pill-bad inv-text-10">{t("inv.filter.out")}</span>
+                        <span className="g-pill g-pill-bad inv-text-10">{t("inv.table.status_out")}</span>
                       ) : isLow ? (
-                        <span className="g-pill g-pill-warn inv-text-10">{t("inv.status.low")}</span>
+                        <span className="g-pill g-pill-warn inv-text-10">{t("inv.table.status_low")}</span>
                       ) : (
-                        <span className="g-pill g-pill-ok inv-text-10">OK</span>
+                        <span className="g-pill g-pill-ok inv-text-10">{t("inv.table.status_ok")}</span>
                       )}
                     </div>
                   </div>
@@ -522,8 +522,8 @@ export default function Inventory() {
             {/* Table footer */}
             {filteredStocks.length > 0 && (
               <div className="px-5 py-3 flex items-center justify-between inv-table-footer">
-                <span className="h-meta">{filteredStocks.length} {t("inv.footer.products_shown")}</span>
-                <span className="h-meta">{filteredStocks.reduce((a: number, s: any) => a + Number(s.quantity), 0).toLocaleString(undefined, { maximumFractionDigits: 0 })} {t("inv.footer.total_units")}</span>
+                <span className="h-meta">{filteredStocks.length} {t("inv.footer.shown")}</span>
+                <span className="h-meta">{filteredStocks.reduce((a: number, s: any) => a + Number(s.quantity), 0).toLocaleString(undefined, { maximumFractionDigits: 0 })} {t("inv.footer.total")}</span>
               </div>
             )}
           </div>
@@ -540,19 +540,19 @@ export default function Inventory() {
         <div className="glass overflow-hidden">
           {/* Header */}
           <div className="grid items-center px-5 py-3 inv-history-grid inv-table-header">
-            <span className="h-label">{t("common.date")}</span>
-            <span className="h-label">{t("inv.col.product")}</span>
-            <span className="h-label">{t("inv.center")}</span>
-            <span className="h-label">{t("inv.col.type")}</span>
-            <span className="h-label">{t("inv.col.qty")}</span>
-            <span className="h-label">{t("inv.col.reason")}</span>
-            <span className="h-label">{t("inv.col.origin")}</span>
+            <span className="h-label">{t("inv.history.date")}</span>
+            <span className="h-label">{t("inv.history.product")}</span>
+            <span className="h-label">{t("inv.history.center")}</span>
+            <span className="h-label">{t("inv.history.type")}</span>
+            <span className="h-label">{t("inv.history.qty")}</span>
+            <span className="h-label">{t("inv.history.reason")}</span>
+            <span className="h-label">{t("inv.history.origin")}</span>
           </div>
 
           {(!movements || movements.length === 0) ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <div className="orb g-orb-52"><History size={22} /></div>
-              <span className="h-meta">{t("inv.empty.history")}</span>
+              <span className="h-meta">{t("inv.history.empty")}</span>
             </div>
           ) : (
             (movements ?? []).map((m: any) => (
@@ -570,7 +570,7 @@ export default function Inventory() {
                   {m.inventory_centers?.name || "—"}
                 </span>
                 <span className="g-pill g-pill-brand inv-text-10 inv-capitalize">
-                  {m.movement_type}
+                  {t(`inv.type.${m.movement_type}` as any) || m.movement_type}
                 </span>
                 <span className="g-num-14">{Number(m.quantity).toFixed(2)}</span>
                 <span className="h-meta truncate">{m.reason ?? "—"}</span>
