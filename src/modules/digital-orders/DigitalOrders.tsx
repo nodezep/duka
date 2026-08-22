@@ -17,6 +17,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { resolvePrice, type SalesChannel } from "@/lib/channels";
 import { useLanguage } from "@/hooks/useLanguage";
+import { formatErrorMessage } from "@/lib/formatError";
 
 type LineDraft = {
   product_id: string;
@@ -223,7 +224,7 @@ function ComandaModal({ order, onClose, onConfirm, onRappiAction }: {
 
 export default function DigitalOrders() {
   const { tenantId, branchId, branches } = useTenantContext();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const qc = useQueryClient();
 
   const [open, setOpen] = useState(false);
@@ -247,7 +248,7 @@ export default function DigitalOrders() {
         .order("created_at", { ascending: false })
         .limit(200);
       if (error) throw error;
-      return (data ?? []) as DigitalOrder[];
+      return (data ?? []) as unknown as DigitalOrder[];
     },
   });
 
@@ -271,10 +272,10 @@ export default function DigitalOrders() {
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
-      toast.success(`Acción "${action}" enviada a Rappi`);
+      toast.success(t("digital_orders.success.action_sent") || `Action "${action}" sent to platform`);
       qc.invalidateQueries({ queryKey: ["digital-orders"] });
     } catch (e: any) {
-      toast.error(e.message ?? "No se pudo enviar la acción");
+      toast.error(formatErrorMessage(e, { language }));
     }
   };
 
@@ -282,13 +283,13 @@ export default function DigitalOrders() {
     try {
       const { error } = await supabase.rpc("confirm_digital_order" as any, { _order_id: orderId });
       if (error) throw error;
-      toast.success("Pedido confirmado como venta");
+      toast.success(t("digital_orders.success.confirmed") || "Order confirmed as sale");
       qc.invalidateQueries({ queryKey: ["digital-orders"] });
       qc.invalidateQueries({ queryKey: ["sales"] });
       qc.invalidateQueries({ queryKey: ["pos-stocks"] });
       qc.invalidateQueries({ queryKey: ["dashboard-metrics"] });
     } catch (e: any) {
-      toast.error(e.message ?? "No se pudo confirmar el pedido");
+      toast.error(formatErrorMessage(e, { language }));
     }
   };
 
@@ -376,7 +377,7 @@ export default function DigitalOrders() {
 
   const submit = async () => {
     if (!tenantId || !branchId) return;
-    if (lines.length === 0) return toast.error("Agrega productos");
+    if (lines.length === 0) return toast.error(t("delivery.error.products") || "Please add products");
     setSubmitting(true);
     try {
       const itemsPayload = lines.map((l) => ({
@@ -396,13 +397,13 @@ export default function DigitalOrders() {
         _notes: notes || null,
       });
       if (error) throw error;
-      toast.success("Pedido digital registrado");
+      toast.success(t("digital_orders.success.registered") || "Digital order registered");
       qc.invalidateQueries({ queryKey: ["digital-orders"] });
       qc.invalidateQueries({ queryKey: ["dashboard-metrics"] });
       setOpen(false);
       resetForm();
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(formatErrorMessage(e, { language }));
     } finally {
       setSubmitting(false);
     }

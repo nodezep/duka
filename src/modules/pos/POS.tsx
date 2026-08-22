@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenantContext } from "@/hooks/useTenantContext";
 import { useOpenSession } from "@/hooks/useOpenSession";
+import { useDevMode } from "@/hooks/useDevMode";
 import { useCart } from "@/stores/cart";
 import { useHardware } from "@/hooks/useHardware";
 import { Button } from "@/components/ui/button";
@@ -28,12 +29,12 @@ import { BrandBar } from "@/components/shared/BrandBar";
 import { TickRail } from "@/components/shared/TickRail";
 import { LiveDot } from "@/components/shared/LiveDot";
 import { LanguageSelector } from "@/components/shared/LanguageSelector";
-import { useDevMode } from "@/hooks/useDevMode";
+import { formatErrorMessage } from "@/lib/formatError";
 
 export default function POS() {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { tenantId, branchId, branches, activeChannels } = useTenantContext();
   const { devMode } = useDevMode();
   const { lines, total, clear, add } = useCart();
@@ -438,7 +439,11 @@ export default function POS() {
       qc.invalidateQueries({ queryKey: ["sales"] });
       qc.invalidateQueries({ queryKey: ["dashboard-metrics"] });
     } catch (err: any) {
-      toast.error(err.message ?? t("pos.toast.sale_failed"));
+      const msg = formatErrorMessage(err, {
+        language,
+        products: lines.map((l) => l.product),
+      });
+      toast.error(msg, { duration: 6000 });
     } finally { setSubmitting(false); }
   };
 
@@ -494,7 +499,7 @@ export default function POS() {
       qc.invalidateQueries({ queryKey: ["tables"] });
       qc.invalidateQueries({ queryKey: ["pending-table-orders"] });
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(formatErrorMessage(e, { language }));
     } finally {
       setSubmitting(false);
     }
@@ -523,8 +528,8 @@ export default function POS() {
         <div className="flex-1">
           <BrandBar
             branch={branchName}
-            session={`Caja · ${branchName}`}
-            channel={CHANNELS.find((c) => c.id === channel)?.label ?? t("pos.local")}
+            session={`${t("pos.session_drawer") || "Register"} · ${branchName}`}
+            channel={t(CHANNELS.find((c) => c.id === channel)?.labelKey || "") || CHANNELS.find((c) => c.id === channel)?.label || t("pos.local")}
             showSync={!!openSession}
           />
         </div>
@@ -550,7 +555,7 @@ export default function POS() {
             onClick={() => setChannel(c.id)}
             className={cn("chan-chip", channel === c.id && "is-active")}
           >
-            {c.label}
+            {t(c.labelKey) || c.label}
           </button>
         ))}
 

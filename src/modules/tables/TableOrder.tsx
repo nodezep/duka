@@ -20,15 +20,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { resolvePrice } from "@/lib/channels";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TableOrderMobile } from "./TableOrderMobile";
-import { ITEM_STATUS_META, deriveOrderState, ORDER_STATE_META, countByStatus, type TableItemStatus } from "./itemStatus";
+import { getItemStatusMeta, deriveOrderState, getOrderStateMeta, countByStatus, type TableItemStatus } from "./itemStatus";
 import { db } from "@/lib/db";
+import { formatErrorMessage } from "@/lib/formatError";
 
 export default function TableOrder() {
   const { id: orderId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { tenantId, branchId } = useTenantContext();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { devMode } = useDevMode();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -216,14 +217,14 @@ export default function TableOrder() {
 
   const dispatchItem = async (item: any) => {
     const { error } = await supabase.rpc("dispatch_table_item", { _item_id: item.id });
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(formatErrorMessage(error, { language }));
     await refetchItems();
   };
 
   const undispatchItem = async (item: any) => {
     const { error } = await supabase.rpc("undispatch_table_item", { _item_id: item.id });
-    if (error) return toast.error(error.message);
-    toast.success("Revertido a pendiente");
+    if (error) return toast.error(formatErrorMessage(error, { language }));
+    toast.success(t("table_order.toast.reverted_pending") || "Reverted to pending");
     await refetchItems();
   };
 
@@ -247,9 +248,9 @@ export default function TableOrder() {
     if (!orderId) return;
     try {
       const data = await sendKitchenMutation.mutateAsync({ _order_id: orderId });
-      toast.success(`${data ?? 0} item(s) enviados a cocina`);
+      toast.success(`${data ?? 0} ${t("table_order.toast.sent_kitchen") || "item(s) sent to kitchen"}`);
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(formatErrorMessage(err, { language }));
     }
     await refetchItems();
     qc.invalidateQueries({ queryKey: ["table-order", orderId] });
@@ -271,9 +272,9 @@ export default function TableOrder() {
     if (!orderId) return;
     try {
       const data = await markReadyMutation.mutateAsync({ _order_id: orderId });
-      toast.success(`${data ?? 0} item(s) listos`);
+      toast.success(`${data ?? 0} ${t("table_order.toast.items_ready") || "item(s) ready"}`);
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(formatErrorMessage(err, { language }));
     }
     await refetchItems();
   };
@@ -289,18 +290,18 @@ export default function TableOrder() {
   const sendToCashier = async () => {
     if (!orderId) return;
     const activeItems = (items ?? []).filter((i: any) => i.status !== "cancelled");
-    if (activeItems.length === 0) return toast.error("Agrega al menos un producto");
+    if (activeItems.length === 0) return toast.error(t("table_order.toast.add_products") || "Please add at least one product");
     const ready = activeItems.some((i: any) => i.status === "ready" || i.status === "dispatched");
     if (!ready) {
-      const ok = confirm("Aún no marcas items como listos o servidos. ¿Enviar igualmente a caja?");
+      const ok = confirm(t("table_order.confirm_send_cashier") || "Items are not marked as ready or served yet. Send to cashier anyway?");
       if (!ok) return;
     }
 
     try {
       await sendCashierMutation.mutateAsync({ _order_id: orderId });
-      toast.success("Enviado a caja · El cajero podrá cobrar desde su pantalla");
+      toast.success(t("table_order.toast.sent_cashier") || "Sent to cashier · Cashier can now charge from the POS");
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(formatErrorMessage(err, { language }));
     }
 
     qc.invalidateQueries({ queryKey: ["table-order", orderId] });
@@ -341,7 +342,7 @@ export default function TableOrder() {
       qc.invalidateQueries({ queryKey: ["tables"] });
       navigate("/tables");
     } catch (err: any) {
-      toast.error(err.message ?? "Error");
+      toast.error(formatErrorMessage(err, { language }));
     } finally { setSubmitting(false); }
   };
 
@@ -550,9 +551,15 @@ export default function TableOrder() {
                 <div className="h-label uppercase tracking-wider">{t("table_order.order") || "Order"}</div>
                 <div className="text-sm text-[var(--ink-700)]">
                   {(items ?? []).length} items ·{" "}
-                  <span className={cn("inline-block px-1.5 py-0.5 rounded text-[10px] font-bold", ORDER_STATE_META[deriveOrderState(order.status, items ?? [])].tone)}>
-                    {ORDER_STATE_META[deriveOrderState(order.status, items ?? [])].label}
-                  </span>
+                  {(() => {
+                    const s = deriveOrderState(order.status, items ?? []);
+                    const m = getOrderStateMeta(s, t);
+                    return (
+                      <span className={cn("inline-block px-1.5 py-0.5 rounded text-[10px] font-bold", m.tone)}>
+                        {m.label}
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -562,10 +569,10 @@ export default function TableOrder() {
               const c = countByStatus(items ?? []);
               return (
                 <div className="flex flex-wrap gap-1">
-                  {c.pending > 0 && <span className="g-pill g-pill-ghost g-pill-h20">{c.pending} pend</span>}
-                  {c.preparing > 0 && <span className="g-pill g-pill-warn g-pill-h20">{c.preparing} prep</span>}
-                  {c.ready > 0 && <span className="g-pill g-pill-sky g-pill-h20">{c.ready} ready</span>}
-                  {c.dispatched > 0 && <span className="g-pill g-pill-ok g-pill-h20">{c.dispatched} served</span>}
+                  {c.pending > 0 && <span className="g-pill g-pill-ghost g-pill-h20">{c.pending} {t("tables.item_status.pending_short") || "pend"}</span>}
+                  {c.preparing > 0 && <span className="g-pill g-pill-warn g-pill-h20">{c.preparing} {t("tables.item_status.preparing_short") || "prep"}</span>}
+                  {c.ready > 0 && <span className="g-pill g-pill-sky g-pill-h20">{c.ready} {t("tables.item_status.ready_short") || "ready"}</span>}
+                  {c.dispatched > 0 && <span className="g-pill g-pill-ok g-pill-h20">{c.dispatched} {t("tables.item_status.dispatched_short") || "served"}</span>}
                 </div>
               );
             })()}
@@ -608,7 +615,7 @@ export default function TableOrder() {
                 const status = it.status as TableItemStatus;
                 const cancelled = status === "cancelled";
                 const dispatched = status === "dispatched";
-                const meta = ITEM_STATUS_META[status];
+                const meta = getItemStatusMeta(status, t);
                 const steps: TableItemStatus[] = ["pending", "preparing", "ready", "dispatched"];
                 const idx = steps.indexOf(status);
                 return (
@@ -641,7 +648,7 @@ export default function TableOrder() {
                     {!cancelled && (isOpen || sent) && (
                       <div className="flex gap-1">
                         {steps.map((s, i) => {
-                          const stepMeta = ITEM_STATUS_META[s];
+                          const stepMeta = getItemStatusMeta(s, t);
                           const active = i === idx;
                           const done = i < idx;
                           const reachable = i === idx + 1 && isOpen;

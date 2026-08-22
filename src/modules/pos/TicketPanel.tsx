@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCart } from "@/stores/cart";
 import { formatCurrency } from "@/lib/format";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Minus, Plus, Trash2, ShoppingBag, X, Send } from "lucide-react";
 
 interface TicketPanelProps {
@@ -12,6 +13,7 @@ interface TicketPanelProps {
 }
 
 export function TicketPanel({ canCharge, onCharge, onSendToTable, reasonDisabled }: TicketPanelProps) {
+  const { t } = useLanguage();
   const { lines, remove, setQty, clear, subtotal, taxTotal, total } = useCart();
   const subtotalNum = subtotal();
   const taxNum = taxTotal();
@@ -24,14 +26,14 @@ export function TicketPanel({ canCharge, onCharge, onSendToTable, reasonDisabled
       <header className="px-4 py-3 border-b flex items-center justify-between bg-muted/30">
         <div className="flex items-center gap-2">
           <ShoppingBag className="h-4 w-4 text-primary" />
-          <span className="font-semibold">Ticket actual</span>
+          <span className="font-semibold">{t("pos.current_ticket") || "Current Ticket"}</span>
           {lines.length > 0 && (
-            <span className="text-xs text-muted-foreground tabular-nums">· {lines.reduce((s, l) => s + l.quantity, 0)} items</span>
+            <span className="text-xs text-muted-foreground tabular-nums">· {lines.reduce((s, l) => s + l.quantity, 0)} {t("pos.items") || "items"}</span>
           )}
         </div>
         {lines.length > 0 && (
           <Button variant="ghost" size="sm" onClick={clear} className="h-8">
-            <X className="h-4 w-4 mr-1" />Vaciar
+            <X className="h-4 w-4 mr-1" />{t("pos.clear_cart") || "Clear"}
           </Button>
         )}
       </header>
@@ -40,7 +42,7 @@ export function TicketPanel({ canCharge, onCharge, onSendToTable, reasonDisabled
         {lines.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground text-sm">
             <ShoppingBag className="h-10 w-10 mx-auto mb-3 opacity-30" />
-            Toca un producto para agregarlo al ticket
+            {t("pos.empty_ticket_hint") || "Tap a product to add it to the ticket"}
           </div>
         ) : (
           <ul className="divide-y">
@@ -58,12 +60,12 @@ export function TicketPanel({ canCharge, onCharge, onSendToTable, reasonDisabled
                         ))}
                       </div>
                     )}
-                    <div className="text-xs text-muted-foreground tabular-nums mt-0.5">{formatCurrency(Number(l.product.price))} c/u</div>
+                    <div className="text-xs text-muted-foreground tabular-nums mt-0.5">{formatCurrency(Number(l.product.price))} {t("pos.each") || "ea."}</div>
                   </div>
                   <button
                     onClick={() => remove(l.id)}
                     className="text-muted-foreground hover:text-destructive p-1 -m-1"
-                    aria-label="Eliminar"
+                    aria-label={t("common.delete") || "Delete"}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -87,10 +89,10 @@ export function TicketPanel({ canCharge, onCharge, onSendToTable, reasonDisabled
       </ScrollArea>
 
       <footer className="border-t bg-muted/30 p-4 space-y-1.5">
-        <Row label="Subtotal" value={formatCurrency(subtotalNum)} />
-        <Row label="Impuestos" value={formatCurrency(taxNum)} />
+        <Row label={t("pos.cart.subtotal") || "Subtotal"} value={formatCurrency(subtotalNum)} />
+        <Row label={t("pos.cart.taxes") || "Taxes"} value={formatCurrency(taxNum)} />
         <div className="flex items-baseline justify-between pt-2 border-t mt-2">
-          <span className="font-semibold">Total</span>
+          <span className="font-semibold">{t("common.total") || "Total"}</span>
           <span className="text-3xl font-bold text-primary tabular-nums">{formatCurrency(totalNum)}</span>
         </div>
         {reasonDisabled && (
@@ -104,7 +106,7 @@ export function TicketPanel({ canCharge, onCharge, onSendToTable, reasonDisabled
             disabled={lines.length === 0}
             onClick={onSendToTable}
           >
-            <Send className="h-5 w-5 mr-2" /> ENVIAR A MESA
+            <Send className="h-5 w-5 mr-2" /> {t("pos.send_to_table") || "SEND TO TABLE"}
           </Button>
         ) : (
           <Button
@@ -113,7 +115,7 @@ export function TicketPanel({ canCharge, onCharge, onSendToTable, reasonDisabled
             disabled={lines.length === 0 || !canCharge}
             onClick={onCharge}
           >
-            COBRAR {formatCurrency(totalNum)}
+            {t("pos.charge_btn") || "CHARGE"} {formatCurrency(totalNum)}
           </Button>
         )}
       </footer>

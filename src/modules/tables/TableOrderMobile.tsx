@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
-import { ITEM_STATUS_META, deriveOrderState, ORDER_STATE_META, countByStatus, type TableItemStatus } from "./itemStatus";
+import { getItemStatusMeta, deriveOrderState, getOrderStateMeta, countByStatus, type TableItemStatus } from "./itemStatus";
 
 type Tab = "products" | "order";
 
@@ -75,7 +75,7 @@ export function TableOrderMobile(props: Props) {
             {itemCount} items · {formatCurrency(Number(order?.total ?? 0))}
           </div>
         </div>
-        {(() => { const s = deriveOrderState(order?.status, items); const m = ORDER_STATE_META[s]; return <Badge className={cn("text-[10px]", m.tone)}>{m.label}</Badge>; })()}
+        {(() => { const s = deriveOrderState(order?.status, items); const m = getOrderStateMeta(s, t); return <Badge className={cn("text-[10px]", m.tone)}>{m.label}</Badge>; })()}
       </header>
 
       {devMode && (
@@ -216,7 +216,7 @@ export function TableOrderMobile(props: Props) {
                 const status = it.status as TableItemStatus;
                 const cancelled = status === "cancelled";
                 const dispatched = status === "dispatched";
-                const meta = ITEM_STATUS_META[status];
+                const meta = getItemStatusMeta(status, t);
                 const steps: TableItemStatus[] = ["pending", "preparing", "ready", "dispatched"];
                 const idx = steps.indexOf(status);
                 return (
@@ -248,7 +248,7 @@ export function TableOrderMobile(props: Props) {
                     {!cancelled && (isOpen || sent) && (
                       <div className="flex gap-1">
                         {steps.map((s, i) => {
-                          const sm = ITEM_STATUS_META[s];
+                          const sm = getItemStatusMeta(s, t);
                           const active = i === idx;
                           const done = i < idx;
                           const reachable = i === idx + 1 && isOpen;

@@ -60,3 +60,29 @@ export function countByStatus(items: Array<{ status: string }>) {
     cancelled:  items.filter((i) => i.status === "cancelled").length,
   };
 }
+
+export function getOrderStateMeta(
+  state: DerivedOrderState,
+  t?: (key: string) => string,
+): { label: string; tone: string } {
+  const meta = ORDER_STATE_META[state];
+  if (!t) return meta;
+  return {
+    ...meta,
+    label: t(`tables.state.${state}`) || meta.label,
+  };
+}
+
+export function getItemStatusMeta(
+  status: TableItemStatus,
+  t?: (key: string) => string,
+): { label: string; short: string; tone: string; dot: string } {
+  const meta = ITEM_STATUS_META[status];
+  if (!t) return meta;
+  return {
+    ...meta,
+    label: t(`tables.item_status.${status}`) || meta.label,
+    short: t(`tables.item_status.${status}_short`) || meta.short,
+  };
+}
+

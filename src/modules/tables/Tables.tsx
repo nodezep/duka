@@ -11,7 +11,9 @@ import {
   LayoutGrid, Monitor, Smartphone, ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
-import { deriveOrderState, ORDER_STATE_META, countByStatus } from "./itemStatus";
+import { useLanguage } from "@/hooks/useLanguage";
+import { formatErrorMessage } from "@/lib/formatError";
+import { deriveOrderState, getOrderStateMeta, countByStatus } from "./itemStatus";
 import { Table } from "@/types/table";
 import "./tables.css";
 
@@ -92,10 +94,11 @@ function TableTile({
   onClick: () => void;
   onDragStart: (e: React.DragEvent<HTMLDivElement>) => void;
 }) {
+  const { t } = useLanguage();
   const items = (order?.table_order_items ?? []) as Array<{ status: string }>;
   const state = order ? deriveOrderState(order.status, items) : null;
   const themeClass = getTileThemeClass(state);
-  const meta = state ? ORDER_STATE_META[state] : null;
+  const meta = state ? getOrderStateMeta(state, t) : null;
 
   return (
     <div
@@ -140,6 +143,7 @@ function TablePanel({
   onOpen: () => void;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const items = (order?.table_order_items ?? []) as Array<{ status: string }>;
   const state = order ? deriveOrderState(order.status, items) : null;
   const themeClass = getTileThemeClass(state);
@@ -159,7 +163,7 @@ function TablePanel({
           </div>
           <div className="flex items-center gap-1.5 tbl-panel-cap">
             <Users size={11} color="var(--ink-400)" />
-            <span className="h-meta">{table.capacity} pax</span>
+            <span className="h-meta">{table.capacity} {t("tables.pax") || "pax"}</span>
           </div>
         </div>
         <button
@@ -179,10 +183,10 @@ function TablePanel({
           <div className="tbl-panel-empty-state">
             <div className="g-dot-brand g-dot tbl-panel-empty-dot" />
             <div className="h-label tbl-panel-empty-title">
-              Mesa libre
+              {t("tables.free_table") || "Free Table"}
             </div>
             <div className="h-meta tbl-panel-empty-meta">
-              Sin pedido activo
+              {t("tables.no_active_order") || "No active order"}
             </div>
           </div>
 
@@ -191,7 +195,7 @@ function TablePanel({
             onClick={onOpen}
             className="g-btn g-btn-primary g-btn-touch tbl-panel-cta-btn"
           >
-            Abrir mesa
+            {t("tables.open_table") || "Open Table"}
             <ChevronRight size={16} />
           </button>
         </div>
@@ -201,14 +205,14 @@ function TablePanel({
           {/* Waiter + state */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex flex-col gap-0.5">
-              <div className="h-label">Mesero</div>
+              <div className="h-label">{t("tables.waiter") || "Waiter"}</div>
               <div className="g-num-14 tbl-panel-waiter-name">
                 {waiterName ?? "—"}
               </div>
             </div>
             {state && (
               <div className="g-pill g-pill-h22 tbl-panel-state-pill tbl-pill-theme">
-                {ORDER_STATE_META[state].label}
+                {getOrderStateMeta(state, t).label}
               </div>
             )}
           </div>
@@ -217,28 +221,28 @@ function TablePanel({
           <div className="glass-thin rounded-xl flex items-center gap-3 tbl-panel-chips-wrap">
             {counts.pending > 0 && (
               <StatChip
-                label="Pend."
+                label={t("tables.item_status.pending_short") || "Pend."}
                 count={counts.pending}
                 dotColor="tbl-dot-ink-300"
               />
             )}
             {counts.preparing > 0 && (
               <StatChip
-                label="Prep."
+                label={t("tables.item_status.preparing_short") || "Prep."}
                 count={counts.preparing}
                 dotColor="tbl-dot-warn"
               />
             )}
             {counts.ready > 0 && (
               <StatChip
-                label="Listo"
+                label={t("tables.item_status.ready_short") || "Ready"}
                 count={counts.ready}
                 dotColor="tbl-dot-ok"
               />
             )}
             {counts.dispatched > 0 && (
               <StatChip
-                label="Servido"
+                label={t("tables.item_status.dispatched_short") || "Served"}
                 count={counts.dispatched}
                 dotColor="tbl-dot-ink-300"
               />
@@ -247,13 +251,13 @@ function TablePanel({
               counts.preparing === 0 &&
               counts.ready === 0 &&
               counts.dispatched === 0 && (
-                <span className="h-meta">Sin ítems activos</span>
+                <span className="h-meta">{t("tables.no_active_items") || "No active items"}</span>
               )}
           </div>
 
           {/* Total */}
           <div className="flex items-center justify-between">
-            <div className="h-label">Total</div>
+            <div className="h-label">{t("common.total") || "Total"}</div>
             <div className="g-num-22 tbl-panel-total-val">
               {formatCurrency(total)}
             </div>
@@ -267,7 +271,7 @@ function TablePanel({
             onClick={onOpen}
             className="g-btn g-btn-primary g-btn-touch tbl-panel-cta-btn"
           >
-            Ver comanda
+            {t("tables.view_order") || "View order"}
             <ChevronRight size={16} />
           </button>
         </div>
@@ -285,10 +289,11 @@ function ViewToggle({
   viewMode: string;
   onChange: (m: string) => void;
 }) {
+  const { t } = useLanguage();
   const opts = [
-    { value: "cards", icon: <LayoutGrid size={14} />, title: "Tarjetas" },
-    { value: "board_16_9", icon: <Monitor size={14} />, title: "Tablero 16:9" },
-    { value: "board_9_16", icon: <Smartphone size={14} />, title: "Tablero 9:16" },
+    { value: "cards", icon: <LayoutGrid size={14} />, title: t("tables.view.cards") || "Cards" },
+    { value: "board_16_9", icon: <Monitor size={14} />, title: t("tables.view.board_16_9") || "Board 16:9" },
+    { value: "board_9_16", icon: <Smartphone size={14} />, title: t("tables.view.board_9_16") || "Board 9:16" },
   ];
 
   return (
@@ -313,6 +318,7 @@ function ViewToggle({
 export default function Tables() {
   const { tenantId, branchId, branches, hasRole } = useTenantContext();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const { devMode } = useDevMode();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -440,7 +446,7 @@ export default function Tables() {
       })
       .select()
       .single();
-    if (error) return toast.error(error.message);
+    if (error) return toast.error(formatErrorMessage(error, { language }));
     qc.invalidateQueries({ queryKey: ["table-orders-open"] });
     qc.invalidateQueries({ queryKey: ["tables"] });
     navigate(`/tables/${data.id}`);
@@ -459,7 +465,7 @@ export default function Tables() {
       qc.invalidateQueries({ queryKey: ["branches-admin"] });
     } catch (err) {
       console.error(err);
-      toast.error("Error al guardar preferencia de vista");
+      toast.error(formatErrorMessage(err, { language }));
       setLocalViewMode(branch?.table_view_mode || "cards");
     }
   };
@@ -503,7 +509,7 @@ export default function Tables() {
       .from("tables")
       .update({ x_pos: xPos, y_pos: yPos })
       .eq("id", tableId);
-    if (error) toast.error("Error al guardar posición");
+    if (error) toast.error(formatErrorMessage(error, { language }));
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -540,7 +546,7 @@ export default function Tables() {
   if (!tenantId || !branchId || !user) {
     return (
       <div className="flex items-center justify-center p-8 tbl-page-loading">
-        Cargando…
+        {t("common.loading") || "Loading…"}
       </div>
     );
   }
@@ -561,7 +567,7 @@ export default function Tables() {
         <div className="flex items-center gap-3">
           <div>
             <div className="h-display tbl-page-title">
-              Mesas
+              {t("nav.tables") || "Tables"}
             </div>
             <div className="h-meta tbl-page-meta">
               {branchName}
@@ -569,13 +575,13 @@ export default function Tables() {
           </div>
         </div>
         <div className="glass flex flex-col items-center justify-center gap-4 rounded-3xl tbl-empty-card">
-          <div className="h-label">No hay mesas configuradas en esta sucursal.</div>
+          <div className="h-label">{t("tables.empty.desc") || "No tables configured in this branch."}</div>
           <button
             type="button"
             className="g-btn g-btn-ghost"
             onClick={() => navigate("/settings")}
           >
-            Ir a Configuración
+            {t("tables.empty.btn") || "Go to Settings"}
           </button>
         </div>
       </div>
@@ -591,10 +597,10 @@ export default function Tables() {
         <div className="flex items-center gap-3">
           <div>
             <div className="h-display tbl-page-title">
-              Mesas
+              {t("nav.tables") || "Tables"}
             </div>
             <div className="h-meta tbl-page-meta">
-              {branchName} · {tables?.length ?? 0} mesas
+              {branchName} · {tables?.length ?? 0} {t("tables.count_suffix") || "tables"}
             </div>
           </div>
           <div className="tbl-flex-1" />
@@ -608,11 +614,11 @@ export default function Tables() {
               >
                 {editMode ? (
                   <>
-                    <Check size={14} /> Listo
+                    <Check size={14} /> {t("common.done") || "Done"}
                   </>
                 ) : (
                   <>
-                    <Edit2 size={14} /> Editar plano
+                    <Edit2 size={14} /> {t("tables.edit_layout") || "Edit layout"}
                   </>
                 )}
               </button>
@@ -623,8 +629,7 @@ export default function Tables() {
         {devMode && (
           <div className="g-dev-banner">
             <FlaskConical size={14} />
-            Modo Desarrollo activo · Las ventas de mesa no validan stock ni
-            requieren caja abierta
+            {t("tables.dev_mode_banner") || "Development Mode active · Table orders bypass stock validation and do not require an open register"}
           </div>
         )}
 
@@ -633,24 +638,24 @@ export default function Tables() {
           onDrop={handleDrop}
           onDragOver={handleDragOver}
         >
-          {(tables ?? []).map((t) => {
-            const order = orderByTable[t.id];
+          {(tables ?? []).map((tItem) => {
+            const order = orderByTable[tItem.id];
             const items = (order?.table_order_items ?? []) as Array<{
               status: string;
             }>;
             const state = order ? deriveOrderState(order.status, items) : null;
             const themeClass = getTileThemeClass(state);
-            const meta = state ? ORDER_STATE_META[state] : null;
-            const left = t.x_pos != null ? `${t.x_pos}%` : "0%";
-            const top = t.y_pos != null ? `${t.y_pos}%` : "0%";
+            const meta = state ? getOrderStateMeta(state, t) : null;
+            const left = tItem.x_pos != null ? `${tItem.x_pos}%` : "0%";
+            const top = tItem.y_pos != null ? `${tItem.y_pos}%` : "0%";
 
             return (
               <div
-                key={t.id}
+                key={tItem.id}
                 draggable={editMode}
-                onDragStart={(e) => handleDragStart(e, t.id)}
+                onDragStart={(e) => handleDragStart(e, tItem.id)}
                 className={`glass tbl-tile tbl-bg-theme ${themeClass} ${editMode ? "cursor-grab" : "cursor-pointer"}`}
-                onClick={() => openTable(t.id)}
+                onClick={() => openTable(tItem.id)}
                 {...{
                   style: {
                     position: "absolute",
@@ -662,11 +667,11 @@ export default function Tables() {
                 }}
               >
                 <div className="g-title-14 tbl-tile-title tbl-text-theme">
-                  {t.name}
+                  {tItem.name}
                 </div>
                 <div className="flex items-center gap-1 tbl-tile-cap">
                   <Users size={9} />
-                  <span>{t.capacity}</span>
+                  <span>{tItem.capacity}</span>
                 </div>
                 {meta && (
                   <div className="tbl-tile-badge tbl-text-theme">
@@ -689,10 +694,10 @@ export default function Tables() {
       <div className="flex items-center gap-3">
         <div>
           <div className="h-display tbl-page-title">
-            Mesas
+            {t("nav.tables") || "Tables"}
           </div>
           <div className="h-meta tbl-page-meta">
-            {branchName} · {tables?.length ?? 0} mesas
+            {branchName} · {tables?.length ?? 0} {t("tables.count_suffix") || "tables"}
           </div>
         </div>
         <div className="tbl-flex-1" />
@@ -705,37 +710,36 @@ export default function Tables() {
       {devMode && (
         <div className="g-dev-banner">
           <FlaskConical size={14} />
-          Modo Desarrollo activo · Las ventas de mesa no validan stock ni
-          requieren caja abierta
+          {t("tables.dev_mode_banner") || "Development Mode active · Table orders bypass stock validation and do not require an open register"}
         </div>
       )}
 
       {/* ── Legend bar ── */}
       <div className="glass flex items-center gap-5 rounded-2xl tbl-grid-wrap">
         <StatChip
-          label="Ocupadas"
+          label={t("tables.stat.occupied") || "Occupied"}
           count={statCounts.occupied}
           dotColor="tbl-dot-brand"
         />
         <StatChip
-          label="Listas"
+          label={t("tables.stat.ready") || "Ready"}
           count={statCounts.ready}
           dotColor="tbl-dot-ok"
         />
         <StatChip
-          label="En caja"
+          label={t("tables.stat.in_cashier") || "At Cashier"}
           count={statCounts.inCashier}
           dotColor="tbl-dot-warn"
         />
         <StatChip
-          label="Libres"
+          label={t("tables.stat.free") || "Free"}
           count={statCounts.free}
           dotColor="tbl-dot-ink-200"
         />
         <div className="tbl-flex-1" />
         <div className="flex items-center gap-1.5 h-meta tbl-page-meta">
           <Clock size={12} />
-          <span>Actualización automática cada 15 s</span>
+          <span>{t("tables.auto_update") || "Auto update every 15s"}</span>
         </div>
       </div>
 
@@ -744,21 +748,21 @@ export default function Tables() {
         {/* Floor plan grid */}
         <div className="glass rounded-2xl tbl-main-scroll">
           <div className="tbl-grid-container-sm">
-            {(tables ?? []).map((t) => (
+            {(tables ?? []).map((tItem) => (
               <TableTile
-                key={t.id}
-                table={t}
-                order={orderByTable[t.id]}
-                selected={selectedId === t.id}
+                key={tItem.id}
+                table={tItem}
+                order={orderByTable[tItem.id]}
+                selected={selectedId === tItem.id}
                 editMode={false}
                 onClick={() => {
-                  if (selectedId === t.id) {
+                  if (selectedId === tItem.id) {
                     setSelectedId(null);
                   } else {
-                    setSelectedId(t.id);
+                    setSelectedId(tItem.id);
                   }
                 }}
-                onDragStart={(e) => handleDragStart(e, t.id)}
+                onDragStart={(e) => handleDragStart(e, tItem.id)}
               />
             ))}
           </div>

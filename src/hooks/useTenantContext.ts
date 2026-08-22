@@ -84,18 +84,26 @@ export function useTenantContext() {
     !loadingRoles &&
     tenantMemberships.length > 0;
 
+  const tenant = useMemo<TenantSummary | null>(() => {
+    const tenantObj = memberships?.find((m) => m.tenant_id === tenantId)?.tenants;
+    if (isTenantSummary(tenantObj)) {
+      return tenantObj;
+    }
+    return null;
+  }, [memberships, tenantId]);
+
   // Active channels from the domain tenant
   const activeChannels = useMemo(() => {
-    const tenantObj = memberships?.find((m) => m.tenant_id === tenantId)?.tenants;
-    if (isTenantSummary(tenantObj) && Array.isArray(tenantObj.active_channels)) {
-      return tenantObj.active_channels;
+    if (tenant && Array.isArray(tenant.active_channels)) {
+      return tenant.active_channels;
     }
     return ["pos", "qr", "delivery", "tables"];
-  }, [memberships, tenantId]);
+  }, [tenant]);
 
   return {
     tenantId,
     branchId,
+    tenant,
     setTenant,
     setBranch,
     memberships: memberships ?? [],

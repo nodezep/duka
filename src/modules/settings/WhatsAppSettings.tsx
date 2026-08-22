@@ -77,7 +77,7 @@ export default function WhatsAppSettings() {
 
   // ── Save ──────────────────────────────────────────────────
   const save = async () => {
-    if (!instance.trim()) return toast.error("Ingresa el nombre de instancia de Evolution API");
+    if (!instance.trim()) return toast.error("Please enter the Evolution API instance name");
     if (!selectedBranch || !tenantId) return;
     setSaving(true);
     try {
@@ -94,7 +94,7 @@ export default function WhatsAppSettings() {
         ? await supabase.from("ai_channel_configs").update(payload).eq("id", config.id)
         : await supabase.from("ai_channel_configs").insert(payload);
       if (error) throw error;
-      toast.success(t("whatsapp.settings.save"));
+      toast.success(t("whatsapp.settings.save") || "Settings saved");
       qc.invalidateQueries({ queryKey: ["ai-channel-config"] });
     } catch (e: any) {
       toast.error(e.message);
@@ -105,7 +105,7 @@ export default function WhatsAppSettings() {
 
   const copyWebhook = async () => {
     await navigator.clipboard.writeText(EVO_WEBHOOK);
-    toast.success("URL del webhook copiada");
+    toast.success("Webhook URL copied to clipboard");
   };
 
   // ── Connection test ───────────────────────────────────────

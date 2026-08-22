@@ -15,6 +15,8 @@ import { toast } from "sonner";
 import { useHardware } from "@/hooks/useHardware";
 import { useBarcodeLookup } from "@/hooks/useBarcodeLookup";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useTenantContext } from "@/hooks/useTenantContext";
+import { useAuth } from "@/hooks/useAuth";
 import { ScanBarcode, Loader2, Globe, Plus, Trash2, GripVertical, ImagePlus, X } from "lucide-react";
 
 const TYPES = ["simple", "composite", "production", "combo", "ingredient", "modifier"] as const;
@@ -287,8 +289,30 @@ function ComplementariesEditor({ tenantId, productId }: { tenantId: string; prod
 
 export function ProductForm({ tenantId, categories, editing, onClose }: Props) {
   const { t } = useLanguage();
+  const { tenant, branchId } = useTenantContext();
+  const { user } = useAuth();
+  const defaultTaxRate = tenant?.tax_rate != null ? Number(tenant.tax_rate) : 18;
+
   const [form, setForm] = useState<any>(
-    editing ?? { name: "", product_type: "simple", price: 0, cost: 0, tax_rate: 19, min_stock: 0, status: "active", category_id: null, sku: "", barcode: "", color: "#c2410c", station: null, description: "", sort_order: 0, image_url: null, requires_detail: false }
+    editing ?? {
+      name: "",
+      product_type: "simple",
+      price: 0,
+      cost: 0,
+      tax_rate: defaultTaxRate,
+      initial_stock: 0,
+      min_stock: 0,
+      status: "active",
+      category_id: null,
+      sku: "",
+      barcode: "",
+      color: "#c2410c",
+      station: null,
+      description: "",
+      sort_order: 0,
+      image_url: null,
+      requires_detail: false,
+    }
   );
   const [saving, setSaving] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -377,6 +401,7 @@ export function ProductForm({ tenantId, categories, editing, onClose }: Props) {
     e.preventDefault();
     setSaving(true);
     try {
+      const initialQty = Number(form.initial_stock || 0);
       const payload = {
         ...form, tenant_id: tenantId,
         price: Number(form.price), cost: Number(form.cost),
@@ -385,14 +410,34 @@ export function ProductForm({ tenantId, categories, editing, onClose }: Props) {
       };
       delete (payload as any).categories;
       delete (payload as any).modifier_groups;
+      delete (payload as any).initial_stock;
+
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
         if (error) throw error;
         toast.success(t("prod.updated"));
       } else {
-        const { error } = await supabase.from("products").insert(payload);
+        const { data: newProduct, error } = await supabase.from("products").insert(payload).select("id").single();
         if (error) throw error;
         toast.success(t("prod.created"));
+
+        if (initialQty > 0 && branchId && newProduct?.id) {
+          try {
+            await supabase.rpc("apply_inventory_movement", {
+              _tenant_id: tenantId,
+              _branch_id: branchId,
+              _product_id: newProduct.id,
+              _movement_type: "adjustment",
+              _quantity: initialQty,
+              _reason: "Initial stock on product creation",
+              _reference_type: "product_creation",
+              _reference_id: null,
+              _user_id: user?.id,
+            });
+          } catch (stockErr) {
+            console.warn("Could not register initial stock movement:", stockErr);
+          }
+        }
       }
       onClose();
     } catch (err: any) { toast.error(err.message); } finally { setSaving(false); }
@@ -511,10 +556,22 @@ export function ProductForm({ tenantId, categories, editing, onClose }: Props) {
                 <Input type="number" value={form.tax_rate} onChange={(e) => setForm({ ...form, tax_rate: e.target.value })} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className={`grid ${!editing ? "grid-cols-3" : "grid-cols-2"} gap-3`}>
               <div className="space-y-1.5"><Label>{t("prod.sku")}</Label>
                 <Input value={form.sku ?? ""} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
               </div>
+              {!editing && (
+                <div className="space-y-1.5">
+                  <Label>{t("prod.initial_stock") || "Initial Stock"}</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={form.initial_stock ?? 0}
+                    onChange={(e) => setForm({ ...form, initial_stock: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+              )}
               <div className="space-y-1.5"><Label>{t("prod.min_stock")}</Label>
                 <Input type="number" value={form.min_stock} onChange={(e) => setForm({ ...form, min_stock: e.target.value })} />
               </div>

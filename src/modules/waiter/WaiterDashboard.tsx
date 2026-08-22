@@ -9,9 +9,8 @@ import {
   Plus, Bike, ScanLine, Receipt, Users, UtensilsCrossed,
   ChevronRight, X, Send, AlertTriangle, CheckCircle2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-import { deriveOrderState, ORDER_STATE_META, countByStatus } from "@/modules/tables/itemStatus";
+import { useLanguage } from "@/hooks/useLanguage";
+import { deriveOrderState, getOrderStateMeta, countByStatus } from "@/modules/tables/itemStatus";
 import { GearMark } from "@/components/shared/GearMark";
 import { LiveDot } from "@/components/shared/LiveDot";
 
@@ -19,9 +18,10 @@ import { LiveDot } from "@/components/shared/LiveDot";
 function TableDrawer({ table, order, items, onClose, onNavigate }: {
   table: any; order: any; items: any[]; onClose: () => void; onNavigate: () => void;
 }) {
+  const { t } = useLanguage();
   const totalAmt = Number(order?.total ?? 0);
   const orderState = order ? deriveOrderState(order.status, items) : null;
-  const meta = orderState ? ORDER_STATE_META[orderState] : null;
+  const meta = orderState ? getOrderStateMeta(orderState, t) : null;
 
   return (
     <div
@@ -125,9 +125,10 @@ function TableDrawer({ table, order, items, onClose, onNavigate }: {
 function TableCard({ table, order, items, isMine, onOpen }: {
   table: any; order: any; items: any[]; isMine: boolean; onOpen: () => void;
 }) {
+  const { t } = useLanguage();
   const occupied = !!order;
   const state = occupied ? deriveOrderState(order.status, items) : null;
-  const meta = state ? ORDER_STATE_META[state] : null;
+  const meta = state ? getOrderStateMeta(state, t) : null;
   const totalAmt = Number(order?.total ?? 0);
 
   const cardClass = !occupied
@@ -197,6 +198,7 @@ const QUICK_ACTIONS = [
 export default function WaiterDashboard() {
   const { tenantId, branchId, branches } = useTenantContext();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -401,22 +403,22 @@ export default function WaiterDashboard() {
             {(tables ?? []).length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
                 <UtensilsCrossed className="h-10 w-10 text-muted-foreground/50" />
-                <p className="text-sm text-muted-foreground">No hay mesas configuradas</p>
+                <p className="text-sm text-muted-foreground">{t("tables.empty.desc") || "No tables configured"}</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
-                {(tables ?? []).map((t: any) => {
-                  const order = orderByTable[t.id];
+                {(tables ?? []).map((tItem: any) => {
+                  const order = orderByTable[tItem.id];
                   const items = order ? (itemsByOrder[order.id] ?? []) : [];
-                  const isMine = t.assigned_waiter_id === user.id || order?.waiter_id === user.id;
+                  const isMine = tItem.assigned_waiter_id === user.id || order?.waiter_id === user.id;
                   return (
                     <TableCard
-                      key={t.id}
-                      table={t}
+                      key={tItem.id}
+                      table={tItem}
                       order={order}
                       items={items}
                       isMine={isMine}
-                      onOpen={() => { if (order) setDrawerTable(t); else openTable(t.id); }}
+                      onOpen={() => { if (order) setDrawerTable(tItem); else openTable(tItem.id); }}
                     />
                   );
                 })}
@@ -431,18 +433,18 @@ export default function WaiterDashboard() {
             {myOrders.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
                 <CheckCircle2 className="h-10 w-10 text-muted-foreground/50" />
-                <p className="text-sm text-muted-foreground">Sin comandas activas</p>
+                <p className="text-sm text-muted-foreground">{t("tables.no_active_order") || "No active orders"}</p>
               </div>
             ) : myOrders.map((o: any) => {
               const items = itemsByOrder[o.id] ?? [];
               const state = deriveOrderState(o.status, items);
-              const meta  = state ? ORDER_STATE_META[state] : null;
+              const meta  = state ? getOrderStateMeta(state, t) : null;
               const c     = countByStatus(items);
               return (
                 <button
                   key={o.id}
                   type="button"
-                  aria-label={`Abrir comanda de ${o.tables?.name ?? "Mesa"}`}
+                  aria-label={`${t("tables.view_order") || "Open order"} - ${o.tables?.name ?? "Table"}`}
                   onClick={() => navigate(`/tables/${o.id}`)}
                   className="w-full rounded-2xl border border-border bg-card p-4 text-left flex items-center gap-3 hover:border-primary/30 active:scale-[0.99] transition-all"
                 >
@@ -450,12 +452,12 @@ export default function WaiterDashboard() {
                     <UtensilsCrossed className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-base">{o.tables?.name ?? "Mesa"}</div>
+                    <div className="font-bold text-base">{o.tables?.name ?? (t("nav.tables") || "Table")}</div>
                     <div className="text-xs text-muted-foreground mt-0.5 flex gap-2 flex-wrap">
-                      {c.pending   > 0 && <span>{c.pending} pend.</span>}
-                      {c.preparing > 0 && <span className="text-amber-500">{c.preparing} prep.</span>}
-                      {c.ready     > 0 && <span className="text-sky-500">{c.ready} listo{c.ready !== 1 ? "s" : ""}</span>}
-                      {items.length === 0 && <span>Sin ítems</span>}
+                      {c.pending   > 0 && <span>{c.pending} {t("tables.item_status.pending_short") || "pend."}</span>}
+                      {c.preparing > 0 && <span className="text-amber-500">{c.preparing} {t("tables.item_status.preparing_short") || "prep."}</span>}
+                      {c.ready     > 0 && <span className="text-sky-500">{c.ready} {t("tables.item_status.ready_short") || "ready"}</span>}
+                      {items.length === 0 && <span>{t("tables.no_active_items") || "No items"}</span>}
                     </div>
                     {meta && <div className={cn("text-[10px] font-semibold mt-1", meta.tone)}>{meta.label}</div>}
                   </div>

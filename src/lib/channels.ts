@@ -2,18 +2,23 @@ import type { Database } from "@/integrations/supabase/types";
 
 export type SalesChannel = Database["public"]["Enums"]["sales_channel"];
 
-export const CHANNELS: { id: SalesChannel; label: string; short: string }[] = [
-  { id: "pos", label: "Presencial", short: "POS" },
-  { id: "tables", label: "Mesas / Comandas", short: "Mesas" },
-  { id: "rappi", label: "Rappi / Digital", short: "Rappi" },
-  { id: "whatsapp", label: "WhatsApp", short: "WA" },
-  { id: "didi", label: "Didi Food", short: "Didi" },
-  { id: "uber", label: "Uber Eats", short: "Uber" },
-  { id: "delivery", label: "Domicilio propio", short: "Domicilio" },
+export const CHANNELS: { id: SalesChannel; label: string; labelKey: string; short: string }[] = [
+  { id: "pos", label: "In-Store / Counter", labelKey: "channel.pos", short: "POS" },
+  { id: "tables", label: "Dine-In / Tables", labelKey: "channel.tables", short: "Tables" },
+  { id: "rappi", label: "Rappi / Digital", labelKey: "channel.rappi", short: "Rappi" },
+  { id: "whatsapp", label: "WhatsApp", labelKey: "channel.whatsapp", short: "WA" },
+  { id: "didi", label: "DiDi Food", labelKey: "channel.didi", short: "DiDi" },
+  { id: "uber", label: "Uber Eats", labelKey: "channel.uber", short: "Uber" },
+  { id: "delivery", label: "Direct Delivery", labelKey: "channel.delivery", short: "Delivery" },
 ];
 
-export const channelLabel = (c: SalesChannel) =>
-  CHANNELS.find((x) => x.id === c)?.label ?? c;
+export const channelLabel = (c: SalesChannel, t?: (key: string) => string) => {
+  if (t) {
+    const translated = t(`channel.${c}`);
+    if (translated && translated !== `channel.${c}`) return translated;
+  }
+  return CHANNELS.find((x) => x.id === c)?.label ?? c;
+};
 
 export type ChannelPriceRow = {
   product_id: string;

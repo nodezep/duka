@@ -1,6 +1,7 @@
 import { GearMark } from "@/components/shared/GearMark";
 import { LiveDot } from "@/components/shared/LiveDot";
 import { User } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface BrandBarProps {
   branch?:   string;
@@ -10,11 +11,13 @@ interface BrandBarProps {
 }
 
 export function BrandBar({
-  branch   = "Sucursal",
-  session  = "Caja #01",
-  channel  = "Local",
+  branch   = "Branch",
+  session  = "Register #01",
+  channel  = "In-Store",
   showSync = true,
 }: BrandBarProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="brand-bar shrink-0">
       {/* Lockup */}
@@ -29,7 +32,7 @@ export function BrandBar({
 
       {/* Branch */}
       <div>
-        <div className="eyebrow text-[9px]">SUCURSAL</div>
+        <div className="eyebrow text-[9px]">{t("pos.branch_eyebrow") || "BRANCH"}</div>
         <div className="text-[13px] font-semibold leading-tight mt-0.5">{branch}</div>
       </div>
 
@@ -45,7 +48,7 @@ export function BrandBar({
       {showSync && (
         <span className="s-pill s-pill-green">
           <LiveDot kind="green" />
-          SYNC OK
+          {t("pos.sync_ok") || "SYNC OK"}
         </span>
       )}
 

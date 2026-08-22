@@ -126,7 +126,7 @@ export default function SalesChannelsSettings() {
 
   const saveRappi = async () => {
     if (!tenantId || !branchId) return;
-    if (!rappiStoreId.trim()) return toast.error("Ingresa el Store ID de Rappi");
+    if (!rappiStoreId.trim()) return toast.error("Please enter the Rappi Store ID");
     setBusy("saveRappi");
     try {
       const payload = {
@@ -141,7 +141,7 @@ export default function SalesChannelsSettings() {
         ? await supabase.from("rappi_integrations").update(payload).eq("id", rappiInteg.id)
         : await supabase.from("rappi_integrations").insert(payload);
       if (error) throw error;
-      toast.success("Configuración de Rappi guardada");
+      toast.success("Rappi settings saved");
       qc.invalidateQueries({ queryKey: ["rappi-integration"] });
     } catch (e: any) {
       toast.error(e.message);
@@ -156,8 +156,8 @@ export default function SalesChannelsSettings() {
         body: { branch_id: branchId, store_id: rappiStoreId || rappiInteg?.store_id },
       });
       if (error) throw error;
-      if (data?.ok) toast.success("Conexión OK con Rappi");
-      else toast.error(`Falló: ${data?.error ?? "verifica credenciales"}`);
+      if (data?.ok) toast.success("Connection to Rappi successful");
+      else toast.error(`Connection failed: ${data?.error ?? "check credentials"}`);
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(null); }
   };
@@ -170,8 +170,8 @@ export default function SalesChannelsSettings() {
         body: { branch_id: branchId },
       });
       if (error) throw error;
-      if (data?.ok) toast.success(`Menú enviado · ${data.items} ítems`);
-      else toast.error(`Error: ${data?.error ?? "no se pudo enviar"}`);
+      if (data?.ok) toast.success(`Menu synchronized · ${data.items} items`);
+      else toast.error(`Error: ${data?.error ?? "could not sync menu"}`);
       qc.invalidateQueries({ queryKey: ["rappi-integration"] });
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(null); }
@@ -179,7 +179,7 @@ export default function SalesChannelsSettings() {
 
   const copyWebhook = async () => {
     await navigator.clipboard.writeText(RAPPI_WEBHOOK_URL);
-    toast.success("URL del webhook copiada");
+    toast.success("Webhook URL copied to clipboard");
   };
 
   if (loadingTenant) return <div className="h-meta">{t("common.loading") || "Loading..."}</div>;

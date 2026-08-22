@@ -34,7 +34,7 @@ export default function Onboarding() {
 
   const [businessName, setBusinessName] = useState("");
   const [branchName, setBranchName] = useState(() => t("onboarding.setup.branch_default"));
-  const [taxRate, setTaxRate] = useState("19");
+  const [taxRate, setTaxRate] = useState("18");
 
   const enterTenant = async (tenantId: string, branchId: string | null) => {
     setTenant(tenantId);

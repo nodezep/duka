@@ -13,6 +13,7 @@ import { useHardware } from "@/hooks/useHardware";
 import { toast } from "sonner";
 import { ScanBarcode, Globe, Loader2, Plus, Trash2, CheckCircle, AlertCircle, PackagePlus } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useTenantContext } from "@/hooks/useTenantContext";
 
 interface Center { id: string; name: string }
 
@@ -37,6 +38,8 @@ interface Props {
 }
 
 export function EanImportDialog({ tenantId, branchId, userId, centers, defaultCenterId, existingProducts, onClose }: Props) {
+  const { tenant } = useTenantContext();
+  const defaultTaxRate = tenant?.tax_rate != null ? Number(tenant.tax_rate) : 18;
   const [barcodeInput, setBarcodeInput] = useState("");
   const [lines, setLines] = useState<EanLine[]>([]);
   const [centerId, setCenterId] = useState(defaultCenterId ?? "");
@@ -151,7 +154,7 @@ export function EanImportDialog({ tenantId, branchId, userId, centers, defaultCe
             sku: line.newSku.trim() || null,
             barcode: line.barcode,
             product_type: "simple",
-            price: 0, cost: 0, tax_rate: 19, min_stock: 0,
+            price: 0, cost: 0, tax_rate: defaultTaxRate, min_stock: 0,
             status: "active",
           }).select("id").single();
           if (error) throw new Error(`${t("ean.toast.create_error")} "${line.newName}": ${error.message}`);

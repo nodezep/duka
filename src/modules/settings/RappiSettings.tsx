@@ -68,7 +68,7 @@ export default function RappiSettings() {
 
   const save = async () => {
     if (!tenantId || !branchId) return;
-    if (!storeId.trim()) return toast.error("Ingresa el Store ID de Rappi");
+    if (!storeId.trim()) return toast.error("Please enter the Rappi Store ID");
     setBusy("save");
     try {
       const payload = {
@@ -83,7 +83,7 @@ export default function RappiSettings() {
         ? await supabase.from("rappi_integrations").update(payload).eq("id", integ.id)
         : await supabase.from("rappi_integrations").insert(payload);
       if (error) throw error;
-      toast.success("Integración guardada");
+      toast.success("Integration settings saved");
       qc.invalidateQueries({ queryKey: ["rappi-integration"] });
     } catch (e: any) {
       toast.error(e.message);
@@ -98,8 +98,8 @@ export default function RappiSettings() {
         body: { branch_id: branchId, store_id: storeId || integ?.store_id },
       });
       if (error) throw error;
-      if (data?.ok) toast.success("Conexión OK con Rappi");
-      else toast.error(`Falló: ${data?.error ?? "verifica credenciales"}`);
+      if (data?.ok) toast.success("Connection to Rappi successful");
+      else toast.error(`Connection failed: ${data?.error ?? "check credentials"}`);
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(null); }
   };
@@ -112,8 +112,8 @@ export default function RappiSettings() {
         body: { branch_id: branchId },
       });
       if (error) throw error;
-      if (data?.ok) toast.success(`Menú enviado · ${data.items} ítems`);
-      else toast.error(`Error: ${data?.error ?? "no se pudo enviar"}`);
+      if (data?.ok) toast.success(`Menu synchronized · ${data.items} items`);
+      else toast.error(`Error: ${data?.error ?? "could not sync menu"}`);
       qc.invalidateQueries({ queryKey: ["rappi-integration"] });
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(null); }
@@ -121,7 +121,7 @@ export default function RappiSettings() {
 
   const copyWebhook = async () => {
     await navigator.clipboard.writeText(WEBHOOK_URL);
-    toast.success("URL del webhook copiada");
+    toast.success("Webhook URL copied to clipboard");
   };
 
   if (isLoading) return <div className="text-muted-foreground">Cargando…</div>;

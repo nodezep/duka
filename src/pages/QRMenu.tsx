@@ -81,7 +81,7 @@ export default function QRMenu() {
     if (!branchId) return;
     supabase.rpc("get_branch_menu", { _branch_id: branchId } as any)
       .then(({ data, error }) => {
-        if (error || !data) { toast.error("No se pudo cargar el menú"); setLoading(false); return; }
+        if (error || !data) { toast.error("Could not load the menu"); setLoading(false); return; }
         const parsed = data as any;
         const activeCats = (parsed.categories ?? []).filter((c: Category) => isCatActive(c) && c.products.length > 0);
         setMenu({ branch: parsed.branch, categories: activeCats });
